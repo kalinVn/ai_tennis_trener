@@ -1,0 +1,13 @@
+# DevOps Coordination Workflow
+
+Use as the coordination point for delivery and infrastructure work spanning Docker, GitHub Actions, CI/CD, AWS, or Kubernetes. Inspect existing infrastructure first, preserve separate development and production environments, and keep infrastructure changes reviewable through Git.
+
+Route implementation details without duplicating their guidance:
+
+- Read `codex/workflows/setup-infrastructure.md` and `docs/infrastucture/docker/docker.md` for local Docker work.
+- Read `codex/workflows/setup-production.md` for CI/CD and production preparation.
+- Read `codex/workflows/manage-kubernetes.md` for Kubernetes work.
+
+Preserve Docker Compose for local development. Prepare production services to scale independently through container builds, a registry, Kubernetes, and AWS. Use secure GitHub-to-AWS authentication and prefer OIDC or other short-lived credentials.
+
+Validate coordinated infrastructure changes. Keep secrets outside source control and never deploy automatically without explicit authorization.
