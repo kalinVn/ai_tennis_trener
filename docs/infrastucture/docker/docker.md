@@ -2,21 +2,17 @@
 
 ## Purpose
 
-Define the Docker architecture for Tennis AI Coach.
+Define the Docker architecture and requirements for the Tennis AI Coach local development environment.
 
-Docker provides the reproducible local development environment for application and infrastructure services.
+This document is the source of truth for Docker infrastructure.
 
-Use Linux containers.
-
-Operational setup, rebuild, validation, and verification belong in:
+Operational setup and rebuild logic belongs in:
 
 `.claude/commands/setup-infrastructure.md`
 
-## Service Architecture
+## Services
 
-Each major application component must remain independently containerized.
-
-Required services when implemented:
+The local environment must provide these services:
 
 - `client` — Vue 3 user application
 - `admin` — Vue 3 admin application
@@ -24,17 +20,17 @@ Required services when implemented:
 - `postgres` — PostgreSQL database
 - `redis` — cache and realtime state
 
-Additional services when implemented:
+Add only when implemented:
 
-- `realtime` — realtime/WebSocket service
-- `vision` — computer vision service
-- `worker` — background processing
+- `realtime`
+- `vision`
+- `worker`
+
+Each major application component must run as an independent service.
 
 Do not create one all-in-one application container.
 
-PostgreSQL and Redis alone do not constitute a complete development environment.
-
-If `client`, `admin`, or `api` exist in the repository, they must have corresponding Docker services and containers.
+PostgreSQL and Redis alone do not constitute a complete local development environment.
 
 ## Container Architecture
 
@@ -44,12 +40,12 @@ Expected base topology:
 Browser
    │
    ├──→ client
-   │      │
-   │      └──→ api
+   │       │
+   │       └──→ api
    │
    └──→ admin
-          │
-          └──→ api
+           │
+           └──→ api
 
 api
  ├──→ postgres

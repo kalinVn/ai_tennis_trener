@@ -4,7 +4,7 @@ Use after application or infrastructure changes to validate only the affected sy
 
 Read `AGENTS.md`, the applicable setup workflow, the relevant infrastructure guide, and only the changed files and configuration needed for the tests. Inspect the repository before selecting commands; do not assume files listed in `claude/PROJECT_STRUCTURE.md` exist.
 
-Test applicable frontend, backend, API, authentication, database, payments, Docker, realtime, Vision, and integration behavior. When Docker is affected, verify applicable Compose configuration, image builds, container startup and health, PostgreSQL and Redis connectivity, API responses, frontend-to-API access, required volumes, and required networks.
+Test only infrastructure and application services that can currently run. When Docker is affected, verify applicable Compose configuration, available image builds, available container startup and health, PostgreSQL and Redis connectivity, required volumes, and required networks. Test API responses and frontend-to-API access only when the corresponding application source and services exist. Missing application source is `PENDING APPLICATION BUILD`, not an infrastructure-test failure.
 
 Never delete production data or persistent volumes without explicit permission. Do not hide failures, disable tests to obtain a passing result, or claim success when a required test failed. Fix only safe, clearly in-scope issues when the requested work authorizes fixes.
 

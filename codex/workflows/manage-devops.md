@@ -11,4 +11,6 @@ Route implementation details without duplicating their guidance:
 
 Preserve Docker Compose for local development. Prepare production services to scale independently through container builds, a registry, Kubernetes, and AWS. Use secure GitHub-to-AWS authentication and prefer OIDC or other short-lived credentials.
 
+Keep infrastructure work separate from application construction. Docker workflows may prepare application-service definitions before source exists, but must not scaffold application code; report unavailable services as `PENDING APPLICATION BUILD`.
+
 Validate coordinated infrastructure changes. Keep secrets outside source control and never deploy automatically without explicit authorization.

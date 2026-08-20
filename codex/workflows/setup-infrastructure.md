@@ -1,33 +1,31 @@
 # Setup Infrastructure Workflow
 
-Use to set up, rebuild, validate, or maintain the complete local Docker development environment. This workflow orchestrates local Docker work only; it does not authorize Kubernetes, AWS, or production-cloud changes.
+Use to set up, rebuild, validate, or maintain local Docker infrastructure. This workflow manages infrastructure only: never create Vue, frontend, admin, FastAPI, backend, business-logic, route, or component source. Application code belongs to separate application-build workflows.
 
-Read `AGENTS.md`, `codex/workflows/manage-devops.md`, and the Docker guide, then inspect implemented services and existing Docker files. The current guide is `docs/infrastucture/docker/docker.md`; prefer `docs/infrastructure/docker.md` if the repository later adopts the intended path. Read `codex/workflows/setup-production.md` only when CI/CD configuration is affected. Use `codex/workflows/testing-infrastructure.md`, `codex/workflows/code-review-infrastructure.md`, and `codex/workflows/verification-infrastructure.md` for post-implementation validation. Load no unrelated documentation.
+Read `AGENTS.md`, `codex/workflows/manage-devops.md`, and `docs/infrastucture/docker/docker.md`, then inspect the repository and current Docker state. Use `codex/workflows/testing-infrastructure.md`, `codex/workflows/code-review-infrastructure.md`, and `codex/workflows/verification-infrastructure.md` in that order after implementation. Load no unrelated application documentation and preserve persistent data.
 
-Determine which application services currently exist. The local environment must include every implemented required service, including applicable `client`, `admin`, `api`, `postgres`, and `redis` services, plus `realtime`, `vision`, or `worker` when implemented. PostgreSQL and Redis alone are not a complete environment when application services exist.
+Implement the Docker infrastructure defined by the guide. Maintain applicable `Dockerfile.client`, `Dockerfile.admin`, `Dockerfile.api`, `Dockerfile.realtime`, `Dockerfile.vision`, development and production Compose files under `infrastructure/docker/`, and `.dockerignore`, `.env.example`, or `.gitignore` when required. Dockerfiles and application-service definitions may be prepared before their source exists, but do not invent application ports or generate application source.
 
-Maintain only what implemented services require under `infrastructure/docker/`, including applicable service Dockerfiles and separate development and production Compose files. Also maintain `.dockerignore`, `.env.example`, and `.gitignore` when needed. Preserve valid existing infrastructure and do not create unused services.
+Infrastructure dependencies include PostgreSQL, Redis, Docker networks, and persistent volumes. Application definitions may include client, admin, API, realtime, and Vision. If source is missing and an application image or container cannot be built or started, report that service as `PENDING APPLICATION BUILD`; this is not an infrastructure failure. Continue building, starting, testing, and validating infrastructure that is currently available.
 
-Use Linux containers, private service-name networking, persistent PostgreSQL storage, environment-based configuration, development hot reload, dependencies, and health checks. Keep services independently deployable and Vision/GPU configuration isolated.
-
-For a complete rebuild, first identify only this project's Docker resources. Stop and remove disposable project containers, remove project images that must be rebuilt, and recreate disposable project networks as required by the current specification. Never use system-wide pruning. Preserve PostgreSQL volumes, persistent application data, `.env`, source code, and all unrelated or ambiguously owned containers, images, networks, and volumes. Regenerate missing, outdated, or incomplete Dockerfiles and Compose configuration, then build, create, and start every required implemented service.
+For a complete rebuild, identify only this project's Docker resources; stop and remove disposable project containers; remove disposable project images and networks when required; preserve PostgreSQL data, persistent volumes, `.env`, source code, unrelated resources, and ambiguously owned resources; safely replace outdated generated Docker configuration; then regenerate and validate configuration from the current specification. Never use broad system-wide cleanup commands.
 
 Follow this sequence:
 
 ```text
-Inspect → Plan → Identify Project Resources → Clean Disposable Project Resources → Create/Update Configuration → Validate → Build Images → Create Containers → Start Services → Migrate → Health Check → Test Infrastructure → Review Infrastructure → Verify Infrastructure → Report
+Inspect → Plan → Clean Disposable Project Infrastructure → Regenerate Docker Configuration → Validate Configuration → Build Available Images → Create Available Containers → Start Available Services → Health Check → Test Infrastructure → Review Infrastructure → Verify Infrastructure → Report
 ```
 
-Use incremental updates when appropriate and a complete rebuild when the environment must be recreated from the current specification. The host browser must reach application containers through published localhost ports derived from active Compose configuration. Never invent ports or URLs.
+Use Linux containers, Docker service-name networking, environment configuration, dependencies, health checks, volumes, and development port mappings where applicable. PostgreSQL data must survive normal rebuilds; Redis may remain disposable unless persistence is explicitly required. Never automatically delete a persistent volume.
 
-Verify required configuration and Dockerfiles, Compose syntax, builds, container creation/startup/health, PostgreSQL and Redis connectivity, API health, implemented client/admin reachability and API connectivity, persistence, and secret hygiene. Never report setup as successful while a required application container is missing or unhealthy. Fix safe in-scope failures and report failures honestly.
+Verify applicable Docker configuration and expected files, PostgreSQL and Redis configuration, networks, persistent-volume protection, available image builds, available container startup, and available health checks. Fix safe in-scope infrastructure failures and report errors honestly. Do not treat missing application source as a Docker error or claim a missing application is running.
 
-After implementation, apply the validation workflows in this order:
+Post-implementation validation order:
 
-1. `codex/workflows/testing-infrastructure.md` validates the affected environment and records test evidence.
-2. `codex/workflows/code-review-infrastructure.md` reviews only the infrastructure changes and uses the test evidence when available.
-3. `codex/workflows/verification-infrastructure.md` verifies the final state and supplies exact browser URLs and manual commands derived from active configuration.
+1. `codex/workflows/testing-infrastructure.md` tests only infrastructure that can currently run.
+2. `codex/workflows/code-review-infrastructure.md` reviews Docker infrastructure only and does not review or generate missing application code.
+3. `codex/workflows/verification-infrastructure.md` reports actual service state as `RUNNING`, `STOPPED`, `FAILED`, or `PENDING APPLICATION BUILD`.
 
-Never delete persistent volumes or PostgreSQL data during a normal rebuild, overwrite `.env`, delete unrelated Docker resources or user source files, embed credentials, expose PostgreSQL or Redis publicly in production, require GPUs for the whole application, hide failures, or create/connect a GitHub repository without an explicit request. When resource ownership or persistence is uncertain, preserve it. Make operations repeatable.
+Never overwrite `.env`, commit or embed secrets, delete unrelated Docker resources or application source, hide infrastructure errors, deploy Kubernetes/AWS/production services, or create/connect a GitHub repository without an explicit request. Make operations repeatable.
 
-Report created, regenerated, and modified files; removed containers and images; recreated networks; preserved persistent volumes; built images; created and running containers; health and validation results; testing, review, and verification results; exact exposed ports and browser/API URLs; actual status, logs, start, stop, and rebuild commands; unresolved errors; and manual actions.
+Report Docker files created, regenerated, and modified; removed containers and images; created networks; preserved volumes; running infrastructure services; application services pending build; health, testing, review, and verification results; actual exposed ports when available; unresolved Docker errors; and required manual actions.

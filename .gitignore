@@ -1,0 +1,11 @@
+.env
+*.env.local
+node_modules/
+dist/
+coverage/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+github_ssh
+github_ssh.pub

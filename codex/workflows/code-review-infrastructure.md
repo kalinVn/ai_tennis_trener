@@ -1,8 +1,8 @@
 # Code Review Infrastructure Workflow
 
-Use after infrastructure testing to review the application and infrastructure changes made by `codex/workflows/setup-infrastructure.md`. This is a review workflow: do not modify files unless the user explicitly requests fixes.
+Use after infrastructure testing to review the Docker infrastructure changes made by `codex/workflows/setup-infrastructure.md`. This is a review workflow: do not modify files unless the user explicitly requests fixes, and do not review or generate missing application source.
 
-Read `AGENTS.md`, the applicable infrastructure guide, the changed Docker/infrastructure files, the relevant Git diff, and results from `codex/workflows/testing-infrastructure.md` when available. Review only the infrastructure affected by the current task; do not redesign unrelated infrastructure or application code.
+Read `AGENTS.md`, the applicable infrastructure guide, the changed Docker/infrastructure files, the relevant Git diff, and results from `codex/workflows/testing-infrastructure.md` when available. Review only the infrastructure affected by the current task; do not redesign unrelated infrastructure or application code, and do not treat missing application source as an infrastructure defect.
 
 Check Docker and Compose configuration, service boundaries, networking, intentionally exposed ports, persistence and volumes, environment configuration, secret handling, health checks, development/production separation, security boundaries, and maintainability. Confirm that persistent data is protected and required tests did not fail.
 

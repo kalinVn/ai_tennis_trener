@@ -1,0 +1,12 @@
+.git
+.env
+**/.env
+**/node_modules
+**/__pycache__
+**/.pytest_cache
+**/.mypy_cache
+**/dist
+**/coverage
+*.pyc
+github_ssh
+github_ssh.pub

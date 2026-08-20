@@ -32,6 +32,7 @@ Preserve the stack unless a change is explicitly justified: Vue 3, TypeScript, V
 - Use Docker Compose for local development and Kubernetes only for production scaling.
 - Never deploy production, destroy persistent data, or delete volumes without explicit authorization.
 - A requested complete local infrastructure rebuild may replace only disposable resources belonging to this project; preserve persistent data and any resource whose ownership or persistence is uncertain.
+- Infrastructure workflows may prepare Dockerfiles and service definitions before application source exists, but must never scaffold application code. Report unavailable application services as `PENDING APPLICATION BUILD` and continue validating runnable infrastructure.
 
 Before implementation, determine affected domains and inspect their code and documentation. Afterward, validate contracts, run relevant tests, check security and applicable realtime performance, and update affected documentation. Never disable tests to obtain a passing build; fix root causes.
 

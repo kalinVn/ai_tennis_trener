@@ -1,6 +1,47 @@
 name: tennis-ai-coach-prod
 
 services:
+  client:
+    profiles: ["application"]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.client
+    restart: always
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - backend
+
+  admin:
+    profiles: ["application"]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.admin
+    restart: always
+    depends_on:
+      api:
+        condition: service_started
+    networks:
+      - backend
+
+  api:
+    profiles: ["application"]
+    build:
+      context: ../..
+      dockerfile: infrastructure/docker/Dockerfile.api
+    restart: always
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+
   postgres:
     image: postgres:17-alpine
     restart: always
