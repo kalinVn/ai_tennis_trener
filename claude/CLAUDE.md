@@ -173,9 +173,11 @@ Core agents cover:
 - devops
 - kubernetes
 - ci/cd
-- code review
-- testing
-- verification
+
+Infrastructure agents: 
+- Testing Infrastructure Agent
+- Verification Infrastructure Agent
+- Code Review Infrastructure Agent
 
 
 Agents must respect domain boundaries and shared contracts.

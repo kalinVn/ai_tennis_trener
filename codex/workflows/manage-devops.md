@@ -7,6 +7,7 @@ Route implementation details without duplicating their guidance:
 - Read `codex/workflows/setup-infrastructure.md` and `docs/infrastucture/docker/docker.md` for local Docker work.
 - Read `codex/workflows/setup-production.md` for CI/CD and production preparation.
 - Read `codex/workflows/manage-kubernetes.md` for Kubernetes work.
+- After Docker implementation, use `codex/workflows/testing-infrastructure.md`, then `codex/workflows/code-review-infrastructure.md`, then `codex/workflows/verification-infrastructure.md`.
 
 Preserve Docker Compose for local development. Prepare production services to scale independently through container builds, a registry, Kubernetes, and AWS. Use secure GitHub-to-AWS authentication and prefer OIDC or other short-lived credentials.
 

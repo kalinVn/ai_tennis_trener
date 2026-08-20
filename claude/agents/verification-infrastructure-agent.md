@@ -1,4 +1,4 @@
-# Verification Agent
+# Verification Infrastructure Agent
 
 ## Purpose
 

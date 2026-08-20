@@ -2,9 +2,13 @@
 
 ## Purpose
 
-Setup, validate, and maintain the Docker infrastructure for Tennis AI Coach.
+Setup, rebuild, validate, and maintain the complete local Docker development environment for Tennis AI Coach.
 
-Use this command for initial infrastructure setup or intentional Docker infrastructure changes.
+This command orchestrates local Docker infrastructure work.
+
+Infrastructure architecture and detailed container requirements belong in:
+
+`docs/infrastructure/docker.md`
 
 ## Required Context
 
@@ -13,64 +17,72 @@ Before execution:
 1. Read `CLAUDE.md`.
 2. Read `docs/infrastructure/docker.md`.
 3. Use `devops-agent`.
-4. Use`testing-agent`
-5. Use `code-review-agent`
-6. Use `verification-agent`
-7. Use `ci-cd-agent` where required.
-8. Inspect the repository and existing Docker configuration.
-9. Preserve valid existing infrastructure.
+4. Use `testing-infrastructure-agent`.
+5. Use `code-review-infrastructure-agent`.
+6. Use `verification-infrastructure-agent`.
+7. Use `ci-cd-agent` only when CI/CD configuration is affected.
+8. Inspect the repository.
+9. Inspect existing Docker infrastructure.
+10. Determine which application services are currently implemented.
+11. Preserve persistent data and valid existing configuration.
 
 Do not load unrelated project documentation.
 
 ## Responsibilities
 
-Create or update only what is required:
+Implement the Docker architecture defined in:
+
+`docs/infrastructure/docker.md`
+
+Create, regenerate, or update required Docker infrastructure when necessary.
+
+Expected infrastructure location:
 
 ```text
 infrastructure/docker/
-├── Dockerfile.client
-├── Dockerfile.admin
-├── Dockerfile.api
-├── Dockerfile.realtime
-├── Dockerfile.vision
-├── docker-compose.dev.yml
-└── docker-compose.prod.yml
 ```
 
-Also manage when needed:
+Also maintain project-level Docker support files when required.
 
-```text
-.dockerignore
-.env.example
-.gitignore
-```
+Do not create infrastructure for application services that do not exist.
 
-Do not create infrastructure for services that do not exist yet unless required by the current architecture.
+## Clean Rebuild
 
-## Setup
+A complete `/setup-infrastructure` execution must rebuild the disposable local Docker environment for this project.
 
-Use Linux containers.
+Before rebuilding:
 
-Prepare the development stack for implemented services such as:
+1. Inspect all existing Docker resources belonging to this project.
+2. Stop all project containers.
+3. Remove all disposable project containers.
+4. Remove project images that must be rebuilt.
+5. Remove disposable project networks that must be recreated.
+6. Preserve all persistent volumes and persistent application data.
+7. Inspect the current Docker specification in `docs/infrastructure/docker.md`.
+8. Regenerate missing, outdated, or incomplete Dockerfiles and Compose configuration.
+9. Build all required images for currently implemented services.
+10. Create all required containers defined by the current Docker specification.
+11. Start all required containers.
+12. Verify that every required implemented service is running.
 
-* client
-* admin
-* api
-* postgres
-* redis
-* realtime
-* vision
+The rebuild must include application containers, not only infrastructure dependencies.
 
-Configure:
+PostgreSQL and Redis alone do not constitute a complete local environment when application services are implemented.
 
-* Docker networking
-* persistent PostgreSQL storage
-* environment variables
-* development hot reload
-* service dependencies
-* basic health checks
+Never remove:
 
-Keep GPU configuration isolated to Vision services.
+* PostgreSQL persistent volumes
+* persistent application data
+* `.env`
+* application source code
+* unrelated Docker containers
+* unrelated Docker images
+* unrelated Docker networks
+* unrelated Docker volumes
+
+Never use broad cleanup commands such as system-wide Docker pruning for this workflow.
+
+If ownership or persistence of a Docker resource is uncertain, preserve it.
 
 ## Execution
 
@@ -79,135 +91,229 @@ Follow this order:
 ```text
 Inspect
 → Plan
-→ Create/Update
-→ Validate
-→ Build
-→ Start
+→ Identify Existing Project Resources
+→ Clean Previous Disposable Infrastructure
+→ Create / Update Docker Configuration
+→ Validate Configuration
+→ Build Images
+→ Create Containers
+→ Start Services
+→ Run Required Migrations
 → Health Check
-→ Report
+→ Infrastructure Testing
+→ Infrastructure Code Review
+→ Infrastructure Verification
+→ Infrastructure Report
 ```
 
-Build only affected images when possible.
+Do not consider PostgreSQL and Redis alone to be a complete environment when application services are implemented.
 
-Start services only when appropriate for the requested operation.
+Use incremental updates when appropriate.
 
-Run database migrations when required.
+Use a complete rebuild when the infrastructure needs to be recreated from the current specification.
+
+## Application Access
+
+The developer's browser runs on the host machine, not inside Docker.
+
+Application services must publish the ports required for local development.
+
+The browser accesses application containers through:
+
+```text
+localhost:<published-port>
+```
+
+Actual ports must come from Docker Compose configuration.
+
+Never invent port numbers.
+
+Final verification must report the exact browser URLs from the active configuration.
+
+## Database
+
+PostgreSQL is persistent application storage.
+
+Redis is temporary/cache/realtime storage.
+
+Run database migrations when required by the current application state.
+
+Never destroy PostgreSQL data during a normal infrastructure rebuild.
 
 ## Safety
 
 Never:
 
 * delete persistent volumes without explicit permission
-* overwrite working configuration unnecessarily
+* delete PostgreSQL data during a normal rebuild
+* delete unrelated Docker resources
+* delete user-created source files
+* overwrite `.env`
 * commit secrets
-* put credentials inside Dockerfiles
+* place credentials inside Dockerfiles
 * expose PostgreSQL or Redis publicly in production
 * require GPU for the entire application
+* hide infrastructure failures
 
-The command must be safe to run repeatedly.
+The workflow must be safe to run repeatedly.
 
 ## Git
 
 Preserve existing Git configuration.
 
-Ensure secrets, volumes, temporary files, and generated local data are ignored.
+Ensure secrets, temporary files, generated local data, and appropriate Docker artifacts are ignored.
 
 Do not create or connect a GitHub repository unless explicitly requested.
 
 ## Validation
 
-Before completion verify where applicable:
+Before completion verify:
 
-* Docker configuration is valid
+* required Docker configuration exists
+* Compose configuration is valid
+* required Dockerfiles exist
 * required images build
+* required containers exist
+* required containers are running
+* required health checks pass
 * PostgreSQL is reachable
 * Redis is reachable
-* API is healthy
-* client/admin can reach API
+* API is reachable and healthy
+* client is reachable when implemented
+* admin is reachable when implemented
+* client can communicate with API when implemented
+* admin can communicate with API when implemented
 * persistent data is protected
 * secrets are not committed
 
+Do not report success if an implemented required application service is missing or unhealthy.
+
 Fix safe in-scope failures when possible.
 
-Do not hide failed builds or health checks.
-
+Never hide failed builds, tests, or health checks.
 
 ## Post-Implementation Validation
 
-After Docker infrastructure changes are complete, run validation in this order:
+Execute these agents in this exact order:
 
-1. `testing-agent`
-2. `code-review-agent`
-3. `verification-agent`
+1. `testing-infrastructure-agent`
+2. `code-review-infrastructure-agent`
+3. `verification-infrastructure-agent`
 
-### Testing Agent
+### Testing Infrastructure Agent
 
-Validate the Docker environment.
+Test the resulting Docker environment.
 
-Check relevant:
+Validate where applicable:
 
-- Docker builds
-- containers
-- health checks
-- PostgreSQL
-- Redis
-- API connectivity
+* image builds
+* container creation
+* container startup
+* container health
+* PostgreSQL
+* Redis
+* API
+* client
+* admin
+* service connectivity
 
-### Code Review Agent
+### Code Review Infrastructure Agent
 
-Review only the infrastructure changes made by this command.
+Review only Docker infrastructure created or modified by this workflow.
 
 Check:
 
-- Docker configuration
-- security
-- secrets
-- networking
-- volumes
-- maintainability
+* Dockerfiles
+* Compose configuration
+* image choices
+* networking
+* exposed ports
+* secrets
+* volumes
+* persistence
+* health checks
+* development/production separation
+* maintainability
 
 Do not review unrelated application code.
 
-### Verification Agent
+### Verification Infrastructure Agent
 
 Perform final verification and provide manual developer instructions.
 
+Use actual Docker configuration and runtime state.
+
 Report:
 
-- running containers
-- container status
-- exposed ports
-- browser URLs
-- health endpoints
-- commands for status
-- commands for logs
-- commands for start/stop
+* containers created
+* containers running
+* image names
+* container status
+* exposed ports
+* browser URLs
+* API URL
+* API documentation URL when available
+* health endpoints
+* status commands
+* log commands
+* start command
+* stop command
+* rebuild command
 
-Never invent ports or URLs.
-Read them from the actual Docker configuration.
+Never invent:
+
+* ports
+* URLs
+* container names
+* image names
+* health status
 
 ## Output
 
-Report briefly:
+Report:
 
-* created files
-* modified files
-* built images
+* files created
+* files regenerated
+* files modified
+* containers removed
+* images removed
+* networks recreated
+* persistent volumes preserved
+* images built
+* containers created
 * running services
-* validation results
+* health status
+* testing result
+* infrastructure code review result
+* infrastructure verification result
+* exposed ports
+* browser URLs
+* API URL
+* API documentation URL when available
+* status command
+* logs command
+* start command
+* stop command
+* rebuild command
 * unresolved errors
 * required manual actions
 
-* testing result
-* code review result
-* verification result
-*  browser URLs
-* manual verification commands
+## Scope
+
+This command manages local Docker development infrastructure.
+
+It must not:
+
+* deploy Kubernetes
+* deploy to AWS
+* modify production cloud infrastructure
+
+Production deployment belongs to the production infrastructure workflow.
 
 ## Final Rule
 
-Read the Docker architecture from `docs/infrastructure/docker.md`.
+`docs/infrastructure/docker.md` defines what the Docker environment must contain.
 
-Do not duplicate that documentation here.
+This command defines how that environment is created, rebuilt, validated, and verified.
 
-This command should orchestrate infrastructure setup, not redesign the infrastructure.
+A successful execution must leave a complete and reproducible local Docker development environment for all currently implemented required services.

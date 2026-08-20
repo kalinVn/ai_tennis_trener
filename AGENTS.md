@@ -31,6 +31,7 @@ Preserve the stack unless a change is explicitly justified: Vue 3, TypeScript, V
 - Keep Vision/GPU workloads isolated from ordinary CPU services.
 - Use Docker Compose for local development and Kubernetes only for production scaling.
 - Never deploy production, destroy persistent data, or delete volumes without explicit authorization.
+- A requested complete local infrastructure rebuild may replace only disposable resources belonging to this project; preserve persistent data and any resource whose ownership or persistence is uncertain.
 
 Before implementation, determine affected domains and inspect their code and documentation. Afterward, validate contracts, run relevant tests, check security and applicable realtime performance, and update affected documentation. Never disable tests to obtain a passing build; fix root causes.
 
@@ -40,6 +41,9 @@ Prioritize correctness, security, latency, reliability, maintainability, scalabi
 
 - For cross-cutting delivery, AWS, CI/CD, Docker, or Kubernetes coordination, read `codex/workflows/manage-devops.md`.
 - For Docker setup or maintenance, read `codex/workflows/setup-infrastructure.md`.
+- For affected infrastructure tests, read `codex/workflows/testing-infrastructure.md`.
+- For infrastructure-only review after testing, read `codex/workflows/code-review-infrastructure.md`.
+- For final runtime and manual verification, read `codex/workflows/verification-infrastructure.md`.
 - For production infrastructure and CI/CD preparation, read `codex/workflows/setup-production.md`.
 - For Kubernetes-specific work, read `codex/workflows/manage-kubernetes.md`.
 

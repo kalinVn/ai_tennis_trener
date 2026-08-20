@@ -1,4 +1,4 @@
-# Code Review Agent
+# Code Review Infrastructure Agent
 
 ## Purpose
 
@@ -90,8 +90,6 @@ Finish with:
 - remaining risks
 
 If no meaningful problems are found, state that clearly.
-
-## Final Rule
 
 ## Final Rule
 

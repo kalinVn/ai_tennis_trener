@@ -1,0 +1,11 @@
+# Testing Infrastructure Workflow
+
+Use after application or infrastructure changes to validate only the affected system. For Docker infrastructure work, run this workflow after implementation and before infrastructure code review.
+
+Read `AGENTS.md`, the applicable setup workflow, the relevant infrastructure guide, and only the changed files and configuration needed for the tests. Inspect the repository before selecting commands; do not assume files listed in `claude/PROJECT_STRUCTURE.md` exist.
+
+Test applicable frontend, backend, API, authentication, database, payments, Docker, realtime, Vision, and integration behavior. When Docker is affected, verify applicable Compose configuration, image builds, container startup and health, PostgreSQL and Redis connectivity, API responses, frontend-to-API access, required volumes, and required networks.
+
+Never delete production data or persistent volumes without explicit permission. Do not hide failures, disable tests to obtain a passing result, or claim success when a required test failed. Fix only safe, clearly in-scope issues when the requested work authorizes fixes.
+
+Report tests executed, passed, failed, and skipped; include relevant errors or logs without exposing secrets, and recommend the next action. A successful build alone is not proof that the system works.
