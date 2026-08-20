@@ -2,31 +2,42 @@ name: tennis-ai-coach-dev
 
 services:
   client:
-    profiles: ["application"]
     build:
       context: ../..
       dockerfile: infrastructure/docker/Dockerfile.client
     restart: unless-stopped
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${CLIENT_PORT:-5173}:80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - backend
 
   admin:
-    profiles: ["application"]
     build:
       context: ../..
       dockerfile: infrastructure/docker/Dockerfile.admin
     restart: unless-stopped
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:${ADMIN_PORT:-5174}:80"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - backend
 
   api:
-    profiles: ["application"]
     build:
       context: ../..
       dockerfile: infrastructure/docker/Dockerfile.api
@@ -34,11 +45,18 @@ services:
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-tennis_ai_coach}:${POSTGRES_PASSWORD:-tennis_ai_coach_dev}@postgres:5432/${POSTGRES_DB:-tennis_ai_coach}
       REDIS_URL: redis://redis:6379/0
+    ports:
+      - "127.0.0.1:${API_PORT:-8000}:80"
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - backend
 

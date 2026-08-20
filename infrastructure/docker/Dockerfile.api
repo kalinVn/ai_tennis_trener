@@ -1,13 +1,6 @@
-FROM python:3.13-slim
+FROM nginx:1.27-alpine
 
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
+COPY infrastructure/docker/placeholders/api/index.html /usr/share/nginx/html/index.html
+COPY infrastructure/docker/placeholders/api/health /usr/share/nginx/html/health
 
-WORKDIR /app
-
-COPY services/api/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
-
-COPY services/api/ ./
-
-CMD ["fastapi", "run", "--host", "0.0.0.0"]
+EXPOSE 80

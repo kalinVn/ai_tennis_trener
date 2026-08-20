@@ -2,13 +2,15 @@
 
 ## Purpose
 
-Setup, rebuild, validate, and maintain the local Docker infrastructure for Tennis AI Coach.
+Create, rebuild, validate, and verify the local Docker infrastructure for Tennis AI Coach.
 
-This command manages Docker infrastructure only.
+This command manages infrastructure only.
 
-It must NOT create application source code such as Vue, FastAPI, frontend, admin, or backend application scaffolding.
+Docker architecture and service requirements are defined in:
 
-Application source code is created by separate application build workflows.
+`docs/infrastucture/docker/docker.md`
+
+Application source code is handled by separate build workflows.
 
 ## Required Context
 
@@ -20,95 +22,78 @@ Before execution:
 4. Use `testing-infrastructure-agent`.
 5. Use `code-review-infrastructure-agent`.
 6. Use `verification-infrastructure-agent`.
-7. Inspect the repository.
-8. Inspect the existing Docker environment.
-9. Preserve persistent data.
+7. Inspect the repository and current Docker state.
+8. Preserve persistent data.
 
 Do not load unrelated application documentation.
 
 ## Responsibilities
 
-Implement the Docker infrastructure defined in:
+Implement the Docker specification from:
 
 `docs/infrastucture/docker/docker.md`
 
-This command may create or update:
+Manage Docker infrastructure under:
+
+`infrastructure/docker/`
+
+This may include:
+
+* Dockerfiles
+* Docker Compose files
+* placeholder services
+* networks
+* volumes
+* environment templates
+* health checks
+* development ports
+
+Do not generate real application source code.
+
+## Placeholder Services
+
+If real source code for `client`, `admin`, or `api` does not exist, create minimal infrastructure-only placeholders.
+
+Placeholders must live under:
 
 ```text
-infrastructure/docker/
-├── Dockerfile.client
-├── Dockerfile.admin
-├── Dockerfile.api
-├── Dockerfile.realtime
-├── Dockerfile.vision
-├── docker-compose.dev.yml
-└── docker-compose.prod.yml
+infrastructure/docker/placeholders/
+├── client/
+├── admin/
+└── api/
 ```
 
-Also maintain when required:
+They must:
 
-```text
-.dockerignore
-.env.example
-.gitignore
-```
+* build successfully
+* start successfully
+* expose a simple HTTP response
+* remain separate from real application source
 
-Dockerfiles may be prepared before the corresponding application source exists.
+The API placeholder must provide:
 
-Missing application source code must not be treated as an infrastructure failure.
+`/health`
 
-Do not generate application source code.
+When real application source exists, use the real application instead of the placeholder.
 
-## Infrastructure Services
+## Rebuild
 
-Create the infrastructure services defined by the Docker specification.
+For a complete rebuild:
 
-Infrastructure dependencies may include:
-
-* PostgreSQL
-* Redis
-* Docker networks
-* persistent volumes
-
-Application service definitions such as:
-
-* client
-* admin
-* api
-* realtime
-* vision
-
-may also be prepared in Docker configuration even when their application source has not yet been generated.
-
-If an application service cannot start because its source code does not exist yet:
-
-* report it as `PENDING APPLICATION BUILD`
-* do not treat the Docker infrastructure setup itself as failed
-
-## Clean Rebuild
-
-For a complete infrastructure rebuild:
-
-1. Inspect existing project Docker resources.
-2. Stop project containers when required.
+1. Inspect project Docker resources.
+2. Stop project containers.
 3. Remove disposable project containers.
-4. Remove disposable project images when rebuilding.
-5. Remove disposable project networks when required.
-6. Preserve persistent volumes.
-7. Preserve PostgreSQL data.
-8. Remove outdated generated Docker configuration when safe.
-9. Regenerate Docker configuration from the current Docker specification.
-10. Validate the resulting infrastructure.
+4. Remove disposable images that must be rebuilt.
+5. Recreate disposable project networks when required.
+6. Preserve persistent volumes and PostgreSQL data.
+7. Remove outdated generated Docker configuration when safe.
+8. Regenerate the Docker configuration from the current specification.
+9. Build required images.
+10. Create and start required containers.
 
-Never delete:
+Never affect unrelated Docker resources.
 
-* PostgreSQL persistent data
-* persistent volumes without explicit permission
-* `.env`
-* application source code
-* unrelated Docker resources
-
-Never use broad system-wide Docker cleanup commands.
+If persistence or ownership is uncertain, preserve the resource.
 
 ## Execution
 
@@ -117,12 +102,11 @@ Follow this order:
 ```text
 Inspect
 → Plan
-→ Clean Disposable Project Infrastructure
-→ Regenerate Docker Configuration
-→ Validate Configuration
-→ Build Available Images
-→ Create Available Containers
-→ Start Available Services
+→ Clean
+→ Generate / Update
+→ Validate
+→ Build
+→ Start
 → Health Check
 → Infrastructure Testing
 → Infrastructure Code Review
@@ -130,82 +114,39 @@ Inspect
 → Report
 ```
 
-If an application image cannot be built because application source is not yet available, mark that service as:
-
-`PENDING APPLICATION BUILD`
-
-and continue validating the remaining infrastructure.
-
-## Application Boundary
-
-This workflow must never create:
-
-* Vue applications
-* frontend application code
-* admin application code
-* FastAPI application code
-* business logic
-* application routes
-* application components
-
-Those belong to application build workflows.
-
-The responsibility of this command is to prepare the environment where those applications will run later.
-
-## Docker Access
-
-Use Linux containers.
-
-Use Docker networking and service names.
-
-Configure where applicable:
-
-* networks
-* volumes
-* environment variables
-* service dependencies
-* health checks
-* development port mappings
-
-Do not invent application ports if they are not yet defined.
-
-## Persistence
-
-PostgreSQL data must survive normal infrastructure rebuilds.
-
-Redis may remain disposable unless persistence is explicitly required.
-
-Persistent volumes must never be removed automatically.
-
 ## Safety
 
 Never:
 
-* delete persistent data
+* delete persistent PostgreSQL data
+* delete persistent volumes without explicit permission
 * delete unrelated Docker resources
 * overwrite `.env`
 * commit secrets
-* generate application source code
-* hide infrastructure errors
-* report an application as running when its source is missing
+* generate real application source code
+* hide failed builds or health checks
+* report false runtime state
 
-The command must be safe to execute repeatedly.
+The workflow must be safe to run repeatedly.
 
 ## Validation
 
+Before reporting success, verify all currently required services defined in the Docker specification.
+
 Verify where applicable:
 
-* Docker configuration is valid
-* expected Docker files exist
-* PostgreSQL configuration is valid
-* Redis configuration is valid
-* networks are valid
-* persistent volumes are protected
-* available images build
-* available containers start
-* available health checks pass
+* Docker configuration
+* image builds
+* container creation
+* container startup
+* health checks
+* networking
+* PostgreSQL
+* Redis
+* application placeholders or real application containers
+* persistent data protection
 
-Missing application source must be reported separately from Docker infrastructure errors.
+Do not report success when a required service is missing or unhealthy.
 
 ## Post-Implementation Validation
 
@@ -217,67 +158,65 @@ Run in this order:
 
 ### Testing Infrastructure Agent
 
-Test only the infrastructure that can currently run.
+Test the resulting Docker environment.
 
 ### Code Review Infrastructure Agent
 
-Review Docker infrastructure only.
-
-Do not review or generate missing application code.
+Review only infrastructure created or modified by this workflow.
 
 ### Verification Infrastructure Agent
 
-Report the actual infrastructure state.
+Verify the actual runtime state and provide manual developer instructions.
 
-For each service report one of:
+Never invent:
 
-* `RUNNING`
-* `STOPPED`
-* `FAILED`
-* `PENDING APPLICATION BUILD`
-
-Never invent runtime state.
+* ports
+* URLs
+* container names
+* image names
+* health status
 
 ## Output
 
-Report:
+Report briefly:
 
-* Docker files created
-* Docker files regenerated
-* Docker files modified
-* containers removed
-* images removed
+* files created or modified
+* images built
+* containers created and running
 * networks created
-* volumes preserved
-* infrastructure services running
-* application services pending build
+* persistent volumes preserved
 * health status
 * testing result
 * infrastructure code review result
 * infrastructure verification result
-* exposed ports when available
-* unresolved Docker errors
+* exposed ports
+* browser URLs
+* API URL
+* health URL
+* status command
+* logs command
+* start command
+* stop command
+* rebuild command
+* unresolved errors
 * required manual actions
 
 ## Scope
 
-This command manages Docker infrastructure only.
+This command manages local Docker infrastructure only.
 
-It does not:
+It must not:
 
-* build the application
-* create Vue projects
-* create FastAPI projects
+* create real Vue applications
+* create real FastAPI applications
 * deploy Kubernetes
 * deploy AWS infrastructure
 * deploy production services
 
 ## Final Rule
 
-`docs/infrastucture/docker/docker.md` defines the Docker infrastructure specification.
+`docs/infrastucture/docker/docker.md` defines **what** the Docker environment must contain.
 
-`/setup-infrastructure` creates and validates that infrastructure.
+`/setup-infrastructure` defines **how** that environment is created, rebuilt, validated, tested, reviewed, and verified.
 
-Missing application source code is not an infrastructure failure.
-
-Application code will be created later by dedicated application build workflows.
+When real application source is unavailable, use infrastructure-only placeholders rather than blocking the Docker setup.

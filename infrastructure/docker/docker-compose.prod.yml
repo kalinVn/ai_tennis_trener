@@ -2,31 +2,38 @@ name: tennis-ai-coach-prod
 
 services:
   client:
-    profiles: ["application"]
     build:
       context: ../..
       dockerfile: infrastructure/docker/Dockerfile.client
     restart: always
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
     networks:
       - backend
 
   admin:
-    profiles: ["application"]
     build:
       context: ../..
       dockerfile: infrastructure/docker/Dockerfile.admin
     restart: always
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
     networks:
       - backend
 
   api:
-    profiles: ["application"]
     build:
       context: ../..
       dockerfile: infrastructure/docker/Dockerfile.api
@@ -39,6 +46,11 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
     networks:
       - backend
 
