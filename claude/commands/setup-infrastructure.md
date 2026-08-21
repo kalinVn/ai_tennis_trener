@@ -45,10 +45,19 @@ This may include:
 * networks
 * volumes
 * environment templates
+* root `.gitignore` Git-safety rules
 * health checks
 * development ports
 
 Do not generate real application source code.
+
+## Git Safety
+
+Apply the infrastructure Git-safety requirements from `docs/infrastucture/docker/docker.md` during every setup or rebuild.
+
+Create the root `.gitignore` when absent or merge missing rules into it when present. Preserve valid existing and user-defined entries, keep the update idempotent, and do not use broad patterns that could hide source, documentation, Docker, infrastructure, or public example configuration. Ensure `.env.example` remains trackable.
+
+Inspect filenames and Git tracking status for potentially sensitive files. Report paths only; never read, print, stage, delete, or expose their contents. Explicitly report sensitive files that are already tracked because `.gitignore` does not untrack them.
 
 ## Placeholder Services
 
@@ -102,6 +111,7 @@ Follow this order:
 ```text
 Inspect
 → Plan
+→ Apply Git Safety
 → Clean
 → Generate / Update
 → Validate
@@ -123,6 +133,8 @@ Never:
 * delete unrelated Docker resources
 * overwrite `.env`
 * commit secrets
+* overwrite valid user-defined `.gitignore` rules
+* hide required source, documentation, or infrastructure configuration with broad ignore patterns
 * generate real application source code
 * hide failed builds or health checks
 * report false runtime state
@@ -145,6 +157,8 @@ Verify where applicable:
 * Redis
 * application placeholders or real application containers
 * persistent data protection
+* root `.gitignore` coverage and `.env.example` trackability
+* filename-only sensitive-file and Git-tracking audit
 
 Do not report success when a required service is missing or unhealthy.
 
@@ -185,6 +199,8 @@ Report briefly:
 * containers created and running
 * networks created
 * persistent volumes preserved
+* `.gitignore` rules added or preserved
+* potentially sensitive files detected and whether they are tracked
 * health status
 * testing result
 * infrastructure code review result
