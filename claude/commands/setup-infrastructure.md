@@ -4,13 +4,11 @@
 
 Create, rebuild, validate, and verify the local Docker infrastructure for Tennis AI Coach.
 
-This command manages infrastructure only.
-
-Docker architecture and service requirements are defined in:
+Docker architecture is defined in:
 
 `docs/infrastucture/docker/docker.md`
 
-Application source code is handled by separate build workflows.
+This command manages infrastructure only.
 
 ## Required Context
 
@@ -19,90 +17,85 @@ Before execution:
 1. Read `CLAUDE.md`.
 2. Read `docs/infrastucture/docker/docker.md`.
 3. Use `devops-agent`.
-4. Use `testing-infrastructure-agent`.
-5. Use `code-review-infrastructure-agent`.
-6. Use `verification-infrastructure-agent`.
-7. Inspect the repository and current Docker state.
-8. Preserve persistent data.
+4. Use `ensure-project-directories` skill.
+5. Use `infrastructure-git-safety` skill.
+6. Use `configure-docker-mounts` skill.
+7. Use `testing-infrastructure-agent`.
+8. Use `code-review-infrastructure-agent`.
+9. Use `verification-infrastructure-agent`.
+10. Inspect the repository and current Docker state.
 
 Do not load unrelated application documentation.
 
 ## Responsibilities
 
-Implement the Docker specification from:
+Implement the Docker specification.
 
-`docs/infrastucture/docker/docker.md`
-
-Manage Docker infrastructure under:
+Manage infrastructure under:
 
 `infrastructure/docker/`
 
-This may include:
+Do not generate real Vue or FastAPI application source.
 
-* Dockerfiles
-* Docker Compose files
-* placeholder services
-* networks
-* volumes
-* environment templates
-* root `.gitignore` Git-safety rules
-* health checks
-* development ports
+If real `client`, `admin`, or `api` source is unavailable, use infrastructure-only placeholders defined by the Docker specification.
 
-Do not generate real application source code.
+## Project Directories
 
-## Git Safety
-
-Apply the infrastructure Git-safety requirements from `docs/infrastucture/docker/docker.md` during every setup or rebuild.
-
-Create the root `.gitignore` when absent or merge missing rules into it when present. Preserve valid existing and user-defined entries, keep the update idempotent, and do not use broad patterns that could hide source, documentation, Docker, infrastructure, or public example configuration. Ensure `.env.example` remains trackable.
-
-Inspect filenames and Git tracking status for potentially sensitive files. Report paths only; never read, print, stage, delete, or expose their contents. Explicitly report sensitive files that are already tracked because `.gitignore` does not untrack them.
-
-## Placeholder Services
-
-If real source code for `client`, `admin`, or `api` does not exist, create minimal infrastructure-only placeholders.
-
-Placeholders must live under:
+Ensure these host directories exist:
 
 ```text
-infrastructure/docker/placeholders/
-├── client/
-├── admin/
-└── api/
+frontend/
+admin/
+backend/
 ```
 
-They must:
+Create missing directories only.
 
-* build successfully
-* start successfully
-* expose a simple HTTP response
-* remain separate from real application source
+Do not scaffold real application source.
 
-The API placeholder must provide:
+Use them as:
 
-`/health`
+```text
+frontend/ → client
+admin/    → admin
+backend/  → api
+```
 
-When real application source exists, use the real application instead of the placeholder.
+## Nginx Configuration
+
+Configure the `client` and `admin` containers to use Nginx according to the Docker specification.
+
+For development, configure the required bind mounts so that:
+
+```text
+frontend/ → client:/usr/share/nginx/html/frontend
+admin/    → admin:/usr/share/nginx/html/admin
+backend/  → api:/app
+```
+
+Ensure the required container-side directories exist.
+
+Generate or update the relevant Nginx configuration when required.
+
+The Nginx configuration, Dockerfile, and Docker Compose configuration must use consistent paths.
+
+Do not configure Nginx manually outside the infrastructure workflow.
 
 ## Rebuild
 
-For a complete rebuild:
+When rebuilding:
 
-1. Inspect project Docker resources.
-2. Stop project containers.
-3. Remove disposable project containers.
-4. Remove disposable images that must be rebuilt.
-5. Recreate disposable project networks when required.
-6. Preserve persistent volumes and PostgreSQL data.
-7. Remove outdated generated Docker configuration when safe.
-8. Regenerate the Docker configuration from the current specification.
-9. Build required images.
-10. Create and start required containers.
+* stop disposable project containers
+* remove disposable project containers and rebuildable images
+* recreate project networks when required
+* preserve persistent volumes and PostgreSQL data
+* preserve `.env` and application source
+* preserve `frontend/`, `admin/`, and `backend/`
+* regenerate outdated Docker configuration
+* regenerate Nginx configuration when required
+* rebuild and start required services
 
-Never affect unrelated Docker resources.
-
-If persistence or ownership is uncertain, preserve the resource.
+Never affect unrelated Docker projects.
 
 ## Execution
 
@@ -111,9 +104,12 @@ Follow this order:
 ```text
 Inspect
 → Plan
+→ Ensure Directories
 → Apply Git Safety
-→ Clean
-→ Generate / Update
+→ Clean Disposable Infrastructure
+→ Generate / Update Docker
+→ Configure Mounts
+→ Configure Nginx
 → Validate
 → Build
 → Start
@@ -124,43 +120,41 @@ Inspect
 → Report
 ```
 
-## Safety
+## Git Safety Execution
 
-Never:
+Use `infrastructure-git-safety` to apply the shared requirements in `docs/infrastucture/docker/docker.md` before any disposable infrastructure cleanup.
 
-* delete persistent PostgreSQL data
-* delete persistent volumes without explicit permission
-* delete unrelated Docker resources
-* overwrite `.env`
-* commit secrets
-* overwrite valid user-defined `.gitignore` rules
-* hide required source, documentation, or infrastructure configuration with broad ignore patterns
-* generate real application source code
-* hide failed builds or health checks
-* report false runtime state
+The skill must merge missing root `.gitignore` protections without replacing valid user rules.
 
-The workflow must be safe to run repeatedly.
+Ensure public examples such as `.env.example` remain trackable.
+
+Audit sensitive paths by filename and Git status only.
+
+Report tracked sensitive files without reading or exposing their contents.
+
+Git-safety failure is an infrastructure validation failure.
+
+Do not continue to destructive rebuild steps until unsafe ignore behavior is corrected.
 
 ## Validation
 
-Before reporting success, verify all currently required services defined in the Docker specification.
-
 Verify where applicable:
 
-* Docker configuration
-* image builds
-* container creation
-* container startup
-* health checks
-* networking
-* PostgreSQL
-* Redis
-* application placeholders or real application containers
-* persistent data protection
-* root `.gitignore` coverage and `.env.example` trackability
-* filename-only sensitive-file and Git-tracking audit
+* required project directories exist
+* Docker configuration is valid
+* required bind mounts are configured
+* Nginx configuration uses the expected paths
+* Nginx can access mounted frontend/admin files
+* images build
+* containers start
+* networks are valid
+* persistent volumes are protected
+* PostgreSQL is reachable
+* Redis is reachable
+* application placeholders or real services respond
+* health checks pass
 
-Do not report success when a required service is missing or unhealthy.
+Do not report success when required infrastructure is missing or unhealthy.
 
 ## Post-Implementation Validation
 
@@ -180,7 +174,7 @@ Review only infrastructure created or modified by this workflow.
 
 ### Verification Infrastructure Agent
 
-Verify the actual runtime state and provide manual developer instructions.
+Verify actual runtime state and provide manual developer instructions.
 
 Never invent:
 
@@ -188,19 +182,23 @@ Never invent:
 * URLs
 * container names
 * image names
+* mount paths
 * health status
 
 ## Output
 
 Report briefly:
 
-* files created or modified
+* directories created or preserved
+* Docker files created or modified
+* Nginx configuration created or modified
+* bind mounts configured
 * images built
 * containers created and running
 * networks created
 * persistent volumes preserved
 * `.gitignore` rules added or preserved
-* potentially sensitive files detected and whether they are tracked
+* sensitive paths detected
 * health status
 * testing result
 * infrastructure code review result
@@ -225,6 +223,7 @@ It must not:
 
 * create real Vue applications
 * create real FastAPI applications
+* generate application business logic
 * deploy Kubernetes
 * deploy AWS infrastructure
 * deploy production services
@@ -233,6 +232,6 @@ It must not:
 
 `docs/infrastucture/docker/docker.md` defines **what** the Docker environment must contain.
 
-`/setup-infrastructure` defines **how** that environment is created, rebuilt, validated, tested, reviewed, and verified.
+Skills implement reusable infrastructure operations.
 
-When real application source is unavailable, use infrastructure-only placeholders rather than blocking the Docker setup.
+`/setup-infrastructure` orchestrates directory preparation, Git safety, Docker configuration, mounts, Nginx configuration, validation, testing, review, and verification.

@@ -2,6 +2,8 @@
 .env.*
 !.env.example
 *.env.local
+.envrc
+.direnv/
 
 # Secrets and credentials
 .secrets/
@@ -11,6 +13,16 @@ credentials/
 .ssh/
 .aws/
 github_ssh
+credentials*.json
+*-credentials.json
+service-account*.json
+!credentials.example.json
+!*-credentials.example.json
+!service-account.example.json
+*.secret
+*.secrets
+.npmrc.local
+.pypirc
 id_rsa
 id_dsa
 id_ecdsa
@@ -36,6 +48,9 @@ dist/
 .vite/
 .next/
 .nuxt/
+.parcel-cache/
+.turbo/
+*.tsbuildinfo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

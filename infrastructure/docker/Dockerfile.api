@@ -1,5 +1,7 @@
 FROM nginx:1.27-alpine
 
+WORKDIR /app
+
 COPY infrastructure/docker/placeholders/api/index.html /usr/share/nginx/html/index.html
 COPY infrastructure/docker/placeholders/api/health /usr/share/nginx/html/health
 
