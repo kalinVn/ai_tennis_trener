@@ -1,4 +1,4 @@
-# Implement New Frontend Design
+# Plan New Frontend Design
 
 ## Purpose
 

@@ -58,7 +58,7 @@ The orchestrator must:
 
 The orchestrator may use:
 
-- `implement-new-frontend-design`
+- `plan-new-frontend-design`
 - `frontend-project-structure`
 - `frontend-component-builder`
 - `frontend-page-builder`
@@ -86,7 +86,7 @@ Use the structured frontend plan to determine which skills are required.
 
 Run:
 
-    implement-new-frontend-design
+    plan-new-frontend-design
 
 The orchestrator passes one explicit input to the design skill:
 
@@ -107,7 +107,7 @@ It must not build final reusable components.
 
 ## Step 2 — Receive Structured Frontend Plan
 
-Receive the structured frontend plan returned by `implement-new-frontend-design` and
+Receive the structured frontend plan returned by `plan-new-frontend-design` and
 pass it to Step 3 for validation.
 
 ---
@@ -133,7 +133,7 @@ Do not allow downstream skills to guess missing architecture unnecessarily.
 
 If validation finds a missing requirement, contradiction, invalid dependency, or duplicate responsibility:
 
-1. report the specific validation problem to `implement-new-frontend-design`
+1. report the specific validation problem to `plan-new-frontend-design`
 2. request a corrected structured frontend plan
 3. receive the corrected plan
 4. validate the corrected plan again
@@ -620,7 +620,7 @@ Realtime requirements may increase performance priority where appropriate.
         ↓
     new-frontend-orchestrator
         ↓
-    implement-new-frontend-design
+    plan-new-frontend-design
         ↓
     Design Skill Reads Frontend Specification and Required Project Context
         ↓

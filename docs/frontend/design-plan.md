@@ -10,7 +10,7 @@ Status: planning complete; implementation not started. Authentication presentati
 
 - Requirements: `docs/frontend/frontend.md`.
 - Visual reference: `docs/prototypes/tennis-ai-coach.html`, verified and inspected, including layout, styles, forms, responsive rules, and simulated controls.
-- Planning workflow: `claude/skills/implement-new-frontend-design.md`.
+- Planning workflow: `claude/skills/plan-new-frontend-design.md`.
 - Shared rules: `claude/rules/frontend/frontend-design-system.md`.
 - Existing application: `frontend/index.html` contains only `test 2`. No Vue source, package manifest, application tests, or backend application files were found in the inspected repository. Existing uncommitted content must be preserved when implementation begins.
 - The available `codex/workflows/` files concern infrastructure; none is needed for this design-only task. Any later infrastructure change must load its relevant workflow first.

@@ -1,6 +1,6 @@
-# Implement New Frontend Design — Example Result
+# Plan New Frontend Design — Example Result
 
-This file shows an illustrative structured plan returned by the `implement-new-frontend-design` skill to the New Frontend Orchestrator.
+This file shows an illustrative structured plan returned by the `plan-new-frontend-design` skill to the New Frontend Orchestrator.
 
 ```text
 frontend_type: new

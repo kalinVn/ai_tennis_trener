@@ -12,21 +12,21 @@ The `/build-frontend` command invokes the New Frontend Orchestrator and provides
 
 ## New Frontend Orchestrator
 
-1. The orchestrator invokes the `implement-new-frontend-design` skill and provides the path to the frontend specification.
+1. The orchestrator invokes the `plan-new-frontend-design` skill and provides the path to the frontend specification.
 2. The design skill reads and analyzes the frontend specification, its referenced prototype, and the applicable design rules.
 3. The design skill returns a structured frontend implementation plan to the orchestrator.
 
 ### Receive the Frontend Plan
 
-The New Frontend Orchestrator receives the complete structured plan returned by `implement-new-frontend-design`. This plan becomes the implementation map for the remaining workflow.
+The New Frontend Orchestrator receives the complete structured plan returned by `plan-new-frontend-design`. This plan becomes the implementation map for the remaining workflow.
 
-Example result: [Implement New Frontend Design — Example Result](./implement-new-frontend-design-example-result.md).
+Example result: [Plan New Frontend Design — Example Result](./plan-new-frontend-design-example-result.md).
 
 ### Validate the Frontend Plan
 
 Before implementation begins, the orchestrator verifies that the returned plan is complete, consistent, and executable. It checks that required layouts, pages, routes, shared components, feature components, dependencies, and build order are present and connected correctly.
 
-If the plan contains a missing requirement, contradiction, invalid dependency, or duplicate responsibility, the orchestrator does not start the builder skills and does not repair the plan by guessing. It returns the specific validation problem to `implement-new-frontend-design`, receives a corrected plan, and validates it again.
+If the plan contains a missing requirement, contradiction, invalid dependency, or duplicate responsibility, the orchestrator does not start the builder skills and does not repair the plan by guessing. It returns the specific validation problem to `plan-new-frontend-design`, receives a corrected plan, and validates it again.
 
 This correction cycle continues until the plan is valid. Only the validated plan may be used as the basis for project structure and implementation.
 
