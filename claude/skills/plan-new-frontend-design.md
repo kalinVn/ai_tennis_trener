@@ -262,6 +262,8 @@ Include:
 - layout principles
 - responsive principles
 
+Include the applicable shared design requirements and project overrides needed for implementation, including component styling, interaction states, accessibility, responsive behavior, and acceptance criteria. Make these requirements explicit in the design foundation or the relevant component and page entries so the orchestrator can pass them to builders without requiring another reading of the shared design rules. Reference shared requirements once rather than repeating them for every component.
+
 ## Required Layouts
 
 For each layout:

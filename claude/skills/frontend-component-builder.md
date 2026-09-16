@@ -17,9 +17,9 @@ Receive the relevant part of the validated plan from the orchestrator:
 
 For shared UI, use the assigned entries from Required Shared Components. The orchestrator may also assign feature UI composition when it can be built from supplied data and existing shared components.
 
-## Required Rules
+## Design Requirements
 
-Read and apply `../rules/frontend/frontend-design-system.md`.
+Apply the design requirements included in the validated plan. Plan New Frontend Design reads the shared design rules and carries the applicable requirements into the plan; the orchestrator supplies them with the component assignment.
 
 Follow the active project instructions, approved frontend technology, and existing component conventions. Use the validated plan as the implementation requirements. Consult its referenced specification or prototype when component details require clarification.
 
