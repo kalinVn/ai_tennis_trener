@@ -55,6 +55,6 @@ Source Claude configuration remains under `claude/` for compatibility and must n
 - Codex may update only Step 1 in `claude/skills/plan-new-frontend-design.md` to specify that this project's frontend requirements come from `docs/frontend/frontend.md`, with Application Purpose sourced from `Purpose` and Required Pages sourced from `Required Pages and Routes`.
 - Codex may update only Step 8 in `claude/skills/plan-new-frontend-design.md` when synchronizing its feature-component selection rules with the `Feature Components` section in `docs/frontend/frontend.md`.
 - Codex may update only Step 7 in `claude/skills/plan-new-frontend-design.md` when synchronizing its shared-component selection rules with the `Shared UI Requirements` section in `docs/frontend/frontend.md`.
-- Codex may update `claude/agents/new-frontend-orchestrator.md` when synchronizing its execution order with the approved workflow in `docs/frontend/examples/build-frontend-workflow.md`.
+- Codex may update `claude/agents/new-frontend-orchestrator.md` when synchronizing its execution order with the approved workflow in `docs/frontend/examples/workflow-examples/build-frontend-workflow.md`.
 
 No other files or changes under `claude/` are permitted through these exceptions.

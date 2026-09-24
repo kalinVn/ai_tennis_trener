@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Analyze the requirements for a new frontend (`docs/frontend/frontend.md`) and produce a structured frontend design plan for the Frontend Orchestrator.
+Analyze the requirements in the provided frontend specification and produce a structured frontend design plan for the Frontend Orchestrator.
 
 This skill is used when the frontend does not yet have an established implementation.
 
@@ -28,13 +28,15 @@ Do not duplicate those rules inside this skill.
 
 ## Input
 
-Read `docs/frontend/frontend.md`. It is the sole source of frontend requirements, including technology, routes, authentication, and application features.
+Receive `specification_path` from the Frontend Orchestrator. Resolve relative paths from the project root and read that file as the source of frontend requirements, including technology, routes, authentication, and application features.
+
+If the path is missing or the file cannot be read, report the problem to the orchestrator and stop planning. Do not substitute another specification.
 
 ---
 
 ## Referenced Visual Prototype
 
-A visual prototype is a referenced resource, not an input. Resolve and analyze it only when `docs/frontend/frontend.md` references it.
+A visual prototype is a referenced resource, not an input. Resolve and analyze the prototype referenced by the provided frontend specification.
 
 ---
 
@@ -42,8 +44,8 @@ A visual prototype is a referenced resource, not an input. Resolve and analyze i
 
 When requirements conflict, use:
 
-1. Project frontend specification (`docs/frontend/frontend.md`)
-2. Visual prototype referenced by the project frontend specification (`docs/prototypes/tennis-ai-coach.html`)
+1. Project frontend specification resolved from `specification_path`
+2. Visual prototype referenced by that specification
 3. Shared frontend design rules (`../rules/frontend/frontend-design-system.md`)
 
 Higher-priority requirements override lower-priority defaults.
@@ -54,7 +56,7 @@ Higher-priority requirements override lower-priority defaults.
 
 ## 1. Read the Frontend Specification
 
-Read `docs/frontend/frontend.md` before analyzing the frontend.
+Read the specification resolved from `specification_path` before analyzing the frontend. Use this same specification throughout the remaining steps.
 
 Use it to understand the complete frontend scope.
 
@@ -186,7 +188,7 @@ Return the page definition to the orchestrator.
 
 ## 7. Determine Shared Components
 
-Read the `Shared UI Requirements` section in `docs/frontend/frontend.md` and identify the reusable components defined there.
+Read the `Shared UI Requirements` section in the provided frontend specification and identify the reusable components defined there.
 
 Do not infer extra shared components from examples. A shared component must be required by the frontend specification and used by more than one page or layout.
 
@@ -206,7 +208,7 @@ Return the component requirement to the orchestrator.
 
 ## 8. Determine Feature Components
 
-Read the `Feature Components` section in `docs/frontend/frontend.md` and identify only the project-specific components defined there.
+Read the `Feature Components` section in the provided frontend specification and identify only the project-specific components defined there.
 
 Do not infer extra feature components from examples. In particular, do not add a payment modal unless the frontend specification explicitly requires one.
 
@@ -252,6 +254,25 @@ The output must contain:
 new
 ```
 
+## Project Structure
+
+Derive the structure requirements from the provided frontend specification and its project constraints. Include:
+
+- application root directory
+- required feature modules and their responsibilities
+- placement of module-specific pages and components
+- placement of shared components, routing, styles, assets, and other required shared resources
+
+Within each feature module, separate Vue views from JavaScript logic. Keep templates in `.vue` page and component files, and place state, event handlers, validation, and other behavior in separate `.js` modules or composables imported by those views. Keep the Vue script block limited to imports and minimal wiring required to connect the template to the external logic. Keep API access in separate service modules rather than embedding it in view files.
+
+For each planned page or component, describe the placement of its Vue view and any required JavaScript logic files within the owning module. Shared logic belongs in shared resources only when reused. Do not create placeholder logic files for views that need no JavaScript behavior.
+
+Plan Pinia stores for shared feature state: module-specific stores belong in that module's `stores/` directory; application-wide stores belong in `src/stores/`. Describe the state ownership and actions needed by pages and feature components, which access their store directly instead of forwarding shared state through props. Keep API calls in services and initialize Pinia once at application startup. Do not persist passwords or secrets. Do not force purely local UI state or generic component props into stores.
+
+Describe only the structure required by the planned frontend. Mark unspecified structural decisions explicitly for resolution rather than inventing additional modules or folders.
+
+Return these requirements as part of the plan. The orchestrator passes them to Frontend Project Structure to inspect the existing project and create missing directories; this planning skill does not create them.
+
 ## Design Foundation
 
 Include:
@@ -272,6 +293,8 @@ For each layout:
 name
 purpose
 used_by_pages
+shared_navigation
+shared_content_structure
 ```
 
 ## Required Pages
@@ -311,7 +334,10 @@ name
 responsibility
 used_by_page
 dependencies
+data_requirements
 ```
+
+Describe the data needed by each feature component and reference its documented source or contract when available. Mark unknown fields or contracts as unresolved; do not invent API endpoints or payloads.
 
 ## Required Routes
 
@@ -323,7 +349,24 @@ page
 access
 layout
 parameters
+navigation_visibility
 ```
+
+Describe where each route appears in navigation and under which conditions it is visible. Navigation visibility does not replace the route's access requirements.
+
+## Open Questions and Blockers
+
+Return an empty list when there are no unresolved issues. Otherwise, for each issue include:
+
+```text
+question_or_missing_information
+affected_plan_items
+implementation_impact
+blocking
+required_resolution
+```
+
+Identify missing information and conflicting requirements explicitly. Explain which work cannot proceed and what clarification or source is needed. Do not present assumptions as confirmed requirements or a blocked plan as ready for implementation. Return these issues to the orchestrator for resolution before affected work begins.
 
 ## Build Order
 
@@ -376,6 +419,9 @@ Before returning the plan verify:
 - design rules are respected
 - dependencies are clear
 - implementation order is valid
+- feature-component data requirements are included, with unknown contracts explicitly reported
+- route navigation visibility is included and distinguished from access requirements
+- unresolved questions and blockers identify affected work and the required resolution
 
 ---
 

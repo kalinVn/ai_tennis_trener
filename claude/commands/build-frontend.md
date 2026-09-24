@@ -32,17 +32,11 @@ Path to the frontend specification that defines the frontend to build.
 
 ## Workflow
 
-This command explicitly selects:
-
-    workflow_type: new_frontend
-
 Delegate the task to:
 
     new-frontend-orchestrator
 
 Provide:
-
-    workflow_type: new_frontend
     specification_path: <specification-path>
 
 The New Frontend Orchestrator owns the complete implementation workflow.
