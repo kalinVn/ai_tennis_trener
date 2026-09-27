@@ -18,17 +18,17 @@ The `/build-frontend` command invokes the New Frontend Orchestrator and provides
 
 ### Receive the Frontend Plan
 
-The New Frontend Orchestrator receives the complete structured plan returned by `plan-new-frontend-design`. This plan becomes the implementation map for the remaining workflow.
+The New Frontend Orchestrator receives the complete structured plan returned by `plan-new-frontend-design`. It becomes the implementation map only after independent validation in Step 3.
 
 Example result: [Plan New Frontend Design — Example Result](./plan-new-frontend-design-example-result.md).
 
 ### Validate the Frontend Plan
 
-Before implementation begins, the orchestrator verifies that the returned plan is complete, consistent, and executable. It checks that required layouts, pages, routes, shared components, feature components, dependencies, and build order are present and connected correctly.
+In Step 3, the orchestrator invokes `frontend-plan-validator` with `specification_path` and the complete `frontend_plan`. The validator independently reads the original specification, applicable design rules, and referenced prototypes. It checks requirement coverage, layouts, pages, routes/access, components, module ownership, project structure, dependencies, and build order. The planning skill retains its internal checks; the orchestrator does not repeat the validator's detailed review.
 
-If the plan contains a missing requirement, contradiction, invalid dependency, or duplicate responsibility, the orchestrator does not start the builder skills and does not repair the plan by guessing. It returns the specific validation problem to `plan-new-frontend-design`, receives a corrected plan, and validates it again.
+The validator returns `status`, actionable `errors`, non-blocking `warnings`, and the unchanged `validated_plan` only when valid. A valid result with no errors allows Step 4 to establish structure using that validated plan. Warnings remain visible to downstream work and the final report.
 
-This correction cycle continues until the plan is valid. Only the validated plan may be used as the basis for project structure and implementation.
+For an invalid result, the orchestrator sends the original specification path, rejected plan, and actionable errors to `plan-new-frontend-design`, then validates the complete corrected plan again. Allow at most two correction attempts after the initial validation (three validator invocations total). If errors remain, stop and report a blocker with remaining errors and required resolution. Stop earlier for missing sources, required user decisions, or failed/malformed validator results. Never proceed with an invalid plan or reset the retry limit to bypass unresolved errors. Later plan revisions require independent validation again.
 
 ### Select and Execute Implementation Skills
 

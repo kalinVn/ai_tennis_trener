@@ -42,7 +42,7 @@ The orchestrator must:
 
 1. run new frontend design planning with the provided specification path
 2. receive the structured frontend implementation plan
-3. validate that plan
+3. delegate independent plan validation to `frontend-plan-validator` and coordinate bounded corrections
 4. establish the required project structure from the validated plan
 5. select the required implementation skills
 6. execute those skills in dependency order
@@ -59,6 +59,7 @@ The orchestrator must:
 The orchestrator may use:
 
 - `plan-new-frontend-design`
+- `frontend-plan-validator`
 - `frontend-project-structure`
 - `frontend-component-builder`
 - `frontend-page-builder`
@@ -114,35 +115,23 @@ pass it to Step 3 for validation.
 
 ## Step 3 — Validate Frontend Plan
 
-Before implementation begins, verify:
+Run `frontend-plan-validator` before any project structure or implementation work, providing:
 
-- all required pages are represented
-- required layouts are represented
-- required routes are represented
-- reusable components are identified
-- feature components are identified
-- dependencies are explicit
-- build order is valid
-- obvious component duplication is avoided
+    specification_path: the original specification path from Step 1
+    frontend_plan: the complete latest plan received from plan-new-frontend-design
 
-Implementation skill selection belongs to the orchestrator. Validate the planned work and dependencies here; the design plan does not need a Required Skills list. Missing planning information returns to the design skill, while missing execution capabilities are reported by the orchestrator.
+The validator independently checks the plan against the original specification, applicable design rules and referenced prototypes. Do not duplicate its detailed validation inside the orchestrator.
 
-Resolve missing planning information before builder skills begin.
+Handle its structured result:
 
-Do not allow downstream skills to guess missing architecture unnecessarily.
+1. If `status: valid`, `errors` is empty, and `validated_plan` contains the unchanged submitted plan, retain the warnings and adopt that validated plan as the implementation map. Continue to Step 4, supplying its structure requirements to `frontend-project-structure` as described there.
+2. If `status: invalid`, do not start Step 4 or any builder. Pass the actionable errors, original `specification_path`, and rejected plan to `plan-new-frontend-design` as correction context. Receive the complete corrected plan and invoke `frontend-plan-validator` again with the same specification path.
+3. Allow at most two correction attempts after the initial validation: at most three validator invocations in this Step 3 cycle. Do not reset the counter when a corrected plan arrives. If the third result is invalid, stop and report the remaining errors, their source requirements, attempts used, and required resolution as a blocker.
+4. Stop earlier if correction requires unavailable source material, a user decision, or external input. A failed invocation, absent result, unknown status, contradictory result, or missing/changed `validated_plan` in a valid response is a blocker, not approval. Do not substitute the planner's self-checks or silently fall back to internal validation.
 
-If validation finds a missing requirement, contradiction, invalid dependency, or duplicate responsibility:
+Never proceed with an invalid or unvalidated plan. Keep warnings visible for downstream work and the final report. Any later plan revision must pass this gate again before affected implementation resumes; unresolved errors must not be bypassed by restarting the same correction cycle.
 
-1. report the specific validation problem to `plan-new-frontend-design`
-2. request a corrected structured frontend plan
-3. receive the corrected plan
-4. validate the corrected plan again
-
-Repeat this correction cycle until the plan is valid.
-
-Do not continue to project structure or builder skills while the plan is invalid.
-
-After validation, the structured frontend plan becomes the implementation map for every remaining orchestration step. Provide each downstream skill only the relevant requirements from this validated plan.
+Implementation skill selection remains the orchestrator's responsibility in Step 5; the plan does not need a Required Skills list. Provide each downstream skill only the relevant requirements from the validated plan.
 
 ---
 
@@ -511,6 +500,7 @@ Include:
 
 - specification used
 - skills invoked
+- independent plan-validation result, correction attempts, and non-blocking warnings
 - project structure created
 - pages created
 - layouts created
@@ -626,7 +616,7 @@ Realtime requirements may increase performance priority where appropriate.
         ↓
     Structured Frontend Plan
         ↓
-    Validate Plan
+    frontend-plan-validator (Step 3; bounded correction loop)
         ↓
     frontend-project-structure
         ↓

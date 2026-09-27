@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Profile · Tennis AI Coach</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Profile-only enhancements. Existing shared layout, navigation and tokens remain unchanged. */
+    .profile-intro { margin-bottom: 27px; }
+    .profile-stack { display: grid; gap: 18px; max-width: 1100px; }
+    .profile-section { padding: 0; overflow: hidden; }
+    .profile-section > summary { padding: 23px 25px; display: flex; gap: 16px; align-items: center; justify-content: space-between; cursor: pointer; list-style: none; }
+    .profile-section > summary::-webkit-details-marker { display: none; }
+    .profile-section > summary::after { content: '+'; font-size: 25px; color: var(--accent); flex: 0 0 auto; }
+    .profile-section[open] > summary::after { content: '−'; }
+    .profile-section > summary h2 { font-size: 20px; margin: 0 0 5px; letter-spacing: 0; }
+    .profile-section > summary p { font-size: 13px; margin: 0; }
+    .profile-body { border-top: 1px solid var(--border); padding: 23px 25px 25px; }
+    .profile-grid input:focus-visible,.profile-grid select:focus-visible,.profile-grid textarea:focus-visible { outline: 2px solid var(--accent2); outline-offset: 2px; }
+    .profile-avatar { width: 66px; height: 66px; border-radius: 19px; border: 1px solid var(--border); background: linear-gradient(135deg,#284b31,#17271f); color: var(--accent); font-size: 23px; font-weight: 850; display: grid; place-items: center; overflow: hidden; }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-identity { display:flex;align-items:center;gap:17px;flex-wrap:wrap;margin:0 0 23px; }
+    .profile-identity p { margin: 3px 0 0; font-size:13px; }
+    .profile-identity .field { margin: 0; }
+    .profile-check { display:flex;gap:10px;align-items:flex-start;color:var(--text);font-size:14px; }
+    .profile-actions { margin:9px 0 0; }
+    .profile-identity > div { min-width:0; max-width:100%; }
+    .profile-help { color:var(--muted);font-size:13px;margin:0 0 16px; }
+    .profile-account { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
+    .profile-account > div { padding:15px;border:1px solid var(--border);border-radius:14px;background:#09150f; }
+    .profile-account strong { display:block;margin-top:4px; }
+    .profile-account small { color:var(--muted); }
+    @media(max-width:720px) { .profile-account { grid-template-columns:1fr; } .profile-section > summary { padding:18px; } .profile-body { padding:20px 18px; } .profile-section > summary h2 { font-size:18px; } }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="dashboard.html"><span class="logo">AI</span>Coach</a>
+    <div class="side-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="training.html">Training</a>
+      <a href="history.html">History</a>
+      <a href="subscription.html">Subscription</a>
+      <a href="profile.html" aria-current="page">Profile</a>
+      <a href="settings.html">Settings</a>
+    </div>
+    <p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authenticated Application Layout · demo</p>
+  </aside>
+  <div class="app-main">
+    <header class="app-top">
+      <span class="eyebrow" style="margin:0">Tennis AI Coach / Profile</span>
+      <div class="flex"><span class="muted">Artur Bortnik demo user</span><a class="btn small" href="index.html">Log out</a></div>
+    </header>
+    <main class="app-content">
+      <div class="profile-intro">
+        <div class="eyebrow">ACCOUNT</div>
+        <h1>Profile</h1>
+        <p>Manage your personal details, tennis profile and training goals.</p>
+      </div>
+      <form id="profile-form" class="profile-stack">
+        <details class="panel profile-section" open>
+          <summary><div><h2>Personal Information</h2><p>Your name, contact details and public profile.</p></div></summary>
+          <div class="profile-body">
+            <div class="profile-identity">
+              <div class="profile-avatar" id="avatar-preview" aria-label="Profile avatar">AM</div>
+              <div><strong>Profile picture</strong><p>Optional. Preview only; no image is uploaded.</p>
+                <div class="field"><label for="avatar">Choose an image</label><input id="avatar" name="avatar_preview" type="file" accept="image/png,image/jpeg,image/webp"></div>
+              </div>
+            </div>
+            <div class="profile-grid form-grid">
+              <div class="field"><label for="first-name">First name *</label><input id="first-name" name="first_name" value="Alex" autocomplete="given-name" required></div>
+              <div class="field"><label for="last-name">Last name *</label><input id="last-name" name="last_name" value="Morgan" autocomplete="family-name" required></div>
+              <div class="field"><label for="username">Username</label><input id="username" name="username" value="alexmorgan" autocomplete="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9_.-]{3,32}" title="3–32 letters, digits, dots, hyphens or underscores"></div>
+              <div class="field"><label for="display-name">Display name</label><input id="display-name" name="display_name" value="Alex" maxlength="60"></div>
+              <div class="field"><label for="profile-email">Email *</label><input id="profile-email" name="email" type="email" value="alex@example.com" autocomplete="email" required><small>Email verification is managed by the backend.</small></div>
+              <div class="field"><label for="email-status">Email status</label><input id="email-status" value="Verified (demo)" readonly aria-readonly="true"></div>
+              <div class="field"><label for="phone-country">Phone country code (optional)</label><select id="phone-country" name="phone_country_code"><option value="">Choose code</option><option value="+359" selected>🇧🇬 +359 Bulgaria</option><option value="+44">+44 United Kingdom</option><option value="+1">+1 United States / Canada</option><option value="+49">+49 Germany</option><option value="other">Other</option></select></div>
+              <div class="field"><label for="phone">Phone number (optional)</label><input id="phone" name="phone" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="e.g. 888 123 456"><small>Only needed if you choose to provide it; verification and SMS are not active.</small></div>
+              <div class="field"><label for="phone-status">Phone verification</label><input id="phone-status" value="Not verified" readonly aria-readonly="true"></div>
+              <div class="field"><label for="birthdate">Date of birth (optional)</label><input id="birthdate" name="date_of_birth" type="date" autocomplete="bday"><small>Collect only if needed for an agreed product feature.</small></div>
+              <div class="field"><label for="country">Country / region (optional)</label><input id="country" name="country" autocomplete="country-name" placeholder="Your country"></div>
+              <div class="field"><label for="city">City (optional)</label><input id="city" name="city" autocomplete="address-level2" placeholder="Your city"></div>
+              <div class="field wide"><label for="bio">About me (optional)</label><textarea id="bio" name="bio" maxlength="500" placeholder="A few words about your tennis journey"></textarea></div>
+            </div>
+          </div>
+        </details>
+        <details class="panel profile-section" open>
+          <summary><div><h2>Tennis Profile</h2><p>Information that helps adapt tennis-specific guidance.</p></div></summary>
+          <div class="profile-body"><div class="profile-grid form-grid">
+            <div class="field"><label for="level">Playing level</label><select id="level" name="playing_level"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option><option>Competitive</option></select></div>
+            <div class="field"><label for="experience">Playing experience</label><select id="experience" name="playing_experience"><option value="">Not specified</option><option value="under-1">Under 1 year</option><option value="1-3">1–3 years</option><option value="3-5">3–5 years</option><option value="5-10">5–10 years</option><option value="10-plus">10+ years</option></select></div>
+            <div class="field"><label for="hand">Dominant hand</label><select id="hand" name="dominant_hand"><option value="">Not specified</option><option>Right</option><option>Left</option></select></div>
+            <div class="field"><label for="backhand">Backhand</label><select id="backhand" name="backhand_style"><option value="">Not specified</option><option>One-handed</option><option>Two-handed</option></select></div>
+            <div class="field"><label for="play-style">Playing style</label><select id="play-style" name="playing_style"><option value="">Not specified</option><option>Aggressive baseliner</option><option>Defensive baseliner</option><option>All-court</option><option>Serve and volley</option><option>Still exploring</option></select></div>
+            <div class="field"><label for="surface">Preferred court surface</label><select id="surface" name="preferred_surface"><option value="">No preference</option><option>Hard court</option><option>Clay</option><option>Grass</option><option>Other</option></select></div>
+            <div class="field"><label for="favorite-stroke">Favorite stroke</label><select id="favorite-stroke" name="favorite_stroke"><option value="">Not specified</option><option>Forehand</option><option>Backhand</option><option>Serve</option><option>Volley</option></select></div>
+            <div class="field"><label for="training-frequency">Typical training frequency</label><select id="training-frequency" name="typical_training_frequency"><option value="">Not specified</option><option value="1">Once a week</option><option value="2">Twice a week</option><option value="3">Three times a week</option><option value="4+">Four or more times</option></select></div>
+          </div></div>
+        </details>
+        <details class="panel profile-section">
+          <summary><div><h2>Training Goals</h2><p>What you want the AI coach to help you improve.</p></div></summary>
+          <div class="profile-body"><div class="profile-grid form-grid">
+            <div class="field"><label for="main-goal">Primary goal</label><select id="main-goal" name="primary_goal"><option>Improve technique</option><option>Better footwork</option><option>Better consistency</option><option>Increase accuracy</option><option>Prepare for matches</option><option>General fitness</option></select></div>
+            <div class="field"><label for="training-time">Preferred session length</label><select id="training-time" name="preferred_session_minutes"><option value="">Not specified</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select></div>
+            <div class="field wide"><label>Strokes and skills to improve</label><div class="flex">
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="forehand" checked>Forehand</label>
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="backhand">Backhand</label>
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="serve">Serve</label>
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="volley">Volley</label>
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="footwork" checked>Footwork</label>
+            </div></div>
+            <div class="field wide"><label for="goal-notes">Your training goal (optional)</label><textarea id="goal-notes" name="goal_notes" maxlength="500" placeholder="Describe what you would like to achieve"></textarea></div>
+          </div></div>
+        </details>
+        <details class="panel profile-section">
+          <summary><div><h2>Physical Information</h2><p>Optional measurements; enter only if useful for your training.</p></div></summary>
+          <div class="profile-body"><p class="profile-help">These values are optional and should not be required to use the app.</p><div class="profile-grid form-grid">
+            <div class="field"><label for="height">Height (cm)</label><input id="height" name="height_cm" type="number" min="80" max="250" step="1" inputmode="numeric" placeholder="e.g. 180"></div>
+            <div class="field"><label for="wingspan">Arm span (cm)</label><input id="wingspan" name="arm_span_cm" type="number" min="80" max="280" step="1" inputmode="numeric" placeholder="Optional"></div>
+            <div class="field"><label for="intensity">Preferred training intensity</label><select id="intensity" name="preferred_intensity"><option value="">Not specified</option><option>Light</option><option>Moderate</option><option>High</option></select></div>
+          </div></div>
+        </details>
+        <details class="panel profile-section">
+          <summary><div><h2>Account Overview</h2><p>Read-only account details and links to security and billing.</p></div></summary>
+          <div class="profile-body"><div class="profile-account">
+            <div><small>Account type</small><strong>Individual player · demo</strong></div>
+            <div><small>Account status</small><strong class="accent">Active · demo</strong></div>
+            <div><small>Registered on</small><strong>Example — backend value</strong></div>
+            <div><small>Last sign-in</small><strong>Example — backend value</strong></div>
+          </div><div class="flex" style="margin-top:21px"><a class="btn" href="settings.html">Password and security</a><a class="btn" href="subscription.html">Subscription and billing</a></div></div>
+        </details>
+        <div class="profile-actions"><button class="btn primary" type="submit">Save changes (demo)</button><button class="btn ghost" type="reset">Reset changes</button><span class="muted" style="font-size:13px">* Required fields</span></div>
+        <p id="demo-note" class="callout" role="status" aria-live="polite" hidden></p>
+      </form>
+    </main>
+  </div>
+</div>
+<script src="app.js"></script>
+<script>
+  const profileForm = document.getElementById('profile-form');
+  const avatar = document.getElementById('avatar');
+  const preview = document.getElementById('avatar-preview');
+  let avatarUrl = null;
+  avatar.addEventListener('change', () => {
+    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    avatarUrl = null;
+    const file = avatar.files && avatar.files[0];
+    if (!file) { preview.textContent = 'AM'; return; }
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 3 * 1024 * 1024) {
+      avatar.value = ''; preview.textContent = 'AM';
+      document.getElementById('demo-note').textContent = 'Choose a JPG, PNG or WebP image smaller than 3 MB.';
+      document.getElementById('demo-note').hidden = false;
+      return;
+    }
+    avatarUrl = URL.createObjectURL(file);
+    preview.replaceChildren();
+    const image = document.createElement('img'); image.src = avatarUrl; image.alt = 'Selected profile picture preview';
+    preview.append(image);
+  });
+  profileForm.addEventListener('submit', event => {
+    event.preventDefault();
+    if (!profileForm.reportValidity()) return;
+    showDemoNote('Profile preview only — no data has been sent or saved.');
+  });
+  profileForm.addEventListener('reset', () => {
+    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    avatarUrl = null;
+    preview.textContent = 'AM';
+    document.getElementById('demo-note').hidden = true;
+  });
+</script>
+</body>
+</html>
