@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Grid Layout · Tennis AI Coach Library</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="prototype-library">
+<div class="app-shell"><aside class="sidebar"><a class="brand" href="../pages/dashboard.html"><span class="logo">AI</span>Coach</a><div class="side-links"><a href="../pages/dashboard.html" aria-current="page">Dashboard</a><a href="../pages/training.html">Training</a><a href="../pages/history.html">History</a><a href="../pages/subscription.html">Subscription</a><a href="../pages/profile.html">Profile</a><a href="../pages/settings.html">Settings</a></div><p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authenticated Application Layout · demo</p></aside><div class="app-main"><header class="app-top"><span class="eyebrow" style="margin:0">Tennis AI Coach / Grid Layout</span><div class="flex"><span class="muted">Alex Morgan · demo user</span><a class="btn small" href="../pages/index.html">Log out</a></div></header><main class="app-content"><div class="page-head"><div class="eyebrow"><a href="../index.html">← Prototype catalog</a></div><h1>Grid Layout</h1><p>Existing stack, two-column and three-column grids collapse on narrow screens and pair suitable cards on landscape phones.</p></div><div class="stack"><section><h2>One column · stack</h2><div class="stack"><div class="card"><div class="icon">01</div><h3>Live Training</h3><p>Camera preview, clear controls, analysis state and realtime coaching feedback.</p></div></div></section><section><h2>Two columns · two-col</h2><div class="two-col"><div class="panel"><span class="pill">Active · demo</span><h2 style="margin-top:16px">Performance plan</h2><p>Realtime coaching, richer insights and progress tools.</p><h2 class="accent">€19 <span class="muted" style="font-size:16px">/ month (example)</span></h2><button class="btn primary" onclick="showDemoNote('Plan change is not connected in this prototype.')">Change plan</button></div><div class="panel"><h3>Billing details</h3><p>Next renewal: Oct 26, 2026 (illustrative).</p><p>Payment method: Not connected.</p><button class="btn" onclick="showDemoNote('Billing is a visual prototype only.')">Manage billing</button></div></div></section><section><h2>Three columns · grid3</h2><div class="grid3">
+<div class="card"><div class="icon">01</div><h3>Live Training</h3><p>Camera preview, clear controls, analysis state and realtime coaching feedback.</p></div>
+<div class="card"><div class="icon">02</div><h3>Session Review</h3><p>Summaries, technique issues, metrics, recommendations and key moments.</p></div>
+<div class="card"><div class="icon">03</div><h3>Progress</h3><p>Training history, performance trends and a clear next improvement.</p></div>
+</div></section><p id="demo-note" class="callout" hidden></p></div></main></div></div>
+<script src="../app.js"></script>
+
+</body>
+</html>

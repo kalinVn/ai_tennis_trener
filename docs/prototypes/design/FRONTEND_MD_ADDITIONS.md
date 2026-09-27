@@ -1,16 +1,16 @@
 # Proposed additions to docs/frontend/frontend.md
 
 These are suggested project-specific layout definitions, not automatically confirmed requirements.
-Paths are relative to `docs/frontend/` when stored in `docs/frontend/prototypes/`.
+Prototype paths below are relative to the repository root. The catalog is `docs/prototypes/design/index.html`.
 
 ## Shared Layouts
 
 | Layout | Purpose | Pages | Visual reference |
 | --- | --- | --- | --- |
-| Public Layout | Public navigation + page content + footer | Home `/`, Features `/features`, Pricing `/pricing` | `prototypes/index.html`, `prototypes/features.html`, `prototypes/pricing.html` |
-| Authentication UI | Shared modal for Login/Register (not a separate page layout in this prototype) | Available from public pages | `prototypes/index.html` |
-| Authenticated Application Layout | Shared sidebar and app header | Dashboard `/dashboard`, Training `/training`, History `/history`, Subscription `/subscription`, Profile `/profile`, Settings `/settings` | `prototypes/dashboard.html`, `prototypes/training.html`, `prototypes/history.html`, `prototypes/subscription.html`, `prototypes/profile.html`, `prototypes/settings.html` |
-| Full-screen Feature Layout | Camera-first screen with minimal controls | `/training/camera` | `prototypes/camera.html` |
+| Public Layout | Public navigation + page content + footer | Home `/`, Features `/features`, Pricing `/pricing` | `docs/prototypes/design/pages/index.html`, `docs/prototypes/design/pages/features.html`, `docs/prototypes/design/pages/pricing.html` |
+| Authentication UI | Shared modal for Login/Register (not a separate page layout in this prototype) | Available from public pages | `docs/prototypes/design/pages/index.html` |
+| Authenticated Application Layout | Shared sidebar and app header | Dashboard `/dashboard`, Training `/training`, History `/history`, Subscription `/subscription`, Profile `/profile`, Settings `/settings` | `docs/prototypes/design/pages/dashboard.html`, `docs/prototypes/design/pages/training.html`, `docs/prototypes/design/pages/history.html`, `docs/prototypes/design/pages/subscription.html`, `docs/prototypes/design/pages/profile.html`, `docs/prototypes/design/pages/settings.html` |
+| Full-screen Feature Layout | Camera-first screen with minimal controls | `/training/camera` | `docs/prototypes/design/pages/camera.html` |
 
 The dashboard is a page within Authenticated Application Layout, not necessarily a separate Dashboard Layout. Settings is also a page in the same shared layout unless a real design requires a different shell.
 
@@ -18,16 +18,16 @@ The dashboard is a page within Authenticated Application Layout, not necessarily
 
 | Production route | Prototype file | Layout |
 | --- | --- | --- |
-| `/` | `prototypes/index.html` | Public |
-| `/features` | `prototypes/features.html` | Public |
-| `/pricing` | `prototypes/pricing.html` | Public |
-| `/dashboard` | `prototypes/dashboard.html` | Authenticated Application |
-| `/training` | `prototypes/training.html` | Authenticated Application |
-| `/training/camera` | `prototypes/camera.html` | Full-screen Feature |
-| `/history` | `prototypes/history.html` | Authenticated Application |
-| `/subscription` | `prototypes/subscription.html` | Authenticated Application |
-| `/profile` | `prototypes/profile.html` | Authenticated Application |
-| `/settings` | `prototypes/settings.html` | Authenticated Application |
+| `/` | `docs/prototypes/design/pages/index.html` | Public |
+| `/features` | `docs/prototypes/design/pages/features.html` | Public |
+| `/pricing` | `docs/prototypes/design/pages/pricing.html` | Public |
+| `/dashboard` | `docs/prototypes/design/pages/dashboard.html` | Authenticated Application |
+| `/training` | `docs/prototypes/design/pages/training.html` | Authenticated Application |
+| `/training/camera` | `docs/prototypes/design/pages/camera.html` | Full-screen Feature |
+| `/history` | `docs/prototypes/design/pages/history.html` | Authenticated Application |
+| `/subscription` | `docs/prototypes/design/pages/subscription.html` | Authenticated Application |
+| `/profile` | `docs/prototypes/design/pages/profile.html` | Authenticated Application |
+| `/settings` | `docs/prototypes/design/pages/settings.html` | Authenticated Application |
 
 Login/Register remain modal dialogs on public pages, per the prototype request.
 

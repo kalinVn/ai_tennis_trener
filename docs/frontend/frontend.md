@@ -31,7 +31,7 @@ Do not use TypeScript or introduce another frontend framework unless the project
 
 Use the following prototype as the visual reference:
 
-`docs/prototypes/design/tennis-ai-coach.html`
+`docs/prototypes/design/index.html` (catalog), with the application pages in `docs/prototypes/design/pages/`.
 
 The prototype defines the intended visual direction, hierarchy, layouts, navigation patterns, training-screen composition, authentication interaction, and pricing presentation.
 

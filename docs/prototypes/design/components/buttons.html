@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buttons · Tennis AI Coach Library</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body class="prototype-library">
+<div class="app-shell"><aside class="sidebar"><a class="brand" href="../pages/dashboard.html"><span class="logo">AI</span>Coach</a><div class="side-links"><a href="../pages/dashboard.html" aria-current="page">Dashboard</a><a href="../pages/training.html">Training</a><a href="../pages/history.html">History</a><a href="../pages/subscription.html">Subscription</a><a href="../pages/profile.html">Profile</a><a href="../pages/settings.html">Settings</a></div><p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authenticated Application Layout · demo</p></aside><div class="app-main"><header class="app-top"><span class="eyebrow" style="margin:0">Tennis AI Coach / Buttons</span><div class="flex"><span class="muted">Alex Morgan · demo user</span><a class="btn small" href="../pages/index.html">Log out</a></div></header><main class="app-content"><div class="page-head"><div class="eyebrow"><a href="../index.html">← Prototype catalog</a></div><h1>Buttons</h1><p>Existing primary, secondary, ghost, small and close-icon controls.</p></div><div class="stack"><section class="panel"><h2>Existing button variants</h2><div class="flex">
+<button type="button" class="btn primary" onclick="showDemoNote('Primary action example.')">Primary</button>
+<button type="button" class="btn" onclick="showDemoNote('Secondary action example.')">Secondary</button>
+<button type="button" class="btn ghost" onclick="showDemoNote('Ghost action example.')">Ghost</button>
+<button type="button" class="btn small" onclick="showDemoNote('Small action example.')">Small</button>
+<button type="button" class="close" aria-label="Close icon example" onclick="showDemoNote('Close icon example.')">×</button>
+</div></section><div class="settings-danger"><h3>Data management</h3><p>In the real app, users will be able to export training data and request account deletion. No data is deleted by this prototype.</p><div class="flex"><button type="button" class="btn" data-demo="Data export is not available in this prototype.">Export my data (demo)</button> <button type="button" class="btn" data-demo="Account deletion is not available in this prototype.">Delete account (demo)</button></div></div><p id="demo-note" class="callout" role="status" hidden></p><div class="callout"><p style="margin:0">Missing dedicated variants: Danger button styling, Disabled and Loading. The existing destructive action uses the standard button inside the data-management panel; the close icon uses the existing dialog control.</p></div></div></main></div></div>
+<script src="../app.js"></script>
+
+</body>
+</html>
