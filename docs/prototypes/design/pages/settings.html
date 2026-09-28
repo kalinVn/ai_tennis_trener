@@ -38,12 +38,12 @@
         <p>Customize your coaching, training experience, devices, notifications and privacy.</p>
       </div>
 
-      <form id="settings-form" class="settings-stack">
+      <div class="settings-stack">
         <details class="panel settings-section" open>
           <summary>
-            <div><h2>Account &amp; Language</h2><p>Regional preferences, account access and security.</p></div>
+            <div><h2 id="account-heading">Account &amp; Language</h2><p>Regional preferences, account access and security.</p></div>
           </summary>
-          <div class="settings-body">
+          <form id="account-settings-form" class="settings-body" aria-labelledby="account-heading">
             <div class="settings-grid form-grid">
               <div class="field"><label for="app-language">Application language</label>
                 <select id="app-language" name="app_language"><option value="en">English</option><option value="bg">Bulgarian</option><option value="es">Spanish</option><option value="fr">French</option></select>
@@ -59,14 +59,19 @@
               </div>
               <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="two_factor"> <span>Enable two-factor authentication<small>Prototype field; authentication is not configured here.</small></span></label></div>
             </div>
-          </div>
+          <div class="profile-actions">
+              <button class="btn primary" type="submit">Save Settings</button>
+              <button class="btn ghost" type="reset">Reset Fields</button>
+            </div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
         </details>
 
         <details class="panel settings-section" id="password-section">
           <summary>
-            <div><h2>Account Security · Change Password</h2><p>Update your sign-in password.</p></div>
+            <div><h2 id="password-heading">Account Security · Change Password</h2><p>Update your sign-in password.</p></div>
           </summary>
-          <div class="settings-body">
+          <form id="password-settings-form" class="settings-body" aria-labelledby="password-heading">
             <div class="settings-grid form-grid">
               <div class="field"><label for="current-password">Current password</label>
                 <input id="current-password" name="current_password" type="password" autocomplete="current-password" placeholder="Enter current password" minlength="1">
@@ -90,14 +95,18 @@
                 <p class="settings-note">Prototype only. This screen does not submit, validate credentials on a server, or save passwords. Changing a real password requires a protected backend endpoint.</p>
               </div>
             </div>
-          </div>
+          <div class="profile-actions">
+              <button class="btn primary" type="submit">Save Settings</button>
+              <button class="btn ghost" type="reset">Reset Fields</button>
+            </div>
+          </form>
         </details>
 
         <details class="panel settings-section" open>
           <summary>
-            <div><h2>Training Preferences</h2><p>Tailor recommendations to your tennis practice.</p></div>
+            <div><h2 id="training-heading">Training Preferences</h2><p>Tailor recommendations to your tennis practice.</p></div>
           </summary>
-          <div class="settings-body">
+          <form id="training-settings-form" class="settings-body" aria-labelledby="training-heading">
             <div class="settings-grid form-grid">
               <div class="field"><label for="skill-level">Playing level</label>
                 <select id="skill-level" name="skill_level"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="advanced">Advanced</option><option value="competitive">Competitive</option></select>
@@ -127,12 +136,17 @@
                 <textarea id="goals" name="training_goals" placeholder="For example: improve forehand timing and footwork..."></textarea>
               </div>
             </div>
-          </div>
+          <div class="profile-actions">
+              <button class="btn primary" type="submit">Save Settings</button>
+              <button class="btn ghost" type="reset">Reset Fields</button>
+            </div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
         </details>
 
         <details class="panel settings-section">
-          <summary><div><h2>AI Coach &amp; Audio</h2><p>Voice guidance, timing, detail and spoken feedback.</p></div></summary>
-          <div class="settings-body"><div class="settings-grid form-grid">
+          <summary><div><h2 id="audio-heading">AI Coach &amp; Audio</h2><p>Voice guidance, timing, detail and spoken feedback.</p></div></summary>
+          <form id="audio-settings-form" class="settings-body" aria-labelledby="audio-heading"><div class="settings-grid form-grid">
             <div class="field"><label for="feedback">Audio feedback</label><select id="feedback" name="feedback_mode"><option value="short">Short cues</option><option value="detailed">Detailed instructions</option><option value="off">Off</option></select></div>
             <div class="field"><label for="coach-language">Coach language</label><select id="coach-language" name="coach_language"><option value="en">English</option><option value="bg">Bulgarian</option><option value="es">Spanish</option></select></div>
             <div class="field"><label for="coach-voice">Coach voice</label><select id="coach-voice" name="coach_voice"><option value="voice_a">Voice A</option><option value="voice_b">Voice B</option><option value="voice_c">Voice C</option></select><small>Placeholder voices for future TTS integration.</small></div>
@@ -142,12 +156,17 @@
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="live_cues" checked><span>Real-time coaching cues<small>Allow guidance during approach and preparation.</small></span></label></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="post_stroke_feedback" checked><span>Post-stroke analysis<small>Include technique feedback after each stroke.</small></span></label></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="spoken_summary"><span>Spoken session summary<small>Read out highlights at the end of training.</small></span></label></div>
-          </div></div>
+          </div><div class="profile-actions">
+              <button class="btn primary" type="submit">Save Settings</button>
+              <button class="btn ghost" type="reset">Reset Fields</button>
+            </div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
         </details>
 
         <details class="panel settings-section">
-          <summary><div><h2>Camera &amp; Devices</h2><p>Video capture, preferred positioning and microphone.</p></div></summary>
-          <div class="settings-body"><div class="settings-grid form-grid">
+          <summary><div><h2 id="devices-heading">Camera &amp; Devices</h2><p>Video capture, preferred positioning and microphone.</p></div></summary>
+          <form id="devices-settings-form" class="settings-body" aria-labelledby="devices-heading"><div class="settings-grid form-grid">
             <div class="field"><label for="camera-angle">Preferred camera angle</label><select id="camera-angle" name="camera_angle"><option value="behind">Behind player</option><option value="side">Side view</option><option value="front">Front view</option></select></div>
             <div class="field"><label for="camera-device">Camera device</label><select id="camera-device" name="camera_device"><option value="system">System default</option><option value="external">External camera (demo)</option></select><small>Live device discovery will be added with the backend/front-end integration.</small></div>
             <div class="field"><label for="video-resolution">Video resolution</label><select id="video-resolution" name="video_resolution"><option value="720p">720p</option><option value="1080p" selected>1080p</option><option value="4k">4K (if supported)</option></select></div>
@@ -156,50 +175,65 @@
             <div class="field"><label for="audio-output">Audio output</label><select id="audio-output" name="audio_output"><option value="system">System default</option><option value="headphones">Headphones (demo)</option></select></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="camera_mirror"><span>Mirror camera preview</span></label></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="show_pose" checked><span>Show pose and racket overlay<small>Display detected joints and racket position in the training view.</small></span></label></div>
-          </div></div>
+          </div><div class="profile-actions">
+              <button class="btn primary" type="submit">Save Settings</button>
+              <button class="btn ghost" type="reset">Reset Fields</button>
+            </div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
         </details>
 
         <details class="panel settings-section">
-          <summary><div><h2>Notifications</h2><p>Choose when and how Tennis AI Coach contacts you.</p></div></summary>
-          <div class="settings-body"><div class="settings-grid form-grid">
+          <summary><div><h2 id="notifications-heading">Notifications</h2><p>Choose when and how Tennis AI Coach contacts you.</p></div></summary>
+          <form id="notifications-settings-form" class="settings-body" aria-labelledby="notifications-heading"><div class="settings-grid form-grid">
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="training_reminders" checked><span>Training reminders</span></label></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="session_summaries" checked><span>Session summaries</span></label></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="weekly_progress" checked><span>Weekly progress reports</span></label></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="product_updates"><span>Product updates and new AI features</span></label></div>
             <div class="field"><label for="notification-channel">Preferred channel</label><select id="notification-channel" name="notification_channel"><option value="email">Email</option><option value="push">Push notifications</option><option value="both">Both</option><option value="none">None</option></select></div>
             <div class="field"><label for="reminder-time">Reminder time</label><input id="reminder-time" name="reminder_time" type="time" value="18:00"></div>
-          </div></div>
+          </div><div class="profile-actions">
+              <button class="btn primary" type="submit">Save Settings</button>
+              <button class="btn ghost" type="reset">Reset Fields</button>
+            </div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
         </details>
 
         <details class="panel settings-section">
-          <summary><div><h2>Privacy &amp; Data</h2><p>Control video retention, analytics and your training data.</p></div></summary>
-          <div class="settings-body"><div class="settings-grid form-grid">
+          <summary><div><h2 id="privacy-heading">Privacy &amp; Data</h2><p>Control video retention, analytics and your training data.</p></div></summary>
+          <form id="privacy-settings-form" class="settings-body" aria-labelledby="privacy-heading"><div class="settings-grid form-grid">
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="save_videos"><span>Save training videos<small>Prototype preference only; this page does not upload or record video.</small></span></label></div>
             <div class="field"><label for="retention">Video retention period</label><select id="retention" name="video_retention"><option value="session">Current session only</option><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option><option value="manual">Until manually deleted</option></select></div>
             <div class="field"><label for="visibility">Training history visibility</label><select id="visibility" name="history_visibility"><option value="private">Private</option><option value="coach">Shared with my coach</option></select></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="performance_analytics" checked><span>Enable personal performance analytics</span></label></div>
             <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="optional_telemetry"><span>Share optional diagnostic analytics<small>Separate from required service functionality.</small></span></label></div>
             <div class="field wide"><div class="settings-danger"><h3>Data management</h3><p>In the real app, users will be able to export training data and request account deletion. No data is deleted by this prototype.</p><div class="flex"><button type="button" class="btn" data-demo="Data export is not available in this prototype.">Export my data (demo)</button> <button type="button" class="btn" data-demo="Account deletion is not available in this prototype.">Delete account (demo)</button></div></div></div>
-          </div></div>
+          </div><div class="profile-actions">
+              <button class="btn primary" type="submit">Save Settings</button>
+              <button class="btn ghost" type="reset">Reset Fields</button>
+            </div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
         </details>
 
         <details class="panel settings-section">
-          <summary><div><h2>Subscription &amp; Billing</h2><p>Payment preferences and Stripe subscription management.</p></div></summary>
-          <div class="settings-body"><div class="settings-grid form-grid">
+          <summary><div><h2 id="billing-heading">Subscription &amp; Billing</h2><p>Payment preferences and Stripe subscription management.</p></div></summary>
+          <form id="billing-settings-form" class="settings-body" aria-labelledby="billing-heading"><div class="settings-grid form-grid">
             <div class="field"><label for="billing-currency">Preferred display currency</label><select id="billing-currency" name="billing_currency"><option value="EUR">EUR (€)</option><option value="USD">USD ($)</option><option value="GBP">GBP (£)</option></select></div>
             <div class="field"><label for="invoice-email">Invoice email</label><input id="invoice-email" name="invoice_email" type="email" placeholder="alex@example.com"></div>
             <div class="field wide"><p>Payment methods, invoices and billing details should be managed through Stripe's hosted checkout or customer portal. Do not store card numbers or CVC in this prototype.</p></div>
             <div class="field wide"><a class="btn" href="subscription.html">View subscription</a></div>
-          </div></div>
+          </div><div class="profile-actions">
+              <button class="btn primary" type="submit">Save Settings</button>
+              <button class="btn ghost" type="reset">Reset Fields</button>
+            </div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
         </details>
 
-        <div class="settings-actions">
-          <button class="btn primary" type="submit">Save settings (demo)</button>
-          <button class="btn" type="reset">Reset fields</button>
-          <p id="demo-note" class="callout settings-demo" aria-live="polite" hidden></p>
-        </div>
         <p class="settings-note">Visual prototype only: settings are not saved to a server. Device and payment options are illustrative.</p>
-      </form>
+      </div>
     </main>
   </div>
 </div>
@@ -231,22 +265,22 @@
     passwordNote.hidden = false;
   });
   // Page-only interactions. No backend or persistent storage in this prototype.
-  const form = document.getElementById('settings-form');
-  const note = document.getElementById('demo-note');
   const volume = document.getElementById('volume');
   const volumeValue = document.getElementById('volume-value');
   volume.addEventListener('input', () => { volumeValue.value = volume.value + '%'; });
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    note.textContent = 'Demo only: settings are not stored yet.';
-    note.hidden = false;
-  });
-  form.addEventListener('reset', () => {
-    note.hidden = true;
-    requestAnimationFrame(() => { volumeValue.value = volume.value + '%'; });
+  document.querySelectorAll('.settings-section form').forEach(form => {
+    const isPasswordForm = form.id === 'password-settings-form';
+    setupPanelForm(form, {
+      onSave: isPasswordForm ? () => document.getElementById('change-password').click() : undefined,
+      afterReset: () => {
+        if (form.contains(volume)) volumeValue.value = volume.value + '%';
+        if (isPasswordForm) passwordFields.forEach(field => { field.type = 'password'; });
+      }
+    });
   });
   document.querySelectorAll('[data-demo]').forEach(button => {
     button.addEventListener('click', () => {
+      const note = button.closest('form').querySelector('[role="status"]');
       note.textContent = button.dataset.demo;
       note.hidden = false;
       note.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

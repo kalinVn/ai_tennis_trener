@@ -140,3 +140,36 @@ if (document.body.classList.contains('prototype-library')) {
     volume.addEventListener('input', () => { output.value = volume.value + '%'; });
   }
 }
+
+// Shared, panel-scoped demo forms; saved values exist only until page reload.
+// An onSave override keeps specialized actions (such as passwords) out of snapshots.
+function setupPanelForm(form, { onSave, afterReset } = {}) {
+  const fields = [...form.querySelectorAll('input, select, textarea')];
+  const note = form.querySelector('[role="status"]');
+  const capture = () => fields.map(field => ({
+    value: field.value,
+    checked: field.checked,
+    files: field.type === 'file' ? field.files : null
+  }));
+  // Demo-only state: each panel owns its own saved values until reload.
+  let saved = capture();
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+    if (onSave) { onSave(); return; }
+    saved = capture();
+    note.textContent = 'Changes saved for this panel in this preview only. No data was sent to a server; reloading clears these changes.';
+    note.hidden = false;
+  });
+  form.addEventListener('reset', event => {
+    event.preventDefault();
+    fields.forEach((field, index) => {
+      const state = saved[index];
+      if (field.type === 'file') field.files = state.files;
+      else field.value = state.value;
+      if (field.type === 'checkbox' || field.type === 'radio') field.checked = state.checked;
+    });
+    afterReset?.();
+    note.hidden = true;
+  });
+}

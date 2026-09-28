@@ -12,19 +12,26 @@ Implementation workflow and skill selection are owned by the New Frontend Orches
 
 ---
 
-## Technology
-
-Use:
+## Technologies
 
 - Vue 3
-- JavaScript
+- TypeScript
 - Vue Router
 - Vite
+- `vite.config.ts` — development server and build configuration
+- Pinia — state management
+- HTML5
+- CSS3 / SCSS
+- HTML5 Canvas API — video overlays, pose landmarks, trajectories and visual feedback
+- MediaDevices API — camera access
+- ESLint — static code analysis and code-quality rules
+- Prettier — code formatting
+- Vitest — unit and component tests
+- Playwright — end-to-end and browser testing
 
-Prefer minimal dependencies and a simple, shallow, readable architecture.
+### Optional / Future
 
-Do not use TypeScript or introduce another frontend framework unless the project specification is explicitly changed.
-
+- Three.js / WebGL — 3D court, 3D skeleton and spatial visualizations
 ---
 
 ## Visual Prototype
@@ -65,123 +72,156 @@ May access features enabled by the active plan. The frontend displays plan state
 
 ### Public Layout
 
-Must include product branding, public navigation, authentication actions, a responsive content container, and footer links.
+Must include product branding, public navigation, a responsive content container, and footer links.
+Example prototype `docs/prototypes/design/layouts/public.html`
 
 ### Authentication Layout
 
-Must include product branding, accessible forms, loading and error states, and a way to switch between login and registration.
+Must include product branding, public navigation, a responsive content container, and footer links.
 
-The prototype uses a modal. Production may use a modal or dedicated routes, but the chosen behavior must remain consistent and accessible.
+Example prototype `docs/prototypes/design/layouts/authentication.html`
 
 ### Authenticated Application Layout
 
-Must include responsive application navigation, an active navigation state, and links to Dashboard, Training, History, Progress, Subscription, Profile, and Settings.
+Application Layout: includes a vertical left sidebar with navigation links to the app's pages and a responsive main content area on the right where the selected page is displayed.
+Example prptprototypeotype `docs/prototypes/design/layouts/authentication.html`
 
 ### Training Layout
 
-Must keep the camera or video area visually dominant while presenting coaching feedback, connection state, session state, and controls without overcrowding the screen.
-
+Application Layout: includes a vertical left sidebar with navigation links to the app's pages and a responsive main content area on the right where the selected page is displayed.
+Example prptprototypeotype `docs/prototypes/design/layouts/training.html`
 ---
 
 ## Required Pages and Routes
 
-### Landing Page
 
-Route: `/`
+### Home Page
+- purpose: `Main public entry page of the application`
+- route: `/`
+- layout: `Public Layout`
+- Example Prototype: `design/pages/index.html`
+- name: `home`
+- required sections: `Left Section: application branding and introductory information, main headline, short introductory description, two primary action buttons, small statistic or information cards. Right Section: Animated Demo Banner, animated visual preview of the Tennis AI Coach training and AI analysis experience.`
+- required shared components: `Button`, `StatCard`
+- required feature components: `DemoBanner`
+- dependencies: None
 
-Access: public
+### Features
+- purpose: `Public page that presents the core capabilities of the product and helps users understand what it can do.`
+- route: `/features`
+- layout: `Public Layout`
+- Example Prototype: `design/pages/features.html`
+- name: `feature`
+- required sections: `Main Section: headline, short description, three StatCard items, two primary buttons.`
+- required shared components: `Button`, `StatCard`
+- required feature components: None
+- dependencies: None
 
-Must include a hero, value proposition, feature overview, training preview, pricing preview, and login and registration entry points.
+### Training
+- purpose: `Primary page for real-time training where the user records strokes, sees instant analysis, and receives guidance.`
+- route: `/training`
+- layout: `Training Layout`
+- Example Prototype: `design/pages/training.html`
+- name: `training`
+- required sections: `Main Section: headline, short description, three StatCard items, two primary buttons.`
+- required shared components: `Button`, `StatCard`
+- required feature components: None
+- dependencies: None
 
-### Login Page
+### Pricing
+- purpose: `Pricing page, presents the available subscription plans and helps users choose the right plan`
+- route: `/pricing`
+- Layout: `Public Layout`
+- Example Prototype: `design/pages/pricing.html`
+- name: `pricing`
+- required sections: `The main section of the pricing page includes the page heading, a short introductory text, and three plan cards: Starter, Performance, and Pro.`
+- required shared components: `StatCard`
+- required feature components: None
+- dependencies: None
 
-Route: `/login`
+### Dashboard
+- purpose: `Provides the user with an overview of their training activity, recent sessions, progress, and quick access to the main application features.`
+- route: `/dashboard`
+- layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/dashboard.html`
+- name: `dashboard`
+- required sections: `Overview Cards Section - contains three summary cards in a single row. Main Dashboard Section - contains one large primary card with the main dashboard information. Information Section - contains additional supporting information. Sidebar and top header are provided by the Authenticated Application Layout and are not part of the page sections..`
+- required shared components: `StatCard`
+- required feature components: None
+- dependencies: None
 
-Access: public
 
-Must include email, password, validation, submit, loading, and authentication-error states.
+### History
+- purpose: `allows the user to review previous training sessions, results, performance metrics, and past coaching feedback`
+- Route: `/history`
+- Layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/history.html`
+- required sections: `Required Sections: History Section – contains the page heading and a short introductory description, and uses a grid layout with two components: TrainingSession and SessionInsights.`
+- required shared components: `StatCard`, `BaseTable`
+- required feature components: None
+- dependencies: `TrainingHistoryStore`
 
-### Registration Page
+### Subscription
+- purpose: `allows the user to view their current subscription plan, manage billing details, and change or upgrade their subscription.`
+- Route: `/subscription`
+- Layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/subscription.html`
+- required sections: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card.`
+- required shared components: `StatCard`
+- required feature components: None
+- dependencies: None
 
-Route: `/register`
+### Profile
+- purpose: `Allow authenticated users to view and manage their profile and account information.`
+- Route: `/profile`
+- Layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/profile.html`
+- name: `profile`
+- required sections: `The page contains a profile form with four collapsible forms`
+- required shared components: `CollapsibleForm`
+- required feature components: None
+- dependencies: `UserStore`
 
-Access: public
+### Settings
 
-Must include name, email, password, validation, submit, loading, and registration-error states.
+- Route: `/settings`
+- Layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/settings.html`
+- name: `settings`
+- required sections: `The page contains a profile form with seven collapsible panels..`
+- required shared components: `CollapsibleForm`
+- required feature components: None
+- dependencies: `UserStore`
 
-### Dashboard Page
+### Camera
 
-Route: `/app`
+- Route: `/camera`
+- Layout: `Training Layout`
+- Example Prototype: `design/pages/camera.html`
 
-Access: authenticated
+### Checkout
 
-Must show recent training, the next recommended action, current progress, and a clear action to start training.
+- Route: `/checkout`
+- Layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/checkout.html`
 
-### Training Page
+### Payment Success
 
-Route: `/app/training`
+- Route: `/payment/success`
+- Layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/payment-success.html`
 
-Access: authenticated
+### Payment Cancelled
 
-This is the primary application screen. It must include:
+- Route: `/payment/cancelled`
+- Layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/payment-cancelled.html`
 
-- camera or video preview
-- start and stop camera controls
-- start and stop analysis controls
-- camera permission state
-- connection and analysis state
-- one focused coaching cue at a time
-- session duration or state
-- analysis overlay region
-- loading, unavailable, disconnected, and error states
+### Payment Failed
 
-### Session Review Page
-
-Route: `/app/sessions/:sessionId`
-
-Access: authenticated
-
-Must include a session summary, detected technique issues, key metrics, recommendations, and analyzed moments when available. It must identify incomplete or low-confidence results.
-
-### History Page
-
-Route: `/app/history`
-
-Access: authenticated
-
-Must list previous sessions and provide loading, empty, and error states plus navigation to Session Review.
-
-### Progress Page
-
-Route: `/app/progress`
-
-Access: authenticated
-
-Must show useful training trends, improvement areas, and the next recommended focus without unsupported precision.
-
-### Subscription Page
-
-Route: `/app/subscription`
-
-Access: authenticated
-
-Must include available plans, current plan, comparison, subscription actions, and loading and error states. Protected billing decisions remain backend responsibilities.
-
-### Profile Page
-
-Route: `/app/profile`
-
-Access: authenticated
-
-Must allow the user to view and update supported personal and tennis-related profile information.
-
-### Settings Page
-
-Route: `/app/settings`
-
-Access: authenticated
-
-Must contain supported application, camera, coaching, privacy, and notification preferences.
+- Route: `/payment/failed`
+- Layout: `Authenticated Application Layout`
+- Example Prototype: `design/pages/payment-failed.html`
 
 ---
 
