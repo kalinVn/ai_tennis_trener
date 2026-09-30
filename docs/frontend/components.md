@@ -1,0 +1,26 @@
+### Button
+
+- `Button` is a reusable shared UI component.
+- Used for user actions throughout the application.
+- Supports the following variants:
+  - `primary`
+  - `secondary`
+- Supports the following sizes:
+  - `small`
+  - `medium`
+  - `large`
+- Supports the following states:
+  - `default`
+  - `hover`
+  - `active`
+  - `disabled`
+  - `loading`
+- Supports the following button types:
+  - `button`
+  - `submit`
+- Displays text content and may optionally include an icon.
+- Emits a `click` event to the parent component when activated.
+- The parent component handles the event and decides which action should be executed.
+- The component must not contain page-specific or business logic.
+- The component must not directly access application stores, backend APIs, routing logic, or page-specific functionality.
+- Actions such as navigation, opening a modal, saving data, updating a store, or starting a feature are handled by the parent component.
