@@ -1,0 +1,52 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Checkout · Tennis AI Coach</title><link rel="stylesheet" href="../styles.css"></head><body><div class="app-shell"><aside class="sidebar"><a class="brand" href="dashboard.html"><span class="logo">AI</span>Coach</a><div class="side-links"><a href="dashboard.html">Dashboard</a><a href="training.html" >Training</a><a href="history.html" >History</a><a href="subscription.html" >Subscription</a><a href="profile.html" >Profile</a><a href="settings.html" >Settings</a></div><p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authenticated Application Layout · demo</p></aside><div class="app-main"><header class="app-top"><span class="eyebrow" style="margin:0">Tennis AI Coach / Checkout</span><div class="flex"><span class="muted">Alex Morgan · demo user</span><a class="btn small" href="index.html">Log out</a></div></header><main class="app-content">
+      <div class="page-head">
+        <div class="eyebrow">ACCOUNT / CHECKOUT</div>
+        <h1>Checkout</h1>
+        <p>Review your plan and payment details. This is a visual demo; no payment will be taken.</p>
+      </div>
+      <div class="two-col">
+        <div class="stack">
+          <section class="panel" aria-labelledby="selected-plan-heading">
+            <span class="pill">Selected plan · demo</span>
+            <h2 id="selected-plan-heading" style="margin-top:16px">Performance</h2>
+            <p>Realtime coaching, richer insights and progress tools.</p>
+            <h3 class="accent">€19 <span class="muted">/ month</span></h3>
+            <p>Billing period: monthly. Illustrative pricing from the prototype.</p>
+            <a class="btn small" href="application-pricing.html">Back to plans</a>
+          </section>
+          <section class="panel" aria-labelledby="payment-heading">
+            <h2 id="payment-heading">Payment information</h2>
+            <p id="payment-help">Sample card details only. Payment fields are disabled in this prototype.</p>
+            <div class="form-grid" aria-describedby="payment-help">
+              <div class="field wide"><label for="cardholder">Cardholder name</label><input id="cardholder" value="Alex Morgan · demo" disabled></div>
+              <div class="field wide"><label for="card-number">Card number</label><input id="card-number" value="•••• •••• •••• 4242" disabled></div>
+              <div class="field"><label for="card-expiry">Expiry date</label><input id="card-expiry" value="MM / YY" disabled></div>
+              <div class="field"><label for="card-cvc">Security code</label><input id="card-cvc" value="•••" disabled></div>
+            </div>
+          </section>
+        </div>
+        <section class="panel" aria-labelledby="order-heading">
+          <h2 id="order-heading">Order summary</h2>
+          <table class="data-table" style="min-width:0" aria-label="Order summary">
+            <tbody>
+              <tr><th scope="row">Plan</th><td>Performance</td></tr>
+              <tr><th scope="row">Billing period</th><td>Monthly</td></tr>
+              <tr><th scope="row">Subtotal</th><td>€19.00</td></tr>
+              <tr><th scope="row">Tax</th><td>Not calculated in demo</td></tr>
+              <tr><th scope="row">Demo total</th><td><strong class="accent">€19.00</strong></td></tr>
+            </tbody>
+          </table>
+          <p class="settings-note">The example total covers one month. No subscription will be created and no card details will be sent or stored.</p>
+          <div class="cta">
+            <button class="btn primary" type="button" onclick="showDemoNote('Demo checkout reviewed. No payment was processed and no subscription was created.')">Complete checkout (demo)</button>
+            <a class="btn ghost" href="application-pricing.html">Cancel</a>
+          </div>
+          <p id="demo-note" class="callout" role="status" aria-live="polite" hidden></p>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../app.js"></script>
+</body>
+</html>

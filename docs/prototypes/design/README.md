@@ -2,7 +2,7 @@
 
 Open `index.html` for the catalog. Original application pages are in `pages/`,
 layout demonstrations in `layouts/`, and component demonstrations in `components/`.
-Every HTML page loads the root `styles.css` and `app.js`; links between original
+Existing HTML pages load the root `styles.css` and `app.js`; links between original
 application pages keep their existing filenames. Demo authentication resolves its
 dashboard destination from the shared script, so it also works from library pages.
 
@@ -104,3 +104,45 @@ controls, audio output and privacy feedback. Collapsibles and horizontal overflo
 checks passed at 1440×900, 414×896 and 896×414. Profile regression checks also
 passed after sharing the form handler; all Settings field definitions remain
 unchanged.
+
+Application Pricing is available at `pages/application-pricing.html`, using the
+existing application shell and Pricing plan cards/demo dialog. The shared script
+adds Pricing last in application sidebars using ordinary anchor navigation and
+`aria-current` on that page. Public `pages/pricing.html` remains unchanged.
+
+Checkout is available at `pages/checkout.html` (the documented `/checkout` route)
+and last in the application sidebar. It uses the existing application layout,
+Performance plan (€19/month), order summary, disabled sample payment fields, a
+demo-only completion message, and links back to Application Pricing. No payment
+provider, network submission, card storage or subscription creation is involved.
+
+`pages/not-found.html` is a 404 prototype using the existing Public Layout,
+including public navigation, footer and demo authentication dialogs. Its primary
+action returns to Home. Unknown-route handling remains separate from this visual
+prototype.
+
+
+## Navigation visual source of truth
+
+- [Public navigation](components/navigation/public-navigation.html): Home, Training,
+  Pricing and a Login Modal trigger; horizontal desktop header and collapsible
+  menu at 720px and below.
+- [Authenticated navigation](components/navigation/authenticated-navigation.html):
+  Dashboard, Training, History, Subscription, Profile, Settings and Checkout;
+  244px vertical sidebar on desktop/tablet and the existing accessible drawer on
+  phones (720px, or landscape up to 950px wide / 500px high).
+
+Both specimens contain only navigation UI and load shared `styles.css` with
+isolated `navigation.css` / `navigation.js` additions. Default, hover, active and
+keyboard focus styles remain on the actual links; there are no state cards or
+page-content examples. Text-only application links match the existing pages.
+The authenticated specimen retains the mobile menu opener, brand, drawer close
+control and backdrop; the surrounding application header and account demo are
+removed. Public Log in is a visual trigger only; the modal is outside this
+navigation-only specimen. Links target static prototypes; there is no router,
+authentication or backend behavior.
+
+These two specimens supersede the older combined `components/navigation.html`
+and page/layout navigation examples for future frontend navigation styling and
+layout. Existing page demos remain unchanged. Use the catalog to open either
+specimen, resize for mobile states, and inspect pointer hover and keyboard focus.

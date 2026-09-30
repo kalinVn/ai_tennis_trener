@@ -11,6 +11,21 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAuth();});
 function toggleDemo(button,first,second){button.dataset.active=button.dataset.active==='yes'?'no':'yes';button.textContent=button.dataset.active==='yes'?second:first;}
 function showDemoNote(message){const n=document.getElementById('demo-note');if(n){n.textContent=message;n.hidden=false;}else alert(message);}
 
+// Application Pricing and Checkout use the existing anchor navigation and styles.
+const applicationLinks = document.querySelector('.app-shell .sidebar .side-links');
+if (applicationLinks) {
+  const pricingLink = document.createElement('a');
+  pricingLink.href = new URL('application-pricing.html', prototypePagesURL).href;
+  pricingLink.textContent = 'Pricing';
+  if (location.pathname === new URL(pricingLink.href).pathname) pricingLink.setAttribute('aria-current', 'page');
+  applicationLinks.append(pricingLink);
+  const checkoutLink = document.createElement('a');
+  checkoutLink.href = new URL('checkout.html', prototypePagesURL).href;
+  checkoutLink.textContent = 'Checkout';
+  if (location.pathname === new URL(checkoutLink.href).pathname) checkoutLink.setAttribute('aria-current', 'page');
+  applicationLinks.append(checkoutLink);
+}
+
 // Reuse the existing sidebar on phone-sized viewports; desktop markup stays intact.
 (() => {
   const shell = document.querySelector('.app-shell');

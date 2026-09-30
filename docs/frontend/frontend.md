@@ -188,40 +188,33 @@ Example prptprototypeotype `docs/prototypes/design/layouts/training.html`
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/settings.html`
 - name: `settings`
-- required sections: `The page contains a profile form with seven collapsible panels..`
+- required sections: `The page contains a profile form with seven collapsible panels`
 - required shared components: `CollapsibleForm`
 - required feature components: None
 - dependencies: `UserStore`
 
-### Camera
+### Not Found
 
-- Route: `/camera`
-- Layout: `Training Layout`
-- Example Prototype: `design/pages/camera.html`
+- Route: `/not-found`
+- Layout: `Public Layout`
+- Example Prototype: `design/pages/not-found.html`
+- name: `not-found`
+- required sections: `The page show 404 not found`
+- required shared components: None
+- required feature components: None
+- dependencies: None
+
 
 ### Checkout
 
 - Route: `/checkout`
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/checkout.html`
-
-### Payment Success
-
-- Route: `/payment/success`
-- Layout: `Authenticated Application Layout`
-- Example Prototype: `design/pages/payment-success.html`
-
-### Payment Cancelled
-
-- Route: `/payment/cancelled`
-- Layout: `Authenticated Application Layout`
-- Example Prototype: `design/pages/payment-cancelled.html`
-
-### Payment Failed
-
-- Route: `/payment/failed`
-- Layout: `Authenticated Application Layout`
-- Example Prototype: `design/pages/payment-failed.html`
+- name: `settings`
+- required sections: `The Checkout page contains two main sections: a left section with SelectedPlanCard and PaymentInformationCard components stacked vertically, and a right section with an OrderSummaryCard component`
+- required shared components:  None
+- required feature components: `CollapsibleForm`, `PaymentInformationCard`, `OrderSummaryCard`
+- dependencies: `CheckoutStore`
 
 ---
 
@@ -229,27 +222,39 @@ Example prptprototypeotype `docs/prototypes/design/layouts/training.html`
 
 - Public navigation links to relevant landing-page sections and authentication.
 - Authenticated navigation exposes all required application pages.
-- Protected routes redirect unauthenticated users to login.
-- Authentication pages redirect authenticated users to Dashboard when appropriate.
-- Unknown routes show a useful not-found state or redirect safely.
+- Public horizontal navigation is visible when the user is not authenticated and includes Home, Training, Pricing, and Login Modal.
+- Authenticated vertical navigation is visible when the user is authenticated and includes Dashboard, Training, History, Subscription, Profile, Settings, and Checkout.
 - Navigation remains usable with keyboard input and on mobile screens.
 
+Navigation visual source of truth (use these layouts and states when implementing shared navigation components):
+
+- Public: [public-navigation.html](../prototypes/design/components/navigation/public-navigation.html)
+- Authenticated: [authenticated-navigation.html](../prototypes/design/components/navigation/authenticated-navigation.html)
+
+These dedicated prototypes take precedence over navigation examples in older page and layout prototypes.
 ---
 
 ## Shared UI Requirements
 
-Create and reuse shared patterns where required, including:
+Create reusable shared UI components for visual patterns used across multiple pages or layouts.
 
-- buttons
-- form fields and validation messages
-- cards
-- badges and status indicators
-- modal or dialog
-- navigation items
-- page headers
-- loading states
-- empty states
-- error and confirmation states
+The shared UI should include:
+
+- Button
+- Label
+- FormField
+- StatCard
+- BaseCard
+- BaseTable
+- CollapsibleForm
+- CollapsiblePanel
+- Badge
+- StatusIndicator
+- Modal
+- Dialog
+- NavigationItem
+- PageHeader
+- PageFouter
 
 Do not create separate visual implementations of the same pattern on every page.
 
@@ -259,7 +264,8 @@ Do not create separate visual implementations of the same pattern on every page.
 
 ### Camera
 
-The frontend owns browser permission, camera lifecycle, preview, and user-facing camera states.
+- Allow switching between available cameras when supported by the device. - Keep the selected camera active until the user changes it. 
+- Handle camera permission denied, unavailable camera, and initialization errors.
 
 ### Frame Preparation
 
@@ -269,17 +275,63 @@ The frontend may perform lightweight frame capture, resizing, throttling, or for
 
 The frontend sends supported input to the backend and receives structured analysis state and results through the backend transport contract.
 
-### Training Overlay
+### Audio Output
 
-The frontend renders supported visual markers without obscuring the primary view and handles missing, partial, delayed, and low-confidence results.
+- Receive audio playback commands through the `Analysis Client`.
+- Play coaching audio when requested by the backend.
+- Start, stop, pause, resume, or interrupt audio playback when required.
+- Prevent multiple coaching audio messages from overlapping.
+- Prioritize the latest relevant coaching instruction when a new audio command is received.
+- Handle audio playback failures and unavailable audio resources.
+- Keep audio playback logic separate from backend communication and analysis logic.
+- Release audio playback resources when they are no longer needed.
+
 
 ### Coaching Feedback
 
-The frontend presents structured coaching output clearly. It does not generate AI coaching logic locally.
+- Receive coaching feedback data through the `Analysis Client`.
+- Process feedback for the current training session.
+- Trigger relevant coaching audio through the `Audio Output`.
+- Display short coaching messages or status information when needed.
+- Store feedback for individual strokes.
+- Track successful strokes.
+- Track detected mistakes.
+- Track coaching recommendations.
+- Accumulate feedback during the training session.
+- Prepare data for the training summary.
+- Provide the collected feedback when the session is completed.
 
 ### Authentication
 
-The frontend owns forms, validation, session-aware navigation, and user-facing states. Authentication authority remains on the backend.
+- Provide login and logout functionality.
+
+- Display the authentication UI when the user needs to sign in.
+
+- Validate required form fields before sending authentication requests.
+
+- Send authentication requests to the backend.
+
+- Store and use the authenticated session state returned by the backend.
+
+- Keep the user authenticated while the session remains valid.
+
+- Update the application navigation immediately after login or logout.
+
+- Prevent unauthenticated users from accessing protected pages.
+
+- Redirect unauthenticated users to the login flow when they request a protected page.
+
+- Preserve the originally requested page and return the user to it after successful login.
+
+- Redirect already authenticated users away from authentication pages when appropriate.
+
+- Display clear errors for invalid credentials, failed authentication requests, and expired sessions.
+
+- Clear the local authentication state when the user logs out or the session expires.
+
+- Keep frontend authentication logic limited to forms, session state, routing, and user-facing states.
+
+- Keep authentication authority, credential verification, token validation, permissions, and security rules on the backend.
 
 ### Subscription
 
