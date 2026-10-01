@@ -36,6 +36,10 @@
     color: var(--text, #f4f7f5);
   }
 
+  &--ghost {
+    background: transparent;
+  }
+
   &:hover:not(:disabled) {
     border-color: var(--accent, #b7ff4a);
   }

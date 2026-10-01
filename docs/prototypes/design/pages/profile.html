@@ -6,6 +6,36 @@
   <title>Profile · Tennis AI Coach</title>
   <link rel="stylesheet" href="../styles.css">
   
+  <style>
+    /* Upload-field-only presentation; the native input remains keyboard accessible. */
+    .upload-field { position: relative; }
+    .upload-field__title { font-size: 13px; font-weight: 400; color: var(--muted); }
+    .field.upload-field input.upload-field__input[type="file"] {
+      position: absolute;
+      width: 1px;
+      max-width: 1px;
+      height: 1px;
+      min-height: 0;
+      padding: 0;
+      margin: -1px;
+      border: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .upload-field .upload-field__choose {
+      justify-self: start;
+      min-height: 51px;
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .upload-field__icon { width: 20px; height: 20px; flex: 0 0 20px; }
+    .upload-field__input:focus-visible + .upload-field__choose { outline: 2px solid var(--accent2); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .upload-field__choose { transition: none; } }
+  </style>
 </head>
 <body>
 <div class="app-shell">
@@ -39,7 +69,14 @@
             <div class="profile-identity">
               <div class="profile-avatar" id="avatar-preview" aria-label="Profile avatar">AM</div>
               <div><strong>Profile picture</strong><p>Optional. Preview only; no image is uploaded.</p>
-                <div class="field"><label for="avatar">Choose an image</label><input id="avatar" name="avatar_preview" type="file" accept="image/png,image/jpeg,image/webp"></div>
+                <div class="field upload-field">
+                  <span class="upload-field__title" id="avatar-title">Choose an image</span>
+                  <input class="upload-field__input" id="avatar" type="file" aria-labelledby="avatar-title avatar-choose" name="avatar_preview" accept="image/png,image/jpeg,image/webp">
+                  <label class="btn upload-field__choose" for="avatar">
+                    <svg class="upload-field__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13V3m-4 4 4-4 4 4M3 12v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4"/></svg>
+                    <span id="avatar-choose">Choose File</span>
+                  </label>
+                </div>
               </div>
             </div>
             <div class="profile-grid form-grid">

@@ -176,3 +176,16 @@ The parent owns plan data, store integration, and action handling. The card cont
 
 - Visual design reference: [PaymentPlanCard.html](../../prototypes/design/components/cards/PaymentPlanCard.html)
 - Vue prototype: [PaymentPlanCard.vue](../../prototypes/components/cards/PaymentPlanCard.vue)
+
+### CollapseForm
+
+Reusable collapsible form container based on the Tennis Profile section in [Profile](../prototypes/design/pages/profile.html). `title` is required; `description` is optional. Native `<details>` starts expanded and owns only its local collapse/expand UI state, including keyboard interaction and the plus/minus indicator.
+
+The default slot accepts arbitrary fields, components, or layout containers. The named `footer` slot provides the existing wrapping two-button alignment. The parent supplies shared [Button](../../prototype/shared-components/buttons/Button.vue) instances, their labels, and their actions; use `primary` and `ghost` variants to reproduce Profile's Save/Reset appearance. No fields or buttons are hardcoded into `CollapseForm.vue`.
+
+The parent reads Pinia/store values, passes them to slotted fields, receives field changes, and updates the store from its footer actions. `CollapseForm` holds no form data and never accesses or updates Pinia. It does not render a `<form>` or handle submission; the parent may wrap it in a form and own submit/reset behavior.
+
+- Visual design reference: [CollapseForm.html](../../prototypes/design/components/forms/CollapseForm.html)
+- Vue prototype: [CollapseForm.vue](../../prototypes/components/forms/CollapseForm.vue)
+
+The HTML demonstrates the original Tennis Profile content and footer styling. Its buttons are visual-only; the Vue prototype provides the reusable container and slots. Styling remains prototype-level reference CSS.
