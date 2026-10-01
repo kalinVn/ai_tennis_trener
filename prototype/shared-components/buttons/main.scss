@@ -1,0 +1,86 @@
+// Visual values from design/components/buttons/*.html and their shared styles.
+// Fallbacks keep the isolated prototype usable without the design-page stylesheet.
+.button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border: 1px solid var(--border, rgba(255, 255, 255, .12));
+  border-radius: 13px;
+  background: var(--panel2, #13231b);
+  color: var(--text, #f4f7f5);
+  font: 700 16px/1.55 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  cursor: pointer;
+  transition: .15s;
+
+  &--primary {
+    background: var(--accent, #b7ff4a);
+    border-color: var(--accent, #b7ff4a);
+    color: #102008;
+
+    &:hover:not(:disabled),
+    &:active:not(:disabled) {
+      background: #ccff88;
+    }
+  }
+
+  &--secondary {
+    background: var(--panel2, #13231b);
+    color: var(--text, #f4f7f5);
+  }
+
+  &:hover:not(:disabled) {
+    border-color: var(--accent, #b7ff4a);
+  }
+
+  &:active:not(:disabled) {
+    filter: brightness(.92);
+    transform: translateY(1px);
+    border-color: var(--accent, #b7ff4a);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent2, #65e8ff);
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+  }
+
+  &--loading {
+    // Loading stays full strength even though the native button is disabled.
+    &:disabled {
+      opacity: 1;
+      cursor: progress;
+    }
+  }
+
+  &__spinner {
+    box-sizing: border-box;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: shared-button-spin .8s linear infinite;
+  }
+
+  &__content {
+    // Preserve slot typography and inline layout from the reference labels.
+    font: inherit;
+  }
+}
+
+@keyframes shared-button-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button { transition: none; }
+  .button__spinner { animation: none; }
+}

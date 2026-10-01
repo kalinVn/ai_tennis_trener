@@ -1,0 +1,24 @@
+/* Visual specimens only. Base .btn / .btn.primary styles come from the existing design. */
+.button-prototype .container{max-width:820px}
+.button-prototype h1{font-size:clamp(32px,6vw,56px)}
+.state-list{display:grid;gap:24px}
+.state-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,1fr);align-items:center;gap:18px}
+.state-row .btn{justify-self:start}
+.button-prototype :is(a,button):focus-visible{outline:2px solid var(--accent2);outline-offset:3px}
+/* Frozen hover samples use the exact shared hover colors. */
+.button-prototype .btn[data-state="hover"],
+.button-prototype .btn[data-state="pressed"]{border-color:var(--accent)}
+.button-prototype .btn.primary[data-state="hover"],
+.button-prototype .btn.primary[data-state="pressed"]{background:#ccff88}
+/* Extend the existing palette with a subtle physical press; no new shadow or shape. */
+.button-prototype .btn:not(:disabled):active,
+.button-prototype .btn[data-state="pressed"]{filter:brightness(.92);transform:translateY(1px);border-color:var(--accent)}
+.button-prototype .btn.primary:not(:disabled):active{background:#ccff88}
+/* Disabled and busy controls must not pick up shared hover colors. */
+.button-prototype .btn:disabled{background:var(--panel2);border-color:var(--border);color:var(--text);cursor:not-allowed;opacity:.45}
+.button-prototype .btn.primary:disabled{background:var(--accent);border-color:var(--accent);color:#102008}
+.button-prototype .btn[aria-busy="true"]{opacity:1;cursor:progress}
+.spinner{width:16px;height:16px;flex:0 0 16px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:button-spin .8s linear infinite}
+@keyframes button-spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.state-row{grid-template-columns:1fr;gap:10px}}
+@media(prefers-reduced-motion:reduce){.button-prototype .btn{transition:none}.spinner{animation:none}}

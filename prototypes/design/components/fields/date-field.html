@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Date Field</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 32px 24px;
+      background: #07100c;
+      color: #f4f7f5;
+      font: 16px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      color-scheme: dark;
+    }
+    .field { display: grid; gap: 7px; width: min(360px, 100%); min-width: 0; }
+    label { font-size: 13px; font-weight: 400; color: #a8b5ae; }
+    input, select {
+      width: 100%;
+      min-width: 0;
+      height: 51px;
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 12px;
+      background-color: #09130e;
+      color: #f4f7f5;
+      font: inherit;
+    }
+    input::placeholder { color: #a8b5ae; opacity: 1; }
+    input:focus-visible, select:focus-visible { outline: 2px solid #65e8ff; outline-offset: 2px; }
+    input[type="date"] {
+      padding-right: 18px;
+      background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%20fill%3D%22none%22%20stroke%3D%22%23f4f7f5%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%223%22%20y%3D%224%22%20width%3D%2214%22%20height%3D%2213%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M6%202v4m8-4v4M3%209h14%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat: no-repeat;
+      background-position: right 18px center;
+      background-size: 20px 20px;
+    }
+    /* Keep the native calendar control functional beneath the matching line icon. */
+    input::-webkit-calendar-picker-indicator {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      margin: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+    @media (forced-colors: active) {
+      input[type="date"] { background-image: none; }
+      input::-webkit-calendar-picker-indicator { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="field">
+    <label for="field">Date</label>
+    <input id="field" type="date">
+  </div>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Text Field</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 32px 24px;
+      background: #07100c;
+      color: #f4f7f5;
+      font: 16px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+      color-scheme: dark;
+    }
+    .field { display: grid; gap: 7px; width: min(360px, 100%); min-width: 0; }
+    label { font-size: 13px; font-weight: 400; color: #a8b5ae; }
+    input, select {
+      width: 100%;
+      min-width: 0;
+      height: 51px;
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(255, 255, 255, .12);
+      border-radius: 12px;
+      background-color: #09130e;
+      color: #f4f7f5;
+      font: inherit;
+    }
+    input::placeholder { color: #a8b5ae; opacity: 1; }
+    input:focus-visible, select:focus-visible { outline: 2px solid #65e8ff; outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <div class="field">
+    <label for="field">Name</label>
+    <input id="field" type="text" placeholder="Enter name…">
+  </div>
+</body>
+</html>
