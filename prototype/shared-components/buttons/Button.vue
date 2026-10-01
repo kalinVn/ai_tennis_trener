@@ -8,6 +8,11 @@ const props = defineProps({
     default: 'primary',
     validator: (value) => ['primary', 'secondary'].includes(value),
   },
+  size: {
+    type: String,
+    default: 'medium',
+    validator: (value) => ['small', 'medium'].includes(value),
+  },
   type: {
     type: String,
     default: 'button',
@@ -35,6 +40,7 @@ const { isDisabled, handleClick } = useButtonController(props, emit)
     :class="[
       'button',
       `button--${variant}`,
+      `button--${size}`,
       { 'button--loading': loading },
     ]"
     @click="handleClick"

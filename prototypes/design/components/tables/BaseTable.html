@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Base Table</title>
+  <style>
+    body { margin: 0; padding: 32px 24px; background: #07100c; }
+    .base-table { max-width: 1160px; margin: auto; }
+
+/* Prototype styles derived from the History table; no application layout rules. */
+.base-table {
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 22px;
+  background: #0d1913;
+  color: #f4f7f5;
+  font: 16px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.base-table__title { margin: 0 0 10px; font-size: 21px; font-weight: 700; }
+.base-table__scroll { overflow-x: auto; }
+.base-table__scroll:focus-visible { outline: 2px solid #65e8ff; outline-offset: 2px; }
+.base-table__table { width: 100%; border-collapse: collapse; }
+.base-table__table th, .base-table__table td { text-align: left; padding: 14px; border-bottom: 1px solid rgba(255, 255, 255, .12); }
+.base-table__table th { color: #a8b5ae; font-size: 13px; font-weight: 700; }
+@media (max-width: 530px) {
+  .base-table__table { font-size: 12px; }
+  .base-table__table th, .base-table__table td { padding: 9px 5px; }
+}
+@media (max-width: 720px), (max-width: 950px) and (max-height: 500px) and (orientation: landscape) {
+  .base-table__table { min-width: 600px; }
+}
+
+.table-status { border-radius: 100px; background: #244029; color: #b7ff4a; padding: 5px 11px; display: inline-block; font-size: 12px; }
+.table-status--neutral { background: #24342b; color: #a8b5ae; }
+  </style>
+</head>
+<body>
+  <section class="base-table" aria-labelledby="table-title">
+    <h3 class="base-table__title" id="table-title">Records</h3>
+    <div class="base-table__scroll" role="region" aria-labelledby="table-title" tabindex="0">
+      <table class="base-table__table" aria-labelledby="table-title">
+        <thead><tr><th scope="col">Date</th><th scope="col">Item</th><th scope="col">Duration</th><th scope="col">Category</th><th scope="col">Status</th></tr></thead>
+        <tbody>
+          <tr><td>Sep 24, 2026</td><td>Design review</td><td>42 min</td><td>Design</td><td><span class="table-status">Reviewed</span></td></tr>
+          <tr><td>Sep 21, 2026</td><td>Research</td><td>35 min</td><td>Discovery</td><td><span class="table-status">Reviewed</span></td></tr>
+          <tr><td>Sep 18, 2026</td><td>Planning</td><td>48 min</td><td>Delivery</td><td><span class="table-status table-status--neutral">Sample</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</body>
+</html>

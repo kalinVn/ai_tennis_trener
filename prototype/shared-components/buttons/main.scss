@@ -15,6 +15,11 @@
   cursor: pointer;
   transition: .15s;
 
+  &--small {
+    font-size: 13px;
+    padding: 8px 11px;
+  }
+
   &--primary {
     background: var(--accent, #b7ff4a);
     border-color: var(--accent, #b7ff4a);

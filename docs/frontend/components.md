@@ -1,3 +1,5 @@
+CSS in the prototype Vue components is for visual reference only; production styles may live outside components and use shared design tokens.
+
 ### Button
 
 - `Button` is a reusable shared UI component.
@@ -43,324 +45,134 @@ This reference defines the expected Vue component structure, props, emitted even
 
 ### Field
 
-- `Field` defines the shared base behavior used by all field components.
-- `Field` is not a standalone visual UI component.
-- The shared Field behavior is implemented through the `useFieldController` composable.
-- Specialized field components such as `SelectField`, `NumberField`, `DateField`, `TextField`, `TextAreaField`, `PasswordField`, and `CheckboxField` reuse this common behavior.
+The field prototypes in `prototypes/components/fields/` demonstrate a label and native control with standard Vue `v-model`. They are reference implementations, without application, store, or API integration.
 
-#### Field Controller
+#### Shared Composable
 
-The shared field logic is implemented in:
+[useField.js](../../prototypes/components/fields/useField.js) provides shared value updates, reset-to-initial-value behavior, and label detection. It is a composable, not a visual component. Each field-specific composable composes `useField` and adds only its specialized behavior.
 
-`useFieldController.js`
-
-`useFieldController` is a Vue composable responsible for common field behavior.
-
-It may provide operations such as:
-
-- `getValue()`
-  - Returns the current field value.
-
-- `setValue(value)`
-  - Updates the current field value.
-
-- `reset()`
-  - Resets the current field value.
-
-- `hasLabel()`
-  - Returns whether the field has a label.
-
-Additional common functionality may be added when it is shared by multiple field types.
-
-#### Composition
-
-Specialized field controllers should compose `useFieldController` and add only their field-specific behavior.
-
-Example:
+The parent owns the value. The Vue component binds the control to its field-specific composable, and updates pass through `useField` to emit `update:modelValue`.
 
 ```text
-useFieldController
-    ↓
-common field behavior
-    ↓
-getValue()
-setValue()
-reset()
-hasLabel()
-```
-
-A specialized field controller extends this behavior through composition:
-
-```text
-useFieldController
-    ↓
-useSelectFieldController
-    ↓
-common field behavior
-+
-SelectField-specific behavior
-```
-
-For example, `useSelectFieldController` may add:
-
-```text
-getSelectedOption()
-getIndex()
-setIndex()
-selectOption()
-```
-
-while still reusing:
-
-```text
-getValue()
-setValue()
-reset()
-hasLabel()
-```
-
-#### Responsibilities
-
-`useFieldController` should contain only behavior that is common to multiple field types.
-
-It must not contain logic that belongs exclusively to one specific field type.
-
-Examples:
-
-- Select option handling belongs to `useSelectFieldController`.
-- Numeric parsing, `min`, `max`, and `step` behavior belongs to `useNumberFieldController`.
-- Date parsing and date-specific operations belong to `useDateFieldController`.
-- Password visibility behavior belongs to `usePasswordFieldController`.
-
-#### Important
-
-Do not duplicate shared field behavior inside specialized field controllers.
-
-Specialized controllers should compose `useFieldController` and add only the behavior required by their specific field type.
-
-The purpose of `Field` is to define a consistent shared foundation for all field components.
-
-
-
-## SelectField
-
-`SelectField` is a reusable Vue component used for selecting one or more values from a predefined list of options.
-
-The component consists of:
-
-```text
-SelectField.vue
-useSelectFieldController.js
-```
-
-`SelectField.vue` is responsible for rendering the UI of the field.
-
-`useSelectFieldController.js` is a custom composable containing the logic specific to `SelectField`.
-
-The `SelectField` controller composes the shared field logic from:
-
-```text
-useFieldController.js
-```
-
-Architecture:
-
-```text
-useFieldController
-        ↓
-useSelectFieldController
-        ↓
-SelectField.vue
-```
-
-### Shared Field Behavior
-
-`useSelectFieldController` reuses the common behavior provided by `useFieldController`.
-
-This may include:
-
-```js
-getValue()
-setValue(value)
-reset()
-hasLabel()
-```
-
-`useFieldController` must contain only functionality shared by multiple field types.
-
-Select-specific behavior must remain inside `useSelectFieldController`.
-
-### SelectField-Specific Behavior
-
-`useSelectFieldController` may provide:
-
-```js
-getSelectedOption()
-getSelectedOptions()
-getIndex()
-setIndex(index)
-selectOption(value)
-```
-
-#### `getSelectedOption()`
-
-Returns the currently selected option.
-
-#### `getSelectedOptions()`
-
-Returns all currently selected options when multiple selection is enabled.
-
-#### `getIndex()`
-
-Returns the index of the currently selected option.
-
-#### `setIndex(index)`
-
-Changes the selected option using its index.
-
-#### `selectOption(value)`
-
-Changes the selected option using its value.
-
-### Properties
-
-The component may support the following properties:
-
-```text
-modelValue
-options
-label
-placeholder
-disabled
-required
-multiple
-```
-
-#### `modelValue`
-
-Contains the current value of the field.
-
-The component uses the standard Vue `v-model` mechanism.
-
-```vue
-<SelectField v-model="country" />
-```
-
-#### `options`
-
-Contains the available options.
-
-Example:
-
-```js
-[
-  {
-    label: 'Bulgaria',
-    value: 'bg',
-  },
-  {
-    label: 'Germany',
-    value: 'de',
-  },
-]
-```
-
-Basic option structure:
-
-```js
-{
-  label: String,
-  value: any,
-}
-```
-
-#### `label`
-
-Optional label for the field.
-
-The component must work both with and without a label.
-
-```vue
-<SelectField
-  label="Country"
-/>
-```
-
-#### `placeholder`
-
-Optional placeholder displayed when no value is selected.
-
-#### `disabled`
-
-Disables user interaction with the field.
-
-#### `required`
-
-Marks the field as required.
-
-#### `multiple`
-
-Allows multiple options to be selected.
-
-When `multiple` is enabled, `modelValue` should normally contain an array of values.
-
-```js
-[
-  'bg',
-  'de',
-]
-```
-
-### Value Flow
-
-`SelectField` uses the standard Vue `v-model` flow:
-
-```text
-Parent
+useField
    ↓
-modelValue
+useTextField / useNumberField / useSelectField / useDateField
    ↓
-SelectField.vue
-   ↓
-useSelectFieldController
-   ↓
-setValue(value)
-   ↓
-emit('update:modelValue', value)
-   ↓
-Parent
+Corresponding Vue component
 ```
 
-### Responsibilities
+#### TextField
 
-`SelectField.vue` is responsible for:
+Single-line text input. Use it for names and other short free-text values.
 
-- Rendering the select control.
-- Rendering the optional label.
-- Rendering the available options.
-- Handling UI interaction.
-- Connecting the UI with `useSelectFieldController`.
+`useTextField` composes the shared `useField` composable and adds text-clearing behavior.
 
-`useSelectFieldController` is responsible for:
+- Vue component: [TextField.vue](../../prototypes/components/fields/TextField.vue)
+- Composable: [useTextField.js](../../prototypes/components/fields/useTextField.js)
+- Visual prototype: [text-field.html](../../prototypes/design/components/fields/text-field.html)
 
-- Select-specific behavior.
-- Selected option handling.
-- Selected index handling.
-- Single and multiple selection logic.
-- Reusing common field behavior from `useFieldController`.
 
-### Architecture Rules
 
-Shared field logic must not be duplicated inside `useSelectFieldController`.
+#### NumberField
 
-The architecture should remain:
+Numeric input that converts entered values to numbers and represents an empty field as `null`. Use it for quantities or other numeric values.
 
-```text
-useFieldController
-        +
-SelectField-specific behavior
-        =
-useSelectFieldController
-```
+`useNumberField` composes the shared `useField` composable and adds numeric conversion and unit increment/decrement behavior.
 
-Select-specific methods must not be moved into `useFieldController`.
+- Vue component: [NumberField.vue](../../prototypes/components/fields/NumberField.vue)
+- Composable: [useNumberField.js](../../prototypes/components/fields/useNumberField.js)
+- Visual prototype: [number-field.html](../../prototypes/design/components/fields/number-field.html)
+
+#### SelectField
+
+Native selection from supplied options, supporting single or multiple values. Use it when users choose from a predefined set of options.
+
+`useSelectField` composes the shared `useField` composable and adds option selection and selected-option lookup.
+
+- Vue component: [SelectField.vue](../../prototypes/components/fields/SelectField.vue)
+- Composable: [useSelectField.js](../../prototypes/components/fields/useSelectField.js)
+- Visual prototype: [select-field.html](../../prototypes/design/components/fields/select-field.html)
+
+#### DateField
+
+Native date input using `YYYY-MM-DD` strings without timezone conversion. Use it for calendar dates that do not require a time of day.
+
+`useDateField` composes the shared `useField` composable and adds date assignment and clearing behavior.
+
+- Vue component: [DateField.vue](../../prototypes/components/fields/DateField.vue)
+- Composable: [useDateField.js](../../prototypes/components/fields/useDateField.js)
+- Visual prototype: [date-field.html](../../prototypes/design/components/fields/date-field.html)
+
+#### Usage and Source of Truth
+
+These prototypes require a Vue 3 SFC build environment. Pass a unique `id` and a parent-owned `v-model`. Labels are optional; provide `aria-label` when omitting a visible label. Native attributes are forwarded to the control.
+
+Use the linked HTML prototypes for visual design and the Vue files and composables for current props, events, and behavior. Keep shared behavior in `useField` and field-specific behavior in the corresponding composable; do not duplicate those implementations in this document.
+
+### FeatureCard
+
+Presentational card for a numbered feature, title, and description. The parent supplies the `number`, `title`, and `description` props; pass a string such as `"01"` to preserve leading zeros. It contains no composable, application state, or data access.
+
+- Vue component: [FeatureCard.vue](../../prototypes/components/cards/FeatureCard.vue)
+- Visual reference: [feature-card.html](../../prototypes/design/components/cards/feature-card.html)
+
+### TopNav
+
+Reusable public top navigation with the existing AI logo and Tennis AI Coach title, parent-supplied links, and two authentication actions. It owns the responsive menu toggle, Escape dismissal, and resize cleanup. It contains no authentication logic, routing, API access, or store integration.
+
+- `items`: array of `{ label, href, active? }` objects; defaults to an empty array. Use unique `href` values. Optional `active` marks the current page.
+- Login uses the shared [Button.vue](../../prototype/shared-components/buttons/Button.vue) with `variant="secondary"` and `size="small"`; clicking emits `login`.
+- Start Free uses the same Button with `variant="primary"` and `size="small"`; clicking emits `register`.
+
+
+#### Visual Design Reference
+
+[public-navigation.html](../prototypes/design/components/navigation/public-navigation.html) defines the branding, alignment, link states, and mobile menu appearance. The existing [public layout](../prototypes/design/layouts/public.html) supplies the two-action arrangement.
+
+#### Vue Implementation Reference
+
+[TopNav.vue](../../prototypes/components/navs/TopNav.vue) defines the reusable component structure, props, menu interactions, and action events. It requires Vue 3.5+ (for instance-specific menu IDs) and an SFC/SCSS-capable build environment.
+
+### SidebarNav
+
+Reusable vertical application navigation with the existing AI logo and Coach title is a brand section. It renders only branding and navigation items, with mobile drawer controls; there is no Compose section or additional action area.
+
+The parent/layout owns `items`, an array of `{ label, href, active?, icon? }` entries with unique `href` values. Links navigate normally to application pages; `active` sets the current-page state. Optional `icon` accepts a Vue icon component or registered component name supplied by the parent. Omit it to match the existing text-only design; no icon registry is built into the sidebar.
+
+The component preserves the 244px desktop sidebar and phone drawer breakpoints. On phones, the menu control opens a modal drawer with focus containment, scroll locking, and dismissal through Close, Escape, backdrop, or a link. Resizing and unmounting release the scroll lock. It has no custom navigation events, authentication logic, API access, or store integration.
+
+#### Visual Design Reference
+
+[authenticated-navigation.html](../prototypes/design/components/navigation/authenticated-navigation.html) defines the sidebar's appearance, branding, link states, and responsive layout.
+
+#### Vue Implementation Reference
+
+[SidebarNav.vue](../../prototypes/components/navs/SidebarNav.vue) defines the reusable component structure and drawer behavior. It uses the shared Button for drawer controls and requires Vue 3.5+ and an SFC/SCSS-capable build environment.
+
+### BaseTable
+
+Reusable presentational table based on the [History / Training Sessions table](../prototypes/design/pages/history.html). It renders a supplied `title`, dynamic `columns` (`{ key, label }`), and `rows`; each column selects `row[column.key]`. Optional `rowKey` defaults to `id`, falling back to the row index when absent. Per-column `cell-<key>` slots receive `value`, `row`, and `column` for parent-owned formatting such as the existing status pills.
+
+The parent supplies configuration and data through props and owns any integration with Pinia, the specified application state architecture. `BaseTable.vue` contains no store access, duplicated state, API calls, or History-specific business logic.
+
+The table preserves the History panel, headers, borders, spacing, and local horizontal scrolling on phone-sized screens. Scoped CSS is prototype-level visual guidance; production styling can later use external styles or shared design tokens.
+
+- Visual design prototype: [BaseTable.html](../../prototypes/design/components/tables/BaseTable.html)
+- Vue component prototype: [BaseTable.vue](../../prototypes/components/tables/BaseTable.vue)
+
+The HTML defines the visual reference; `BaseTable.vue` defines the reusable rendering component. A Vue 3.5+ SFC build environment is required.
+
+### PaymentPlanCard
+
+Reusable presentational subscription card based on the Performance plan card in [Subscription](../prototypes/design/pages/subscription.html). It displays the plan name, price, billing period, feature list, active badge, and the shared primary Button. A parent can render multiple cards for Change Plan, supplying each plan independently.
+
+- `plan`, `currency`, `value`, `period`: parent-supplied display values; `value` accepts a string or number. The card displays currency before value and `/` before period, without billing calculations or currency conversion.
+- `features`: array of feature strings, displayed as a plain list matching the original summary styling.
+- `active`: shows the current-plan badge; defaults to `false`.
+- `activeLabel`: badge text; defaults to `Active`. The HTML specimen uses `Active · demo` to match the original.
+- `actionLabel`: optional button text; otherwise shows `Change plan` when active and `Choose plan` when inactive. Clicking emits `action` for the parent to handle.
+
+The parent owns plan data, store integration, and action handling. The card contains no Pinia access, API calls, subscription logic, or billing state. It reuses [Button.vue](../../prototype/shared-components/buttons/Button.vue) without duplicating its styling.
+
+- Visual design reference: [PaymentPlanCard.html](../../prototypes/design/components/cards/PaymentPlanCard.html)
+- Vue prototype: [PaymentPlanCard.vue](../../prototypes/components/cards/PaymentPlanCard.vue)
