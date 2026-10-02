@@ -15,35 +15,19 @@ Analyze the requirements in the provided frontend specification and produce a st
 
 ---
 
-## Required Rules
-
-Read and apply:
-
-`../rules/frontend/frontend-design-system.md`
-
-Use the shared frontend design rules when interpreting project requirements and visual prototypes.
-
-Do not duplicate those rules inside this skill.
-
----
-
 ## Input
 
 Receive `specification_path` from the Frontend Orchestrator. Resolve relative paths from the project root and read that file as the source of frontend requirements, including technology, routes, authentication, and application features.
 
 If the path is missing or the file cannot be read, report the problem to the orchestrator and stop planning. Do not substitute another specification.
 
-For this project, start from `docs/frontend/frontend.md`, supplied as `specification_path`. Source Application Purpose from `Purpose` and Required Pages from `Required Pages and Routes`, following its authoritative specification reference.
+For this project, use the provided specification_path as the root frontend specification, and follow its authoritative references.
 
 ### Load Referenced Planning Sources
 
 After reading the frontend specification, identify the authoritative supporting specifications and visual sources it declares. Load only the referenced sources needed for the design plan:
 
-- Read `docs/frontend/layouts.md`, declared in `Required Layouts`, for layout structure and page-to-layout relationships.
-- Read `docs/frontend/pages-and-routes.md`, declared in `Required Pages and Routes`, for page architecture, routes, access requirements, and dependencies.
-- Inspect `docs/prototypes/design/index.html` as the prototype catalog, then select relevant page, layout, and component prototypes for the required scope. Use them to understand visual structure and inform component boundaries in the later planning steps; do not load unrelated prototype files or entire directories by default.
-- For shared navigation planning, inspect the dedicated public and authenticated navigation prototypes declared in `Navigation Requirements`. Apply their precedence over older embedded navigation examples.
-- Read `claude/rules/frontend/frontend-design-system.md` for shared visual patterns and design-system constraints, as required above.
+Read the Visual Prototype section in the main frontend specification, open each referenced prototype, and extract the relevant requirements.
 
 Apply this selected-source scope throughout prototype resolution and analysis. Follow relevant references in supporting specifications only when needed to resolve a planning decision. Verify required sources exist; report missing sources or unresolved conflicts as blockers rather than inventing requirements.
 
@@ -70,34 +54,18 @@ Higher-priority requirements override lower-priority defaults.
 
 ## 1. Read the Frontend Specification
 
-Read the specification resolved from `specification_path` before analyzing the frontend. Use this same specification throughout the remaining steps.
+Read and identify all sections in the root frontend specification  from specification plan and use all relevant requirements when building the frontend design plan.
 
-Use it to understand the complete frontend scope.
-
-Identify:
-
-- application purpose
-- required pages
-- required routes
-- shared layouts
-- navigation structure
-- authentication UI
-- billing UI
-- forms
-- feature-specific UI
-- realtime requirements
-- media requirements
-- responsive requirements
 
 Do not implement pages during this step.
 
 ---
 
-## 2. Resolve the Visual Prototype
+## 2. Resolve the Visual Prototypes
 
 If a prototype is referenced:
 
-1. resolve the prototype path
+1. resolve the prototypes path
 2. verify that it exists
 3. inspect it before producing the design plan
 
@@ -109,42 +77,7 @@ Do not silently substitute another prototype.
 
 ## 3. Analyze the Prototype
 
-When a prototype exists, analyze:
-Analyze only what is actually present in the provided prototype. Use concrete examples exclusively from that prototype. If something is missing or unclear, document that without making assumptions.
-
-- Visual Hierarchy
-  Identify which elements attract attention first, which are secondary, and which provide supporting information. Examine how relative size, contrast, typography, color, and visual emphasis establish this hierarchy. Explain the observed hierarchy using concrete examples from the provided prototype.
-
-- Page Composition
-  Analyze how sections, containers, and UI elements are arranged within each page or screen. Examine their relative positions, proportions, alignment, grouping, and spacing, including gaps between adjacent sections and containers. Describe the composition of each distinct page or screen using concrete examples from the provided prototype.
-
-- Shared Surfaces
-  Identify recurring visual surface styles throughout the prototype. Compare their backgrounds, transparency, borders, corner radii, shadows, and relative dimensions. Examine relationships between larger surfaces and any nested surfaces. Record both their shared visual characteristics and meaningful differences.
-
-- Buttons
-  Analyze every button style and variant present in the prototype. Examine relative sizes, colors, typography, padding, borders, corner radii, alignment, and spacing. Identify visual states such as default, hover, pressed, disabled, and selected wherever these are represented. Compare buttons across different sections and containers, providing concrete examples from the analyzed prototype.
-
-- Forms
-  Analyze the forms and input elements present in the prototype. Examine how fields, labels, placeholders, buttons, and supporting text are arranged, including alignment, dimensions, internal padding, grouping, and spacing. Identify their visual styling and any represented states, such as focused, filled, disabled, or validation states. Describe each observed form using concrete examples without inventing missing fields, interactions, or validation behavior.
-
-- Cards
-  Analyze the card styles and variants present in the prototype, including cards nested inside larger containers. Examine backgrounds, borders, corner radii, shadows, relative dimensions, internal padding, and spacing between cards. Describe how headings, icons, text, images, and actions are arranged within each card, where present. Compare recurring cards and identify visually distinct variants using concrete examples from the analyzed prototype.
-
-- Navigation
-  Analyze the visual structure of all navigation elements present in the prototype, including navigation inside individual sections, containers, panels, and dialogs. Examine how links, menu items, tabs, and other navigation elements are arranged, grouped, aligned, and spaced. Identify gaps, internal padding, relative dimensions, and visual differences between active and inactive items. Focus on the observed visual arrangement rather than navigation functionality.
-
-- Dialogs
-  Analyze all dialogs, modals, and overlay panels present in the prototype. Examine their position, relative dimensions, background overlays, borders, corner radii, shadows, layering, and internal spacing. Describe how headings, close controls, tabs, forms, content, and actions are arranged wherever present. Identify any represented visual variations or states, using concrete examples from the analyzed prototype.
-
-- Layout Patterns
-  Identify the layout patterns actually used throughout the prototype. Examine how they organize content, including the number and arrangement of columns, relative proportions, alignment, grouping, and spacing. Compare recurring arrangements across different pages and sections, recording their shared characteristics and important variations. Use concrete examples from the analyzed prototype without assuming any particular layout structure.
-
-- Responsive Intent
-  Analyze how the provided prototype adapts to different screen sizes. Identify any represented responsive breakpoints and examine how layouts, containers, navigation, typography, spacing, and individual elements change. Describe which elements resize, change proportions, move, rearrange, stack, or become hidden. Provide concrete examples exclusively from the analyzed prototype. If responsive behavior is missing or cannot be determined, document that limitation rather than inventing responsive rules.
-
-- Reusable Visual Patterns
-  Identify visual arrangements and styling combinations that recur across the prototype. Compare their shared characteristics, variations, and the contexts in which they appear. Distinguish genuinely recurring visual patterns from isolated designs. Record potential opportunities for reuse using concrete examples from the analyzed prototype, without defining component boundaries or deciding the final implementation architecture.
-
+When a prototype exists, inspect it before producing the frontend design plan. Analyze only what is actually present in the provided prototype. Use concrete examples from that prototype and if something is missing or unclear, document that without guessing. Then look at visual structure, meaning hierarchy, major sections, composition, and layout patterns, and describe how each page or screen is arranged. Next, review all UI components and surfaces that are actually present, such as buttons, forms, cards, navigation, dialogs, shared containers, and any other visible elements, and for each of them, where applicable, note relative size, alignment, spacing, padding, typography, colors, borders, corner radii, shadows, grouping, and any shown states. Only in the prototype. Don't invent missing states or variants. After that, if your prototype includes example component implementations or sample code, analyze those too. How components are structured, composed, nested, what variants or states are demonstrated, and how that maps to the visuals. Use it as guidance. Don't treat it as final production architecture, unless the specification requires it. Also, recognize genuinely recurring visual patterns and note possible reuse without locking in architecture.Inspect any composables, hooks, or shared frontend logic used by the prototype components when they help explain component behavior, state, or reuse, without treating them as mandatory production architecture
 
 Do not copy prototype implementation code.
 
@@ -152,130 +85,7 @@ Use the prototype to determine the intended design system.
 
 ---
 
-## 4. Determine Design Tokens
 
-Determine which global design tokens the frontend requires.
-
-Examples:
-
-- colors
-- typography
-- spacing
-- radius
-- borders
-- shadows
-- transitions
-- layout widths
-- breakpoints
-- semantic state colors
-
-
-Document the global design tokens required by the frontend, based on the provided prototype.
-
----
-
-## 5. Determine Shared Layouts
-
-
-
-Identify reusable layouts required by multiple pages.
-
-Examples:
-
-- public layout
-- authenticated application layout
-- dashboard layout
-- settings layout
-- authentication layout
-- full-screen feature layout
-
-For each layout identify:
-
-- purpose
-- pages using it
-- shared navigation
-- shared content structure
-
----
-
-## 6. Determine Required Pages
-
-Create a complete list of required pages from the specification.
-Determine the required pages from the project specification, not from the prototype. Use the prototype only as a visual reference.
-
-For each page determine:
-
-- page name
-- purpose
-- route
-- layout
-- authentication requirement
-- required sections
-- required shared components
-- required feature components
-- dependencies
-
-Do not build the page here.
-
-Return the page definition to the orchestrator.
-
----
-
-## 7. Determine Shared Components
-
-Read the `Shared UI Requirements` section in the provided frontend specification and identify the reusable components defined there.
-
-Do not infer extra shared components from examples. A shared component must be required by the frontend specification and used by more than one page or layout.
-
-For every shared component determine:
-
-- component name
-- responsibility
-- pages using it
-- required variants
-- major states
-
-Do not create the component here.
-
-Return the component requirement to the orchestrator.
-
----
-
-## 8. Determine Feature Components
-
-Read the `Feature Components` section in the provided frontend specification and identify only the project-specific components defined there.
-
-Do not infer extra feature components from examples. In particular, do not add a payment modal unless the frontend specification explicitly requires one.
-
-For each feature component identify:
-
-- responsibility
-- page using it
-- dependencies
-- data requirements
-
-Keep feature components separate from generic shared UI components.
-
----
-
-## 9. Determine Routing Requirements
-
-Identify required routes.
-
-For each route provide:
-
-- route path
-- page
-- public/protected status
-- route parameters when applicable
-- layout
-- navigation visibility
-
-Do not implement routing here.
-
-Return routing requirements to the orchestrator.
-
----
 
 # Output Contract
 
@@ -308,86 +118,7 @@ Describe only the structure required by the planned frontend. Mark unspecified s
 
 Return these requirements as part of the plan. The orchestrator passes them to Frontend Project Structure to inspect the existing project and create missing directories; this planning skill does not create them.
 
-## Design Foundation
 
-Include:
-
-- visual direction
-- required design tokens
-- typography direction
-- layout principles
-- responsive principles
-
-Include the applicable shared design requirements and project overrides needed for implementation, including component styling, interaction states, accessibility, responsive behavior, and acceptance criteria. Make these requirements explicit in the design foundation or the relevant component and page entries so the orchestrator can pass them to builders without requiring another reading of the shared design rules. Reference shared requirements once rather than repeating them for every component.
-
-## Required Layouts
-
-For each layout:
-
-```text
-name
-purpose
-used_by_pages
-shared_navigation
-shared_content_structure
-```
-
-## Required Pages
-
-For each page:
-
-```text
-name
-route
-purpose
-layout
-access
-sections
-shared_components
-feature_components
-dependencies
-```
-
-## Required Shared Components
-
-For each component:
-
-```text
-name
-responsibility
-variants
-states
-used_by_pages
-```
-
-## Required Feature Components
-
-For each component:
-
-```text
-name
-responsibility
-used_by_page
-dependencies
-data_requirements
-```
-
-Describe the data needed by each feature component and reference its documented source or contract when available. Mark unknown fields or contracts as unresolved; do not invent API endpoints or payloads.
-
-## Required Routes
-
-For each route:
-
-```text
-path
-page
-access
-layout
-parameters
-navigation_visibility
-```
-
-Describe where each route appears in navigation and under which conditions it is visible. Navigation visibility does not replace the route's access requirements.
 
 ## Open Questions and Blockers
 
@@ -443,22 +174,7 @@ Those responsibilities belong to specialized skills coordinated by the Frontend 
 
 ## Validation
 
-These are internal planning checks, not independent approval. The orchestrator invokes `frontend-plan-validator` with the original specification and returned plan before implementation. When the orchestrator supplies validation errors and a rejected plan as correction context, address the cited requirements and return a complete corrected plan; report unresolved blockers instead of inventing missing information.
-
-Before returning the plan verify:
-
-- every required page is represented
-- required routes are represented
-- shared components are identified
-- duplicate components are avoided
-- feature-specific components are separated
-- prototype requirements are represented
-- design rules are respected
-- dependencies are clear
-- implementation order is valid
-- feature-component data requirements are included, with unknown contracts explicitly reported
-- route navigation visibility is included and distinguished from access requirements
-- unresolved questions and blockers identify affected work and the required resolution
+After producing the frontend design plan, return it to the orchestrator for validation. If validation errors are provided, use them as correction context and return a complete corrected plan.
 
 ---
 
