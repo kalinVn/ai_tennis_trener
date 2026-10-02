@@ -53,10 +53,20 @@ Major domains:
 ## Technology
 
 Frontend:
-- Vue 3 + TypeScript
-- Vite
-- Pinia
+- Vue 3
+- TypeScript
 - Vue Router
+- Vite
+- `vite.config.ts` — development server and build configuration
+- Pinia — state management
+- HTML5
+- CSS3 / SCSS
+- HTML5 Canvas API — video overlays, pose landmarks, trajectories and visual feedback
+- MediaDevices API — camera access
+- ESLint — static code analysis and code-quality rules
+- Prettier — code formatting
+- Vitest — unit and component tests
+- Playwright — end-to-end and browser testing
 
 Backend:
 - Python

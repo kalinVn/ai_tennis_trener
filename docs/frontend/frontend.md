@@ -8,26 +8,8 @@ This document is the project-specific source of truth for frontend product scope
 
 Application source belongs under `frontend/`.
 
-Implementation workflow and skill selection are owned by the New Frontend Orchestrator and must not be duplicated here.
-
 ---
 
-## Technologies
-
-- Vue 3
-- TypeScript
-- Vue Router
-- Vite
-- `vite.config.ts` — development server and build configuration
-- Pinia — state management
-- HTML5
-- CSS3 / SCSS
-- HTML5 Canvas API — video overlays, pose landmarks, trajectories and visual feedback
-- MediaDevices API — camera access
-- ESLint — static code analysis and code-quality rules
-- Prettier — code formatting
-- Vitest — unit and component tests
-- Playwright — end-to-end and browser testing
 
 ### Optional / Future
 
@@ -36,19 +18,27 @@ Implementation workflow and skill selection are owned by the New Frontend Orches
 
 ## Visual Prototype
 
-Use the following prototype as the visual reference:
+The visual prototype catalog is:
 
-`docs/prototypes/design/index.html` (catalog), with the application pages in `docs/prototypes/design/pages/`.
+`docs/prototypes/design/index.html`
 
-The prototype defines the intended visual direction, hierarchy, layouts, navigation patterns, training-screen composition, authentication interaction, and pricing presentation.
+Page-level prototypes are stored under:
 
-Treat it as a design reference, not as production code. Do not copy its HTML or CSS blindly.
+`docs/prototypes/design/pages/`
 
-Translate its visual intent into reusable design tokens, shared components, pages, and responsive behavior while applying:
+Component-level prototypes are stored under:
+
+`docs/prototypes/design/components/`
+
+These prototypes define the intended visual direction, hierarchy, layouts, navigation patterns, training-screen composition, authentication interaction, and pricing presentation.
+
+The prototypes are design references, not production code.
+
+The authoritative shared design-system rules for reusable design tokens, shared components, pages, and responsive behavior are:
 
 `claude/rules/frontend/frontend-design-system.md`
 
-When this specification and the prototype differ, this specification has priority.
+This specification and its authoritative supporting specifications take precedence over prototypes. Prototypes take precedence over shared design-system defaults.
 
 ---
 
@@ -72,7 +62,7 @@ May access features enabled by the active plan. The frontend displays plan state
 
 Defines the required frontend layouts and their existing structure.
 
-Read [docs/frontend/layouts.md](layouts.md) for the complete Layouts specification.
+The authoritative layout specification is [docs/frontend/layouts.md](layouts.md).
 
 ---
 
@@ -80,7 +70,7 @@ Read [docs/frontend/layouts.md](layouts.md) for the complete Layouts specificati
 
 Defines the required frontend pages, routes, and page-specific requirements.
 
-Read [docs/frontend/pages-and-routes.md](pages-and-routes.md) for the complete Required Pages and Routes specification.
+The authoritative pages and routes specification is [docs/frontend/pages-and-routes.md](pages-and-routes.md).
 
 ---
 
@@ -92,7 +82,7 @@ Read [docs/frontend/pages-and-routes.md](pages-and-routes.md) for the complete R
 - Authenticated vertical navigation is visible when the user is authenticated and includes Dashboard, Training, History, Subscription, Profile, Settings, and Checkout.
 - Navigation remains usable with keyboard input and on mobile screens.
 
-Navigation visual source of truth (use these layouts and states when implementing shared navigation components):
+The visual sources of truth for shared navigation layouts and states are:
 
 - Public: [public-navigation.html](../prototypes/design/components/navigation/public-navigation.html)
 - Authenticated: [authenticated-navigation.html](../prototypes/design/components/navigation/authenticated-navigation.html)
@@ -102,27 +92,43 @@ These dedicated prototypes take precedence over navigation examples in older pag
 
 ## Shared UI Requirements
 
-Create reusable shared UI components for visual patterns used across multiple pages or layouts.
+Shared UI components are generic, reusable UI elements used across pages and features.
 
-The shared UI should include:
+The current shared components are:
 
 - Button
-- Label
-- FormField
-- StatCard
-- BaseCard
+- DateField
+- NumberField
+- SelectField
+- TextField
+- CollapseForm
+- SidebarNav
+- TopNav
 - BaseTable
-- CollapsibleForm
-- CollapsiblePanel
-- Badge
-- StatusIndicator
-- Modal
-- Dialog
-- NavigationItem
-- PageHeader
-- PageFouter
 
-Do not create separate visual implementations of the same pattern on every page.
+Each shared visual pattern has a reusable implementation across pages.
+
+---
+
+## Feature Components
+
+Feature components are project- or feature-specific UI components, distinct from generic shared UI elements.
+
+- `FeatureCard` — presents a numbered product feature with a title and description.
+- `PaymentPlanCard` — presents a subscription plan, price, features, active state, and a parent-handled plan action.
+- `CameraPreviewModal` — displays the live training camera stream, microphone and analysis controls, and backend feedback.
+- `TrainingCamera` — requests camera and microphone access, handles permission errors, and opens the camera preview modal.
+
+---
+
+## Composables
+
+Reusable frontend logic should be extracted into Vue composables and placed in the `composables/` directory.
+
+---
+## Services
+
+Backend communication, API access, and external integration logic should be placed in the `services/` directory.
 
 ---
 
@@ -247,27 +253,9 @@ Do not present fabricated analysis, session, progress, or subscription data as r
 
 ---
 
-## Feature Components
-
-Feature components are project-specific. Create only the components listed here or explicitly required by another project specification; do not infer extra feature components from examples in implementation skills.
-
-- `CameraPreview` — shows the live camera or selected video, permission state, and availability errors for Training; needs camera or video state and browser-permission state.
-- `SessionControls` — starts and stops camera, analysis, and the training session; needs camera, analysis, and session state.
-- `TrainingOverlay` — renders supported analysis markers without blocking the primary video; needs structured overlay data and confidence state.
-- `CoachingFeedback` — presents one focused coaching cue and analysis status; needs structured coaching output, confidence, and connection state.
-- `SessionSummary` — presents duration, detected issues, key metrics, recommendations, and incomplete or low-confidence results on Session Review; needs the completed session result.
-- `SessionHistoryList` — lists prior sessions and links to their reviews; needs session summaries plus loading, empty, and error state.
-- `ProgressInsights` — presents training trends, improvement areas, and the next recommended focus; needs supported progress data and its available range.
-- `SubscriptionPlanCard` — presents available plans and the current plan; needs plan definitions and current subscription state.
-- `CheckoutFlow` — starts protected provider checkout and renders success, cancellation, payment-failure, and recoverable-error states; needs backend checkout state and provider redirect or protected-field state. It never receives or stores raw card data.
-- `ProfileEditor` — displays and updates supported personal and tennis-related profile information; needs profile data, validation state, and save result.
-- `SettingsEditor` — displays and updates supported application, camera, coaching, privacy, and notification preferences; needs settings data, validation state, and save result.
-
----
-
 ## Frontend Modules
 
-Organize product-specific frontend code under `frontend/src/modules/` using the following modules:
+Product-specific frontend code belongs under `frontend/src/modules/` in the following modules:
 
 - `public` — landing page, public navigation, and pricing preview
 - `auth` — login, registration, validation, and session-aware navigation
@@ -280,15 +268,189 @@ Organize product-specific frontend code under `frontend/src/modules/` using the 
 
 Shared UI components, the application router, assets, and global styles remain outside feature modules.
 
-Module-local pages, components, services, composables, and state may live inside a module only when they are specific to that module. Keep broadly reusable code in the corresponding shared top-level frontend folders.
+Module-local pages, components, services, composables, and state may live inside a module only when they are specific to that module. Broadly reusable code belongs in the corresponding shared top-level frontend folders.
 
 ---
 
 ## Project Structure Constraints
 
-Keep the Vue application structure shallow and appropriate under `frontend/`.
+The Vue application belongs under `frontend/` with a shallow structure appropriate to the required scope.
 
-Derive the final folders from this specification and the approved frontend design plan. Support shared components, pages, routing, services, composables, state, assets, and shared styles without unnecessary abstraction layers.
+The structure must support shared components, pages, routing, services, composables, state, assets, and shared styles without unnecessary abstraction layers.
+
+---
+
+## Verification and Testing
+
+### Acceptance Criterion 1 — All Required Pages and Routes Exist
+
+This validation corresponds to the first item in the `Acceptance Criteria` section:
+
+- `all required pages and routes exist`
+
+Validation must include:
+
+- Verify that all pages and routes defined in `pages-and-routes.md` are implemented.
+- Verify that every required route is registered in Vue Router.
+- Use Vitest to validate the registered router configuration.
+- Use Playwright end-to-end tests to verify that each required route loads the expected page.
+- Verify that public routes are accessible without authentication.
+- Verify that protected routes require authentication and follow the expected redirect behavior.
+- Verify that no required route results in a missing page or unexpected routing error.
+
+### Acceptance Criterion 2 — Public and Protected Navigation Behave Correctly
+
+This validation corresponds to the second item in the `Acceptance Criteria` section:
+
+- `public and protected navigation behave correctly`
+
+Validation must include:
+
+- Use Playwright end-to-end tests to verify public and authenticated navigation behavior in the running application.
+- Verify that unauthenticated users see the required public navigation.
+- Verify that unauthenticated users do not see authenticated-only navigation.
+- Verify that public navigation contains the required items defined in the `Navigation Requirements` section and the authoritative navigation prototypes.
+- Verify that public navigation items lead to the expected page, section, or authentication flow.
+- Verify that unauthenticated users attempting to access protected routes are redirected to the expected login flow.
+- Verify that authenticated users see the required authenticated navigation.
+- Verify that authenticated navigation contains the required items defined in the `Navigation Requirements` section and the authoritative navigation prototypes.
+- Verify that authenticated navigation items lead to the expected protected pages.
+- Verify that navigation updates correctly after login and logout.
+- Verify that navigation remains usable with keyboard input.
+- Verify that navigation remains usable on supported mobile layouts.
+
+
+### Acceptance Criterion 3 — Visual Direction Is Consistent with the Prototype
+
+This validation corresponds to the third item in the `Acceptance Criteria` section:
+
+- `visual direction is consistent with the prototype`
+
+Validation must include:
+
+- Use Playwright visual tests to capture screenshots of the main frontend pages and important application states.
+- Compare the implemented frontend against the authoritative visual prototypes and shared design-system rules.
+- Verify that the main page layouts follow the intended visual structure and hierarchy.
+- Verify that navigation composition and placement are consistent with the relevant navigation prototypes.
+- Verify that the Training screen composition follows the intended prototype structure.
+- Verify that authentication interaction and pricing presentation remain visually consistent with their prototypes.
+- Verify that shared spacing, typography, controls, and reusable visual patterns remain consistent with the frontend design system.
+- Treat the prototypes as visual references rather than pixel-perfect production specifications.
+- Use the verification agent to review significant visual differences and report any inconsistencies that require correction.
+
+### Acceptance Criterion 4 — Training Exposes All Required Camera and Analysis States
+
+This validation corresponds to the fourth item in the `Acceptance Criteria` section:
+
+- `Training exposes all required camera and analysis states`
+
+Validation must include:
+
+- Use Playwright end-to-end tests to verify the Training interface and its main controls.
+- Verify that the camera can be started and that the camera preview becomes available.
+- Verify that the required Training controls such as Start, Stop, and Exit perform the expected frontend actions.
+- Verify that starting analysis causes the frontend to prepare and send the expected data to the configured backend endpoint or transport contract.
+- Mock or intercept the backend endpoint when the real backend is not available.
+- Verify that the outgoing request or transport message contains the expected payload and data format.
+- Verify that stopping analysis stops further data transmission.
+- Verify that exiting the Training flow releases the required frontend camera and media resources.
+- Verify applicable camera error states, including denied permission, unavailable camera, and initialization failure.
+- Do not require a working backend response when the backend implementation is not yet available.
+
+
+
+### Acceptance Criterion 5 — Desktop, Tablet, and Mobile Behavior Is Validated
+
+This validation corresponds to the fifth item in the `Acceptance Criteria` section:
+
+- `desktop, tablet, and mobile behavior is validated`
+
+Validation must include:
+
+- Use Playwright end-to-end tests to validate the frontend at representative desktop, tablet, and mobile viewport sizes.
+- Verify that page layouts adapt correctly across supported viewport sizes.
+- Verify that navigation adapts correctly for desktop, tablet, and mobile layouts.
+- Verify that text remains readable and controls remain usable across supported viewport sizes.
+- Verify that page sections stack and reposition correctly when the available screen width changes.
+- Verify that media, camera previews, and other visual elements maintain usable proportions.
+- Verify that no unintended horizontal overflow appears on supported viewport sizes.
+- Verify that the Training page provides a safe and understandable mobile state.
+- Compare responsive behavior against the authoritative frontend design-system rules and relevant visual prototypes.
+- Use Playwright screenshots where useful to detect responsive layout regressions.
+- Do not invent component dimensions or responsive thresholds in tests when they are not defined by the design system or supporting specifications.
+
+### Acceptance Criterion 6 — Loading, Empty, Error, and Disconnected States Exist Where Applicable
+
+This validation corresponds to the sixth item in the `Acceptance Criteria` section:
+
+- `loading, empty, error, and disconnected states exist where applicable`
+
+Validation must include:
+
+- Use Playwright end-to-end tests to trigger loading, empty, error, and disconnected states on applicable pages and features.
+- Verify that loading states are displayed while required data or operations are in progress.
+- Verify that empty states are displayed when no data is available.
+- Verify that error states are displayed when a request or operation fails.
+- Verify that disconnected states are displayed when the frontend loses the required connection or transport.
+- Mock or intercept backend responses where necessary to reproduce each state without requiring a working backend.
+- Verify that each state provides clear and understandable information to the user.
+- Verify that the UI does not display fabricated analysis, session, progress, or subscription data when real data is unavailable.
+- Verify that the user can recover from recoverable error states where the interface provides a retry or recovery action.
+
+
+### Acceptance Criterion 6 — Loading, Empty, Error, and Disconnected States Exist Where Applicable
+
+This validation corresponds to the sixth item in the `Acceptance Criteria` section:
+
+- `loading, empty, error, and disconnected states exist where applicable`
+
+Validation must include:
+
+- Use Playwright end-to-end tests to trigger loading, empty, error, and disconnected states on applicable pages and features.
+- Verify that loading states are displayed while required data or operations are in progress.
+- Verify that empty states are displayed when no data is available.
+- Verify that error states are displayed when a request or operation fails.
+- Verify that disconnected states are displayed when the frontend loses the required connection or transport.
+- Mock or intercept backend responses where necessary to reproduce each state without requiring a working backend.
+- Verify that each state provides clear and understandable information to the user.
+- Verify that the UI does not display fabricated analysis, session, progress, or subscription data when real data is unavailable.
+- Verify that the user can recover from recoverable error states where the interface provides a retry or recovery action.
+
+### Acceptance Criterion 8 — Applicable Tests, Linting, and Static Checks Pass
+
+This validation corresponds to the next item in the `Acceptance Criteria` section:
+
+- `applicable tests, linting, and static checks pass`
+
+Validation must include:
+
+- Run all applicable frontend automated tests.
+- Run Vitest unit and component tests.
+- Run Playwright end-to-end and browser tests.
+- Run ESLint static code analysis.
+- Verify that all applicable test commands complete successfully.
+- Verify that no ESLint errors remain.
+- Verify that failed tests or failed static checks cause this acceptance criterion to fail.
+- Do not require checks that are not used by the frontend project.
+
+
+### Acceptance Criterion 9 — Unresolved Backend Dependencies Are Reported and Not Represented as Completed Functionality
+
+This validation corresponds to the next item in the `Acceptance Criteria` section:
+
+- `unresolved backend dependencies are reported and not represented as completed functionality`
+
+Validation must include:
+
+- Identify frontend functionality that depends on backend endpoints, services, analysis logic, authentication authority, payment processing, or other backend capabilities that are not yet implemented or available.
+- Report each unresolved backend dependency clearly.
+- Do not mark a feature as fully completed when required backend functionality is still unavailable.
+- Allow the frontend portion of a feature to be marked as complete when its own implementation is finished and verified independently.
+- Use mocks or intercepted requests where appropriate to validate the frontend portion without requiring the real backend.
+- Distinguish clearly between completed frontend functionality and unresolved backend functionality.
+- Do not present mocked, placeholder, or simulated backend behavior as completed production functionality.
+- Treat unreported unresolved backend dependencies as a failed acceptance criterion.
+
 
 ---
 
@@ -299,11 +461,8 @@ The frontend is complete only when:
 - all required pages and routes exist
 - public and protected navigation behave correctly
 - visual direction is consistent with the prototype
-- shared design patterns are reused
 - Training exposes all required camera and analysis states
-- frontend and backend responsibilities remain separated
 - desktop, tablet, and mobile behavior is validated
-- accessibility requirements are applied
 - loading, empty, error, and disconnected states exist where applicable
 - the production build succeeds
 - applicable tests, linting, and static checks pass

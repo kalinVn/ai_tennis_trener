@@ -3,38 +3,38 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Secondary Button · Tennis AI Coach</title>
-  <link rel="stylesheet" href="../../../../docs/prototypes/design/styles.css">
+  <title>Primary Button · Tennis AI Coach</title>
+  <link rel="stylesheet" href="../../styles.css">
   <link rel="stylesheet" href="states.css">
 </head>
 <body class="button-prototype">
 <main class="container public-main">
   <div class="page-head">
     <div class="eyebrow">Button design reference</div>
-    <h1>Secondary Button</h1>
+    <h1>Primary Button</h1>
     <p>Hover and pressed examples stay visible for inspection. The default button also responds to hover, pointer press and keyboard focus. Preview only; buttons perform no action.</p>
-    <a href="primary-button.html">Inspect Primary Button →</a>
+    <a href="secondary-button.html">Inspect Secondary Button →</a>
   </div>
-  <section class="panel state-list" aria-label="Secondary button states">
+  <section class="panel state-list" aria-label="Primary button states">
     <div class="state-row">
       <span class="muted" id="default-label">Default</span>
-      <button type="button" class="btn" data-state="default" aria-describedby="default-label">View history</button>
+      <button type="button" class="btn primary" data-state="default" aria-describedby="default-label">Start training</button>
     </div>
     <div class="state-row">
       <span class="muted" id="hover-label">Hover</span>
-      <button type="button" class="btn" data-state="hover" aria-describedby="hover-label">View history</button>
+      <button type="button" class="btn primary" data-state="hover" aria-describedby="hover-label">Start training</button>
     </div>
     <div class="state-row">
       <span class="muted" id="pressed-label">Active / Pressed</span>
-      <button type="button" class="btn" data-state="pressed" aria-describedby="pressed-label">View history</button>
+      <button type="button" class="btn primary" data-state="pressed" aria-describedby="pressed-label">Start training</button>
     </div>
     <div class="state-row">
       <span class="muted" id="disabled-label">Disabled</span>
-      <button type="button" class="btn" data-state="disabled" aria-describedby="disabled-label" disabled>View history</button>
+      <button type="button" class="btn primary" data-state="disabled" aria-describedby="disabled-label" disabled>Start training</button>
     </div>
     <div class="state-row">
       <span class="muted" id="loading-label">Loading</span>
-      <button type="button" class="btn" data-state="loading" aria-describedby="loading-label" disabled aria-busy="true"><span class="spinner" aria-hidden="true"></span><span>Loading…</span></button>
+      <button type="button" class="btn primary" data-state="loading" aria-describedby="loading-label" disabled aria-busy="true"><span class="spinner" aria-hidden="true"></span><span>Loading…</span></button>
     </div>
   </section>
 </main>

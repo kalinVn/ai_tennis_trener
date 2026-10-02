@@ -1,5 +1,5 @@
 <script setup>
-import { useButtonController } from '../../../prototypes/composables/ButtonController.js'
+import { useButtonController } from '../../../../../prototypes/composables/ButtonController.js'
 import './main.scss'
 
 const props = defineProps({

@@ -1,5 +1,5 @@
 <script setup>
-import Button from '../../../prototype/shared-components/buttons/Button.vue'
+import Button from '../../../docs/prototypes/design/components/buttons/Button.vue'
 import CameraPreviewModal from '../modal/CameraPreviewModal.vue'
 import { useCameraSession } from '../../composables/useCameraSession.js'
 

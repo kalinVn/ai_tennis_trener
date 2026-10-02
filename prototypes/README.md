@@ -2,7 +2,7 @@
 
 The source components remain reference implementations; application code stays separate.
 All prototype composables live in `composables/`. The older shared Button is reused
-from `../prototype/shared-components/buttons/`; its unchanged `ButtonController.js`
+from `../docs/prototypes/design/components/buttons/`; its unchanged `ButtonController.js`
 composable now also lives in `composables/`.
 
 ## Training camera

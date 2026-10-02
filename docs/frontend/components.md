@@ -31,7 +31,7 @@ CSS in the prototype Vue components is for visual reference only; production sty
 
 Visual design prototypes for the Button component:
 
-`prototype/design/components/buttons/`
+`docs/prototypes/design/components/buttons/`
 
 Use these prototypes as the source of truth for the visual appearance of the Button, including variants, sizes, states, spacing, colors, typography, borders, and interaction states.
 
@@ -39,7 +39,7 @@ Use these prototypes as the source of truth for the visual appearance of the But
 
 Vue implementation prototype for the shared Button component:
 
-`prototype/shared-components/buttons/`
+`docs/prototypes/design/components/buttons/`
 
 This reference defines the expected Vue component structure, props, emitted events, controller logic, and SCSS organization.
 
@@ -121,7 +121,7 @@ Presentational card for a numbered feature, title, and description. The parent s
 Reusable public top navigation with the existing AI logo and Tennis AI Coach title, parent-supplied links, and two authentication actions. It owns the responsive menu toggle, Escape dismissal, and resize cleanup. It contains no authentication logic, routing, API access, or store integration.
 
 - `items`: array of `{ label, href, active? }` objects; defaults to an empty array. Use unique `href` values. Optional `active` marks the current page.
-- Login uses the shared [Button.vue](../../prototype/shared-components/buttons/Button.vue) with `variant="secondary"` and `size="small"`; clicking emits `login`.
+- Login uses the shared [Button.vue](../prototypes/design/components/buttons/Button.vue) with `variant="secondary"` and `size="small"`; clicking emits `login`.
 - Start Free uses the same Button with `variant="primary"` and `size="small"`; clicking emits `register`.
 
 
@@ -172,7 +172,7 @@ Reusable presentational subscription card based on the Performance plan card in 
 - `activeLabel`: badge text; defaults to `Active`. The HTML specimen uses `Active · demo` to match the original.
 - `actionLabel`: optional button text; otherwise shows `Change plan` when active and `Choose plan` when inactive. Clicking emits `action` for the parent to handle.
 
-The parent owns plan data, store integration, and action handling. The card contains no Pinia access, API calls, subscription logic, or billing state. It reuses [Button.vue](../../prototype/shared-components/buttons/Button.vue) without duplicating its styling.
+The parent owns plan data, store integration, and action handling. The card contains no Pinia access, API calls, subscription logic, or billing state. It reuses [Button.vue](../prototypes/design/components/buttons/Button.vue) without duplicating its styling.
 
 - Visual design reference: [PaymentPlanCard.html](../../prototypes/design/components/cards/PaymentPlanCard.html)
 - Vue prototype: [PaymentPlanCard.vue](../../prototypes/components/cards/PaymentPlanCard.vue)
@@ -181,7 +181,7 @@ The parent owns plan data, store integration, and action handling. The card cont
 
 Reusable collapsible form container based on the Tennis Profile section in [Profile](../prototypes/design/pages/profile.html). `title` is required; `description` is optional. Native `<details>` starts expanded and owns only its local collapse/expand UI state, including keyboard interaction and the plus/minus indicator.
 
-The default slot accepts arbitrary fields, components, or layout containers. The named `footer` slot provides the existing wrapping two-button alignment. The parent supplies shared [Button](../../prototype/shared-components/buttons/Button.vue) instances, their labels, and their actions; use `primary` and `ghost` variants to reproduce Profile's Save/Reset appearance. No fields or buttons are hardcoded into `CollapseForm.vue`.
+The default slot accepts arbitrary fields, components, or layout containers. The named `footer` slot provides the existing wrapping two-button alignment. The parent supplies shared [Button](../prototypes/design/components/buttons/Button.vue) instances, their labels, and their actions; use `primary` and `ghost` variants to reproduce Profile's Save/Reset appearance. No fields or buttons are hardcoded into `CollapseForm.vue`.
 
 The parent reads Pinia/store values, passes them to slotted fields, receives field changes, and updates the store from its footer actions. `CollapseForm` holds no form data and never accesses or updates Pinia. It does not render a `<form>` or handle submission; the parent may wrap it in a form and own submit/reset behavior.
 

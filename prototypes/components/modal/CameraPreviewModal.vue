@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
-import Button from '../../../prototype/shared-components/buttons/Button.vue'
+import Button from '../../../docs/prototypes/design/components/buttons/Button.vue'
 import { useVideoAnalysis } from '../../composables/useVideoAnalysis.js'
 
 const props = defineProps({

@@ -1,6 +1,6 @@
 <script setup>
 import { ref, useId, nextTick, onMounted, onBeforeUnmount } from 'vue'
-import Button from '../../../prototype/shared-components/buttons/Button.vue'
+import Button from '../../../docs/prototypes/design/components/buttons/Button.vue'
 
 const props = defineProps({
   items: { type: Array, default: () => [] },

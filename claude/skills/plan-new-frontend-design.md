@@ -33,6 +33,24 @@ Receive `specification_path` from the Frontend Orchestrator. Resolve relative pa
 
 If the path is missing or the file cannot be read, report the problem to the orchestrator and stop planning. Do not substitute another specification.
 
+For this project, start from `docs/frontend/frontend.md`, supplied as `specification_path`. Source Application Purpose from `Purpose` and Required Pages from `Required Pages and Routes`, following its authoritative specification reference.
+
+### Load Referenced Planning Sources
+
+After reading the frontend specification, identify the authoritative supporting specifications and visual sources it declares. Load only the referenced sources needed for the design plan:
+
+- Read `docs/frontend/layouts.md`, declared in `Required Layouts`, for layout structure and page-to-layout relationships.
+- Read `docs/frontend/pages-and-routes.md`, declared in `Required Pages and Routes`, for page architecture, routes, access requirements, and dependencies.
+- Inspect `docs/prototypes/design/index.html` as the prototype catalog, then select relevant page, layout, and component prototypes for the required scope. Use them to understand visual structure and inform component boundaries in the later planning steps; do not load unrelated prototype files or entire directories by default.
+- For shared navigation planning, inspect the dedicated public and authenticated navigation prototypes declared in `Navigation Requirements`. Apply their precedence over older embedded navigation examples.
+- Read `claude/rules/frontend/frontend-design-system.md` for shared visual patterns and design-system constraints, as required above.
+
+Apply this selected-source scope throughout prototype resolution and analysis. Follow relevant references in supporting specifications only when needed to resolve a planning decision. Verify required sources exist; report missing sources or unresolved conflicts as blockers rather than inventing requirements.
+
+Use these sources to derive frontend architecture, module and page structure, layout structure, shared and feature component boundaries, dependencies, and implementation order within the existing Output Contract. Derive final folders from the specification's structure constraints. Translate prototype intent into reusable design tokens, components, pages, and responsive behavior rather than copying prototype implementation code.
+
+Reference source specifications in the plan instead of copying their contents unnecessarily. Include the concrete decisions and requirements needed by the Output Contract and downstream builders; do not reproduce entire supporting specifications, prototypes, or design-system documents.
+
 ---
 
 
@@ -40,8 +58,8 @@ If the path is missing or the file cannot be read, report the problem to the orc
 
 When requirements conflict, use:
 
-1. Project frontend specification resolved from `specification_path`.
-2. Visual prototype referenced by that specification (a referenced resource, not a separate input; resolve it through the specification).
+1. Project frontend specification resolved from `specification_path` and the authoritative supporting specifications it declares. The root specification defines source responsibilities and precedence; report unresolved conflicts between authoritative requirements.
+2. Visual prototypes referenced by those specifications (referenced resources, not separate inputs). Apply declared visual precedence: dedicated navigation prototypes override older embedded navigation examples.
 3. Shared frontend design rules (`../rules/frontend/frontend-design-system.md`).
 
 Higher-priority requirements override lower-priority defaults.
