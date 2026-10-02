@@ -1,5 +1,5 @@
 <script setup>
-import { useSelectField } from './useSelectField.js'
+import { useSelectField } from '../../composables/useSelectField.js'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps({

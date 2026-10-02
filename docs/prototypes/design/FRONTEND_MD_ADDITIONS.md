@@ -10,7 +10,7 @@ Prototype paths below are relative to the repository root. The catalog is `docs/
 | Public Layout | Public navigation + page content + footer | Home `/`, Features `/features`, Pricing `/pricing` | `docs/prototypes/design/pages/index.html`, `docs/prototypes/design/pages/features.html`, `docs/prototypes/design/pages/pricing.html` |
 | Authentication UI | Shared modal for Login/Register (not a separate page layout in this prototype) | Available from public pages | `docs/prototypes/design/pages/index.html` |
 | Authenticated Application Layout | Shared sidebar and app header | Dashboard `/dashboard`, Training `/training`, History `/history`, Subscription `/subscription`, Profile `/profile`, Settings `/settings` | `docs/prototypes/design/pages/dashboard.html`, `docs/prototypes/design/pages/training.html`, `docs/prototypes/design/pages/history.html`, `docs/prototypes/design/pages/subscription.html`, `docs/prototypes/design/pages/profile.html`, `docs/prototypes/design/pages/settings.html` |
-| Full-screen Feature Layout | Camera-first screen with minimal controls | `/training/camera` | `docs/prototypes/design/pages/camera.html` |
+| Camera Preview Modal | Camera-first screen with minimal controls | `/training` (in-page modal) | `docs/prototypes/design/pages/camera.html` |
 
 The dashboard is a page within Authenticated Application Layout, not necessarily a separate Dashboard Layout. Settings is also a page in the same shared layout unless a real design requires a different shell.
 
@@ -23,7 +23,7 @@ The dashboard is a page within Authenticated Application Layout, not necessarily
 | `/pricing` | `docs/prototypes/design/pages/pricing.html` | Public |
 | `/dashboard` | `docs/prototypes/design/pages/dashboard.html` | Authenticated Application |
 | `/training` | `docs/prototypes/design/pages/training.html` | Authenticated Application |
-| `/training/camera` | `docs/prototypes/design/pages/camera.html` | Full-screen Feature |
+| `/training` (in-page modal) | `docs/prototypes/design/pages/camera.html` | Camera Preview Modal |
 | `/history` | `docs/prototypes/design/pages/history.html` | Authenticated Application |
 | `/subscription` | `docs/prototypes/design/pages/subscription.html` | Authenticated Application |
 | `/profile` | `docs/prototypes/design/pages/profile.html` | Authenticated Application |

@@ -1,5 +1,5 @@
 <script setup>
-import { useTextField } from './useTextField.js'
+import { useTextField } from '../../composables/useTextField.js'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps({

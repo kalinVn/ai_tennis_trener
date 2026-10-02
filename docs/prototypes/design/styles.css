@@ -62,7 +62,7 @@ form .btn:not(.small){min-height:51px;max-width:100%;white-space:normal}
 .video{position:relative;min-height:430px;border:1px solid #3c5a4a;border-radius:22px;background:radial-gradient(circle at 45% 35%,#345340,#0b1c14 65%);display:flex;align-items:center;justify-content:center;overflow:hidden}.video:before{content:"";position:absolute;inset:14%;border:2px solid rgba(255,255,255,.18);transform:perspective(500px) rotateX(55deg)}
 .video-label{z-index:1;background:#06100d9e;padding:8px 12px;border-radius:10px}.training-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(260px,1fr);gap:16px}
 .modal{position:fixed;inset:0;z-index:99;display:none;align-items:center;justify-content:center;padding:18px;background:#000b}.modal.open{display:flex}.modal-card{width:min(450px,100%);background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:26px}.modal-header{display:flex;justify-content:space-between;align-items:center}.close{border:0;color:var(--text);font-size:27px;background:transparent}.tabs{display:flex;gap:10px;margin:18px 0}.tabs button{flex:1}
-.fullscreen{min-height:100vh;display:grid;grid-template-rows:auto 1fr auto}.full-head,.full-foot{padding:16px 25px;background:#08140e;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border)}.full-foot{border-top:1px solid var(--border);border-bottom:0}.full-video{min-height:65vh;border-radius:0;border:0}
+.camera-header-reference{padding:16px 25px;background:#08140e;display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
 @media(max-width:900px){.hero,.grid3,.pricing,.app-grid,.two-col,.training-grid{grid-template-columns:1fr}.app-shell{grid-template-columns:1fr}.sidebar{position:static;height:auto}.side-links{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:14px}.side-links a{font-size:13px;text-align:center;padding:8px}.app-content{padding:25px 18px}.app-top{padding:15px 18px}.nav-inner{justify-content:center}}
 @media(max-width:530px){.side-links{grid-template-columns:repeat(2,minmax(0,1fr))}.public-main{padding-top:30px}.hero{min-height:0}.video{min-height:280px}.data-table{font-size:12px}.data-table td,.data-table th{padding:9px 5px}}
 
@@ -98,9 +98,9 @@ form .btn:not(.small){min-height:51px;max-width:100%;white-space:normal}
   body.nav-open{position:fixed;top:var(--nav-scroll-top);left:0;right:0;overflow:hidden}
   .nav-open .mobile-nav-ready .sidebar{visibility:visible;transform:translateX(0)}
   .mobile-menu:focus-visible,.sidebar-close:focus-visible,.sidebar a:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
-  .public-nav .btn.small,.public-nav .nav-links a,.full-head .btn.small{min-height:44px}
+  .public-nav .btn.small,.public-nav .nav-links a{min-height:44px}
   .modal-card .close{flex:0 0 44px;width:44px;height:44px}
-  .app-content .btn,.full-foot .btn{max-width:100%;white-space:normal}
+  .app-content .btn{max-width:100%;white-space:normal}
   .app-content .data-table{min-width:600px}
   .app-content .panel:has(.data-table){min-width:0}
   .video-label{max-width:100%;overflow-wrap:anywhere}

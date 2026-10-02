@@ -49,7 +49,7 @@ The field prototypes in `prototypes/components/fields/` demonstrate a label and 
 
 #### Shared Composable
 
-[useField.js](../../prototypes/components/fields/useField.js) provides shared value updates, reset-to-initial-value behavior, and label detection. It is a composable, not a visual component. Each field-specific composable composes `useField` and adds only its specialized behavior.
+[useField.js](../../prototypes/composables/useField.js) provides shared value updates, reset-to-initial-value behavior, and label detection. It is a composable, not a visual component. Each field-specific composable composes `useField` and adds only its specialized behavior.
 
 The parent owns the value. The Vue component binds the control to its field-specific composable, and updates pass through `useField` to emit `update:modelValue`.
 
@@ -68,7 +68,7 @@ Single-line text input. Use it for names and other short free-text values.
 `useTextField` composes the shared `useField` composable and adds text-clearing behavior.
 
 - Vue component: [TextField.vue](../../prototypes/components/fields/TextField.vue)
-- Composable: [useTextField.js](../../prototypes/components/fields/useTextField.js)
+- Composable: [useTextField.js](../../prototypes/composables/useTextField.js)
 - Visual prototype: [text-field.html](../../prototypes/design/components/fields/text-field.html)
 
 
@@ -80,7 +80,7 @@ Numeric input that converts entered values to numbers and represents an empty fi
 `useNumberField` composes the shared `useField` composable and adds numeric conversion and unit increment/decrement behavior.
 
 - Vue component: [NumberField.vue](../../prototypes/components/fields/NumberField.vue)
-- Composable: [useNumberField.js](../../prototypes/components/fields/useNumberField.js)
+- Composable: [useNumberField.js](../../prototypes/composables/useNumberField.js)
 - Visual prototype: [number-field.html](../../prototypes/design/components/fields/number-field.html)
 
 #### SelectField
@@ -90,7 +90,7 @@ Native selection from supplied options, supporting single or multiple values. Us
 `useSelectField` composes the shared `useField` composable and adds option selection and selected-option lookup.
 
 - Vue component: [SelectField.vue](../../prototypes/components/fields/SelectField.vue)
-- Composable: [useSelectField.js](../../prototypes/components/fields/useSelectField.js)
+- Composable: [useSelectField.js](../../prototypes/composables/useSelectField.js)
 - Visual prototype: [select-field.html](../../prototypes/design/components/fields/select-field.html)
 
 #### DateField
@@ -100,7 +100,7 @@ Native date input using `YYYY-MM-DD` strings without timezone conversion. Use it
 `useDateField` composes the shared `useField` composable and adds date assignment and clearing behavior.
 
 - Vue component: [DateField.vue](../../prototypes/components/fields/DateField.vue)
-- Composable: [useDateField.js](../../prototypes/components/fields/useDateField.js)
+- Composable: [useDateField.js](../../prototypes/composables/useDateField.js)
 - Visual prototype: [date-field.html](../../prototypes/design/components/fields/date-field.html)
 
 #### Usage and Source of Truth
@@ -189,3 +189,15 @@ The parent reads Pinia/store values, passes them to slotted fields, receives fie
 - Vue prototype: [CollapseForm.vue](../../prototypes/components/forms/CollapseForm.vue)
 
 The HTML demonstrates the original Tennis Profile content and footer styling. Its buttons are visual-only; the Vue prototype provides the reusable container and slots. Styling remains prototype-level reference CSS.
+
+### CameraPreviewModal
+
+[CameraPreviewModal.vue](../../prototypes/components/modal/CameraPreviewModal.vue) converts the [camera design](../prototypes/design/pages/camera.html) into a viewport-sized modal inside Training. [TrainingCamera.vue](../../prototypes/components/training/TrainingCamera.vue) requests camera and microphone through [useCameraSession.js](../../prototypes/composables/useCameraSession.js), then mounts the modal without replacing Training or navigating.
+
+The modal accepts `stream`, `endpoint`, and optional `analysisFps` (default 5). It emits `analysis-result` for parent-owned session handling and `close` after releasing media. The optional `overlay` slot receives the latest backend `result`. Microphone capture is active with a local mute control; video playback stays muted to prevent microphone loopback. No microphone upload or coaching-audio protocol is invented.
+
+[useVideoAnalysis.js](../../prototypes/composables/useVideoAnalysis.js) owns a single paced capture/resize/JPEG loop (default maximum width 640px, 5 FPS; configurable up to 10 FPS), result/error state, and cancellation. [trainingTransport.js](../../prototypes/services/trainingTransport.js) owns WebSocket connection, bounded sending, message reception, and disconnect. No browser inference or fabricated coaching is performed. Stop Video Analysis stops only analysis; Return to Training, Escape, device loss, or unmount stop analysis and all camera/microphone tracks.
+
+No real backend transport contract exists yet. The explicit prototype contract is binary JPEG frames sent to a configured WebSocket endpoint and JSON `{ type, payload }` messages returned. It accepts events including `stroke_analysis`, `player_feedback`, `ball_position`, `player_position`, `pose_analysis`, `training_instruction`, and `analysis_error`. Feedback text uses `payload.text` or `payload.message`; explicitly low-confidence text is withheld. The host/backend must provide authentication and validate this prototype contract before real integration. No endpoint is hardcoded; without one, only camera/microphone preview is available.
+
+Run the Training prototype using [prototypes/README.md](../../prototypes/README.md). Existing field composables now have one canonical copy under `prototypes/composables/`; field behavior is unchanged.

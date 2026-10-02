@@ -1,5 +1,5 @@
 <script setup>
-import { useDateField } from './useDateField.js'
+import { useDateField } from '../../composables/useDateField.js'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps({

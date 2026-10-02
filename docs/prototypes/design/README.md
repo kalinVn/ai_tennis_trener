@@ -7,7 +7,7 @@ application pages keep their existing filenames. Demo authentication resolves it
 dashboard destination from the shared script, so it also works from library pages.
 
 The current source contains 10 pages: Home, Features, Pricing, Dashboard, Training,
-History, Subscription, Profile, Settings and full-screen Camera. The legacy
+History, Subscription, Profile, Settings and Camera modal design. The legacy
 `tennis-ai-coach.html` was absent before this reorganization and was not restored.
 No image assets are required, so there is no unused `assets/` directory.
 
@@ -50,8 +50,7 @@ Responsive behavior:
   existing layouts. History has one table and one review panel, so its table
   stays full-width with local horizontal scrolling instead of inventing cards.
 - Mobile Training puts its 16:9 camera placeholder first, with existing controls
-  and supporting panels below. The dedicated full-screen camera keeps its own
-  layout. Collapsible icons grow within a 44px area through 1100px viewport width.
+  and supporting panels below. The camera opens within Training as a viewport-sized modal. Collapsible icons grow within a 44px area through 1100px viewport width.
 - Desktop styles, the shared form alignment and select arrows are retained.
 
 Responsive QA covers all 30 HTML pages (10 originals, 4 layouts, 15 components
@@ -146,3 +145,11 @@ These two specimens supersede the older combined `components/navigation.html`
 and page/layout navigation examples for future frontend navigation styling and
 layout. Existing page demos remain unchanged. Use the catalog to open either
 specimen, resize for mobile states, and inspect pointer hover and keyboard focus.
+
+
+Training camera now runs through the Vue prototype entry in `prototypes/training/`.
+From the repository root, run `npm --prefix prototypes install` and
+`npm --prefix prototypes run dev`, then open the server's
+`/docs/prototypes/design/pages/training.html` URL. `pages/camera.html` is a modal
+visual specimen, not a navigation destination from Training. Start Camera requests
+both camera and microphone; Return to Training releases both devices.

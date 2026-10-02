@@ -1,5 +1,5 @@
 <script setup>
-import { useNumberField } from './useNumberField.js'
+import { useNumberField } from '../../composables/useNumberField.js'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps({
