@@ -115,6 +115,9 @@ Each shared visual pattern has a reusable implementation across pages.
 Feature components are project- or feature-specific UI components, distinct from generic shared UI elements.
 
 - `FeatureCard` — presents a numbered product feature with a title and description.
+- `PerformanceCard` — reusable Checkout card presenting the selected plan, price, billing note, and back-to-plans link from page-supplied props.
+- `PaymentInformationCard` — reusable Checkout card presenting disabled sample payment fields from page-supplied display props; never collects raw card data.
+- `OrderSummaryCard` — reusable Checkout card presenting order amounts, notes, and actions from page-supplied props; emits the checkout action for the page to handle.
 - `PaymentPlanCard` — presents a subscription plan, price, features, active state, and a parent-handled plan action.
 - `CameraPreviewModal` — displays the live training camera stream, microphone and analysis controls, and backend feedback.
 - `TrainingCamera` — requests camera and microphone access, handles permission errors, and opens the camera preview modal.

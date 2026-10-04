@@ -9,7 +9,7 @@ const { stream, isRequesting, error, startCamera, stopCamera } = useCameraSessio
 
 <template>
   <div class="training-camera">
-    <Button variant="primary" :loading="isRequesting" @click="startCamera">{{ isRequesting ? 'Requesting camera and microphone…' : 'Start Camera' }}</Button>
+    <Button variant="primary" :loading="isRequesting" @click="startCamera">{{ isRequesting ? 'Requesting camera and microphone…' : 'Start Training' }}</Button>
     <Button v-if="isRequesting" variant="secondary" @click="stopCamera">Cancel</Button>
     <p v-if="error" role="alert">{{ error }}</p>
     <CameraPreviewModal v-if="stream" :stream="stream" :endpoint="endpoint" @close="stopCamera" />

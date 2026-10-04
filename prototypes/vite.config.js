@@ -22,6 +22,7 @@ export default defineConfig({
     outDir: 'prototypes/dist',
     emptyOutDir: true,
     rollupOptions: { input: {
+      checkout: root + '/docs/prototypes/design/pages/checkout.html',
       training: root + '/docs/prototypes/design/pages/training.html',
       layout: root + '/docs/prototypes/design/layouts/training.html',
       camera: root + '/docs/prototypes/design/components/camera-preview.html',

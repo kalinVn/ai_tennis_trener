@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>Home · Tennis AI Coach · Serve Tracking Test</title>
+<link href="../styles.css" rel="stylesheet"/>
+<style>
+/* Only the hero court is adjusted. The shared Tennis AI Coach CSS is unchanged. */
+.serve-court{position:relative;min-height:455px;overflow:visible!important;isolation:isolate}
+.serve-court .real-video-viewport{position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:0;background:linear-gradient(130deg,#18372b,#0b1b15)}
+.serve-court video{width:100%;height:100%;object-fit:cover;filter:blur(1.35px) brightness(.84) saturate(.89);pointer-events:none}
+.serve-court .video-shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#05170b18,transparent 48%,#05170b30)}
+.serve-court .tracking-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+.serve-court .video-overlay-top{position:absolute;top:15px;left:16px;z-index:4;display:flex;gap:7px;flex-wrap:wrap;max-width:92%}
+.serve-court .video-pill{background:#081c16dd;border:1px solid #b7ff4a55;border-radius:999px;padding:7px 11px;color:#dff6d0;font:11px/1.4 system-ui,sans-serif;backdrop-filter:blur(5px)}
+.serve-court .video-pill strong{color:#c8ff88}
+.serve-court .coach-pill{position:absolute;bottom:15px;left:16px;z-index:4;max-width:60%}
+.serve-court .telemetry{position:absolute;right:-48px;bottom:-35px;width:202px;z-index:6;padding:14px;background:#0b1e17f5;border:1px solid #b7ff4a8a;border-radius:15px;box-shadow:0 16px 45px #0009;color:#e5f6e6;font:12px/1.6 ui-monospace,Consolas,monospace}
+.serve-court .telemetry h3{font:700 12px/1.4 ui-monospace,Consolas,monospace;color:#c6ff86;margin:0 0 11px;letter-spacing:.07em}
+.serve-court .ai-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid #ffffff19}
+.serve-court .ai-row strong{color:#bdff77;white-space:nowrap}
+.serve-court .ai-feedback{color:#dcffbe;background:#b7ff4a19;border-radius:8px;padding:8px;margin-top:11px}
+.serve-court .serve-marker{position:absolute;left:0;right:0;top:0;bottom:0;border:0;pointer-events:none;z-index:2}
+.serve-editor{margin:52px 0 12px;display:flex;flex-wrap:wrap;align-items:center;gap:9px;background:#101d16;border:1px solid #b7ff4a35;border-radius:15px;padding:12px}
+.serve-editor button,.serve-editor select{background:#132b1c;color:#eaffdd;border:1px solid #b7ff4a65;border-radius:9px;padding:8px 11px;font:12px/1.4 system-ui,sans-serif;cursor:pointer}
+.serve-editor button:hover,.serve-editor button:focus-visible{border-color:#b7ff4a;outline:2px solid #b7ff4a44}
+.serve-editor input[type=file]{max-width:185px;font-size:11px;color:#dcead4}
+.serve-editor label,.serve-editor small{color:#b5c8b8;font:12px/1.5 system-ui,sans-serif}
+.serve-editor #clip-info{color:#dcffaf;font:11px/1.5 ui-monospace,monospace;flex-basis:100%}
+.serve-error{margin:10px 0;color:#ffd9b5;font-size:12px;line-height:1.5}
+.video-credit{margin:14px 0 0;color:var(--muted);font-size:11px;line-height:1.6}
+@media(max-width:900px){.serve-court{overflow:hidden!important}.serve-court .telemetry{right:8px;bottom:8px;width:172px;padding:10px;font-size:10px}.serve-court .coach-pill{bottom:12px;max-width:calc(100% - 202px)}}
+@media(max-width:530px){.serve-court{min-height:385px}.serve-court .telemetry{width:150px}.serve-court .video-overlay-top{top:8px;left:8px}.serve-court .video-pill{font-size:10px;padding:5px 8px}.serve-editor{margin-top:12px}}
+@media(prefers-reduced-motion:reduce){.serve-court video{filter:blur(1.35px) brightness(.84) saturate(.89)}}
+</style>
+</head>
+<body>
+<nav class="public-nav"><div class="container nav-inner">
+<a class="brand" href="index.html"><span class="logo">AI</span>Tennis AI Coach</a>
+<div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="training.html">Training</a><a href="pricing.html">Pricing</a></div>
+<div class="nav-actions"><button class="btn small" onclick="openAuth('login')">Log in</button><button class="btn primary small" onclick="openAuth('register')">Start free</button></div>
+</div></nav>
+<main class="container public-main">
+<section class="container hero">
+<div>
+<div class="eyebrow">● Live AI coaching · Camera-first training</div>
+<h1>Train smarter.<br/>Move better.<br/><span style="color:var(--accent)">Win more.</span></h1>
+<p>Your camera becomes a private tennis coach. Analyze movement, review key moments, and receive focused feedback without turning the interface into a cockpit.</p>
+<div class="cta">
+<a class="btn primary" href="training.html">Start training</a>
+<a class="btn" href="dashboard.html">Open dashboard</a>
+</div>
+<div class="stats">
+<div class="stat"><strong>&lt; 1s</strong><span>Target feedback loop</span></div>
+<div class="stat"><strong>Live</strong><span>Camera analysis UI</span></div>
+<div class="stat"><strong>1 cue</strong><span>At the right moment</span></div>
+</div>
+</div>
+<div class="court serve-court" id="serve-court">
+<div class="real-video-viewport">
+<video aria-label="Tennis serve footage with optional real pose tracking" autoplay="" crossorigin="anonymous" id="serve-video" loop="" muted="" playsinline="" preload="metadata">
+<source src="../assets/tennis-serve.mp4" type="video/mp4"/>
+<source src="https://commons.wikimedia.org/wiki/Special:Redirect/file/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" type="video/webm"/>
+</video>
+<div class="video-shade"></div>
+</div>
+<canvas aria-hidden="true" class="tracking-canvas" id="pose-overlay"></canvas>
+<div class="video-overlay-top">
+<span class="video-pill"><strong>●</strong> Video · <span id="video-state">Loading</span></span>
+<span class="video-pill"><strong>●</strong> Player · <span id="pose-state">Loading model</span></span>
+<span class="video-pill">SERVE ANALYSIS · 2D</span>
+</div>
+<div class="coach-pill video-pill">Coach: <strong id="coach-cue">Finding the player…</strong></div>
+<div aria-label="Video-based joint measurements" class="telemetry">
+<h3>● SERVE POSE TRACKING</h3>
+<div class="ai-row"><span>Knee bend</span><strong id="knee-angle">—</strong></div>
+<div class="ai-row"><span>Elbow angle</span><strong id="elbow-angle">—</strong></div>
+<div class="ai-row"><span>Shoulder tilt</span><strong id="shoulder-angle">—</strong></div>
+<div class="ai-row"><span>Speed</span><strong id="playback-speed">1.0×</strong></div>
+<div class="ai-feedback" id="ai-feedback">Measured from detected image landmarks, not actual 3D values.</div>
+</div>
+</div>
+</section>
+<div aria-label="Serve clip controls" class="serve-editor">
+<label for="video-upload">Serve video:</label><input accept="video/mp4,video/webm,video/ogg,video/*" aria-label="Choose your serve video" id="video-upload" type="file"/>
+<label for="player-side">Player:</label>
+<select aria-label="Choose player location" id="player-side"><option value="right">Right side</option><option value="left">Left side</option><option value="center">Centre</option><option value="full">Full frame</option></select>
+<button id="mark-start" type="button">Mark serve start</button>
+<button id="mark-impact" type="button">Mark racket contact</button>
+<button id="mark-end" type="button">Mark serve end</button>
+<button id="restart" type="button">Replay serve</button>
+<small id="clip-info">Start 0.0 s · Contact 2.0 s · End 5.0 s</small>
+</div>
+<p class="serve-error" hidden="" id="serve-error" role="status"></p>
+<p class="video-credit">Demo clip: <a href="https://commons.wikimedia.org/wiki/File:2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" rel="noopener noreferrer" target="_blank">NaBUru38 / Wikimedia Commons (CC BY-SA 4.0)</a>. The remote match footage has not been verified as containing a serve. For accurate results, load a close-up serve clip, mark its start/contact/end and select the serving player. Pose tracking uses MediaPipe in your browser; no video is uploaded to a server.</p>
+
+<section class="section"><div class="callout"><b>Pages are separate:</b> Features, Pricing, Training and the signed-in workspace each have their own HTML file. Login/Register remain demo dialogs.</div></section>
+</main>
+<footer class="public-footer"><div class="container footer-row"><span>© Tennis AI Coach · visual prototype</span><span>Privacy · Terms · Support</span></div></footer>
+<div aria-labelledby="auth-title" aria-modal="true" class="modal" id="auth" role="dialog">
+<div class="modal-card"><div class="modal-header"><div><div class="eyebrow">WELCOME</div><h2 id="auth-title" style="font-size:27px">Your tennis workspace</h2></div><button aria-label="Close" class="close" onclick="closeAuth()">×</button></div>
+<div class="tabs"><button class="btn primary" id="loginTab" onclick="setAuth('login')">Login</button><button class="btn" id="registerTab" onclick="setAuth('register')">Register</button></div>
+<form id="auth-form"><div class="field" hidden="" id="nameField"><label for="full-name">Name</label><input id="full-name" placeholder="Your name"/></div>
+<div class="field"><label for="email">Email</label><input id="email" placeholder="you@example.com" required="" type="email"/></div>
+<div class="field"><label for="pass">Password</label><input id="pass" minlength="4" placeholder="••••••••" required="" type="password"/></div>
+<button class="btn primary" id="auth-submit" style="width:100%">Log in (demo)</button></form>
+<p style="font-size:12px;margin-top:12px">Prototype only. Demo navigation, no account is created and no credentials are sent.</p>
+</div></div>
+<script src="../app.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/pose.js"></script><script>(() => {
+  const $ = id => document.getElementById(id);
+  const video = $('serve-video'), overlay = $('pose-overlay'), court = $('serve-court');
+  if (!video || !overlay || !court) return;
+  const ctx = overlay.getContext('2d');
+  const roiCanvas = document.createElement('canvas');
+  roiCanvas.width = 640; roiCanvas.height = 480;
+  const roiCtx = roiCanvas.getContext('2d', {willReadFrequently: true});
+  const status = $('pose-state'), error = $('serve-error');
+  const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let model = null, inFlight = false, objectURL = null, lastVideoTime = -1;
+  let start = 0, impact = 2, end = 5, frameHandle = null, lastProcess = 0;
+  let lastPoseTime = -1, poseAge = 0, currentLandmarks = null;
+  const joints = [11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32];
+  const bones = [[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28],[27,29],[28,30],[27,31],[28,32]];
+  const setError = text => {error.textContent = text; error.hidden = !text;};
+  function clipLabel(){ $('clip-info').textContent = `Start ${start.toFixed(1)} s · Contact ${impact.toFixed(1)} s · End ${end.toFixed(1)} s`; }
+  function resize(){let r=court.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);overlay.width=Math.round(r.width*dpr);overlay.height=Math.round(r.height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);}
+  function crop(){
+    const w=video.videoWidth,h=video.videoHeight,side=$('player-side').value;
+    if(side==='full')return {x:0,y:0,w,h};
+    const sw=side==='center'?w*.60:w*.53;
+    const x=side==='left'?0:side==='right'?w-sw:(w-sw)/2;
+    return {x,y:0,w:sw,h};
+  }
+  function mapPoint(p,c){
+    const r=court.getBoundingClientRect(),s=Math.max(r.width/video.videoWidth,r.height/video.videoHeight);
+    return {x:((p.x*c.w+c.x)*s+(r.width-video.videoWidth*s)/2),y:((p.y*c.h+c.y)*s+(r.height-video.videoHeight*s)/2)};
+  }
+  const valid=p=>p&&p.visibility>=.57;
+  function angle(a,b,c){let ab=[a.x-b.x,a.y-b.y],cb=[c.x-b.x,c.y-b.y];let dot=ab[0]*cb[0]+ab[1]*cb[1];let m=Math.hypot(...ab)*Math.hypot(...cb);return m?Math.round(Math.acos(Math.max(-1,Math.min(1,dot/m)))*180/Math.PI):null;}
+  function updateMetrics(lm){
+    const left = [23,25,27].every(i=>valid(lm[i]));
+    const right = [24,26,28].every(i=>valid(lm[i]));
+    const leg = right ? [24,26,28] : left ? [23,25,27] : null;
+    const armR=[12,14,16].every(i=>valid(lm[i]));
+    const armL=[11,13,15].every(i=>valid(lm[i]));
+    const arm=armR?[12,14,16]:armL?[11,13,15]:null;
+    $('knee-angle').textContent=leg?`${angle(...leg.map(i=>lm[i]))}°`:'—';
+    $('elbow-angle').textContent=arm?`${angle(...arm.map(i=>lm[i]))}°`:'—';
+    if(valid(lm[11])&&valid(lm[12])){
+      const a=lm[11],b=lm[12];
+      $('shoulder-angle').textContent=`${Math.round(Math.atan2(Math.abs(b.y-a.y),Math.abs(b.x-a.x))*180/Math.PI)}°`;
+    } else $('shoulder-angle').textContent='—';
+  }
+  function clearMetrics(){['knee-angle','elbow-angle','shoulder-angle'].forEach(id=>$(id).textContent='—');}
+  function drawPose(lm){
+    ctx.clearRect(0,0,overlay.width,overlay.height);
+    if(!lm||!video.videoWidth)return;
+    const c=crop();
+    ctx.lineCap='round';ctx.lineJoin='round';
+    for(const [a,b] of bones){if(!valid(lm[a])||!valid(lm[b]))continue;
+      const p=mapPoint(lm[a],c),q=mapPoint(lm[b],c);
+      ctx.strokeStyle='#aaff75';ctx.lineWidth=2.4;ctx.shadowColor='#b5ff63';ctx.shadowBlur=5;
+      ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(q.x,q.y);ctx.stroke();}
+    for(const id of joints){if(!valid(lm[id]))continue;
+      const p=mapPoint(lm[id],c);ctx.beginPath();ctx.arc(p.x,p.y,(id===15||id===16)?4.6:3.3,0,2*Math.PI);
+      ctx.fillStyle='#d5ff91';ctx.shadowColor='#b7ff4a';ctx.shadowBlur=9;ctx.fill();}
+    ctx.shadowBlur=0;
+  }
+  function onResults(res){
+    currentLandmarks=res.poseLandmarks||null;lastPoseTime=video.currentTime;
+    if(currentLandmarks){status.textContent='Tracking real joints'; updateMetrics(currentLandmarks);
+      $('ai-feedback').textContent='2D estimates from detected video landmarks';}
+    else{status.textContent='Looking for player';clearMetrics();}
+    drawPose(currentLandmarks);
+    inFlight=false;
+  }
+  async function setupPose(){
+    // No fabricated skeleton: render only landmarks actually detected in video frames.
+    if(!window.Pose){status.textContent='Model unavailable';setError('Pose library unavailable. Connect to the internet to load MediaPipe.');return;}
+    try{model=new window.Pose({locateFile:f=>`https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5/${f}`});
+      model.setOptions({modelComplexity:1,smoothLandmarks:true,enableSegmentation:false,minDetectionConfidence:.65,minTrackingConfidence:.6});
+      model.onResults(onResults);status.textContent='Waiting for player';}
+    catch(e){status.textContent='Model error';setError(`Pose model could not start: ${e.message}`);}
+  }
+  function segment(){return Math.min(end,Math.max(start,video.currentTime));}
+  function tick(now){
+    frameHandle=requestAnimationFrame(tick);
+    if(!Number.isFinite(video.duration)||!video.videoWidth||video.readyState<2)return;
+    if(video.currentTime<start-.06 || video.currentTime>=end-.03){video.currentTime=start;currentLandmarks=null;clearMetrics();drawPose(null);}
+    const t=segment();
+    const slow = Math.abs(t-impact)<.42;
+    video.playbackRate=slow?.32:1;
+    $('playback-speed').textContent=slow?'0.32×':'1.0×';
+    $('coach-cue').textContent=slow?'Serve contact · slow motion':t<impact?'Serving preparation':'Follow-through';
+    // The selected video segment is not necessarily a serve until the user marks it.
+    if(!model || inFlight || video.paused || video.ended || now-lastProcess<90 || lastVideoTime===video.currentTime)return;
+    lastProcess=now;lastVideoTime=video.currentTime;
+    try{const c=crop();roiCtx.drawImage(video,c.x,c.y,c.w,c.h,0,0,roiCanvas.width,roiCanvas.height);
+      inFlight=true;model.send({image:roiCanvas}).catch(e=>{inFlight=false;status.textContent='Cannot read video';setError('Video frames cannot be processed. The host may block cross-origin access. Select a local serve video using the file picker.');});}
+    catch(e){inFlight=false;status.textContent='Cannot read video';setError('Cannot read video frames. Load a local serve clip, or use a CORS-enabled video source.');}
+  }
+  video.addEventListener('loadedmetadata',()=>{
+    start=0;end=Math.min(video.duration||5,5);impact=Math.min(end-.15,Math.max(.15,end*.55));clipLabel();$('video-state').textContent='Ready';
+    video.currentTime=start;video.play().catch(()=>{});
+  });
+  video.addEventListener('error',()=>{status.textContent='No video';$('video-state').textContent='Unavailable';setError('Video unavailable. Choose a local tennis serve file above.');});
+  $('video-upload').addEventListener('change',e=>{
+    const f=e.target.files&&e.target.files[0];if(!f)return;
+    if(objectURL)URL.revokeObjectURL(objectURL);objectURL=URL.createObjectURL(f);
+    video.querySelectorAll('source').forEach(s=>s.remove());video.src=objectURL;video.load();setError('');
+  });
+  $('player-side').addEventListener('change',()=>{currentLandmarks=null;clearMetrics();drawPose(null);});
+  $('mark-start').addEventListener('click',()=>{start=Math.min(video.currentTime,end-.2);if(impact<=start)impact=Math.min(end-.1,start+.15);clipLabel();});
+  $('mark-impact').addEventListener('click',()=>{impact=Math.max(start+.05,Math.min(end-.05,video.currentTime));clipLabel();});
+  $('mark-end').addEventListener('click',()=>{end=Math.min(video.duration||Infinity,Math.max(start+.2,video.currentTime));impact=Math.min(impact,end-.05);clipLabel();});
+  $('restart').addEventListener('click',()=>{video.currentTime=start;video.play().catch(()=>{});});
+  window.addEventListener('resize',()=>{resize();drawPose(currentLandmarks);});
+  if('ResizeObserver' in window)new ResizeObserver(()=>{resize();drawPose(currentLandmarks);}).observe(court);
+  // Keep the sample usable without special video-player UI; native HTML5 video is the only player.
+  resize();clipLabel();setupPose();frameHandle=requestAnimationFrame(tick);
+})();</script></body>
+</html>

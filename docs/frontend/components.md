@@ -201,3 +201,27 @@ The modal accepts `stream`, `endpoint`, and optional `analysisFps` (default 5). 
 No real backend transport contract exists yet. The explicit prototype contract is binary JPEG frames sent to a configured WebSocket endpoint and JSON `{ type, payload }` messages returned. It accepts events including `stroke_analysis`, `player_feedback`, `ball_position`, `player_position`, `pose_analysis`, `training_instruction`, and `analysis_error`. Feedback text uses `payload.text` or `payload.message`; explicitly low-confidence text is withheld. The host/backend must provide authentication and validate this prototype contract before real integration. No endpoint is hardcoded; without one, only camera/microphone preview is available.
 
 Run the Training prototype using [prototypes/README.md](../../prototypes/README.md). Existing field composables now have one canonical copy under `prototypes/composables/`; field behavior is unchanged.
+
+### Checkout cards
+
+The [Checkout HTML prototype](../prototypes/design/pages/checkout.html) remains the single page-level visual reference for these three reusable feature cards. The Vue cards reuse its classes from [styles.css](../prototypes/design/styles.css), preserving headings, spacing, fields, table structure, and actions. No separate card pages are required.
+
+The [Checkout entry](../../prototypes/checkout/main.js) supplies all dynamic display values through props and owns the demo checkout action and feedback state. Cards contain no composables, fetching, store access, payment calculations, or page-level business logic. Static labels match the prototype. Use unique `headingId` / `idPrefix` values when rendering multiple instances.
+
+#### PerformanceCard
+
+[PerformanceCard.vue](../../prototypes/components/cards/PerformanceCard.vue) presents the selected Performance plan section, distinct from the subscription `PaymentPlanCard`.
+
+All props are required strings: `headingId`, `badge`, `plan`, `description`, `price`, `period`, `billingNote`, `backLabel`, and `backHref`. The page supplies formatted price and period text; the card performs no formatting or billing calculation. Back to plans is a normal link to the supplied destination.
+
+#### PaymentInformationCard
+
+[PaymentInformationCard.vue](../../prototypes/components/cards/PaymentInformationCard.vue) presents exactly the four disabled fields in Checkout: Cardholder name, Card number, Expiry date, and Security code.
+
+All props are required strings: `idPrefix`, `title`, `description`, `cardholderDisplay`, `cardNumberDisplay`, `expiryDisplay`, and `securityCodeDisplay`. Only demo or masked display values belong in these props. Inputs remain disabled; the card does not collect, emit, submit, or store payment credentials. Real checkout remains subject to the protected payment-provider integration specified by the project.
+
+#### OrderSummaryCard
+
+[OrderSummaryCard.vue](../../prototypes/components/cards/OrderSummaryCard.vue) presents the Plan, Billing period, Subtotal, Tax, and Demo total rows, explanatory note, Complete checkout action, Cancel link, and status message.
+
+Required string props: `headingId`, `title`, `plan`, `billingPeriod`, `subtotal`, `tax`, `total`, `note`, `actionLabel`, `cancelLabel`, and `cancelHref`. `statusMessage` is an optional string defaulting to empty. Amounts are supplied as formatted display strings. The action emits `complete` without a payload; the page handles it and supplies any resulting status message. Cancel follows `cancelHref`. The card performs no transaction or subscription logic.

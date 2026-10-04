@@ -16,13 +16,24 @@ npm --prefix prototypes run dev
 
 Open `http://127.0.0.1:5173/docs/prototypes/design/pages/training.html` (use the port
 printed by Vite). The Training layout and camera component HTML specimens use the
-same Vue launcher. Opening those files directly without Vite shows a setup note.
+same Vue launcher. Opening Training directly as a local HTML file shows a Start
+Training link to `camera.html`, which opens its existing full-screen design modal.
+Return to Training takes the user back to `training.html`. This static preview
+does not connect camera devices. The layout and component specimens show a setup
+note when opened without Vite.
 Camera access requires localhost or HTTPS and browser permission for both devices.
 
-Start Camera requests camera and microphone together. Cancel discards a late
+Training has a single Start Training button directly below Camera Preview. It uses
+`TrainingCamera` to open the existing full-screen `CameraPreviewModal` after camera
+and microphone permission is granted. The layout and camera specimens reuse this
+same launcher. Dashboard keeps Session History and its Training navigation link;
+it does not launch the camera flow.
+
+The camera launcher requests camera and microphone together. Cancel discards a late
 permission result. After access is granted, one `CameraPreviewModal` opens above the
-existing Training UI. Microphone capture is enabled but not played back locally or
-uploaded. Return to Training, Escape, device loss, and unmount release every track.
+current page. Microphone capture is enabled but not played back locally or
+uploaded. Return to Training, Escape, device loss, and
+unmount release every track.
 Stopping analysis leaves the modal and media stream active.
 
 To connect an available backend, set `VITE_TRAINING_WS_URL` before starting Vite.
@@ -45,5 +56,15 @@ npm --prefix prototypes run build
 ```
 
 Build compiles the three Training entry pages, not the entire application/catalog.
-The HTML camera specimen is a design reference for this modal, not a separate
-camera route or fullscreen API flow.
+The HTML camera specimen is a design reference for this modal, also reachable
+from the local-file Training preview. It does not use the browser Fullscreen API.
+
+## Checkout cards
+
+Open `/docs/prototypes/design/pages/checkout.html` through the same Vite server to
+render `PerformanceCard`, `PaymentInformationCard`, and `OrderSummaryCard` in the
+existing Checkout layout. `checkout/main.js` owns the sample props and demo action
+feedback; the cards reuse the page stylesheet and contain no payment logic.
+Payment inputs remain disabled. Opening the HTML directly retains the original
+static design. The build also includes this Checkout entry; there are no separate
+card page prototypes.

@@ -7,9 +7,9 @@
 - layout: `Public Layout`
 - Example Prototype: `design/pages/index.html`
 - name: `home`
-- required sections: `Left Section: application branding and introductory information, main headline, short introductory description, two primary action buttons, small statistic or information cards. Right Section: Animated Demo Banner, animated visual preview of the Tennis AI Coach training and AI analysis experience.`
-- required shared components: `Button`, `StatCard`
-- required feature components: `DemoBanner`
+- required sections: `Left Section: application branding and introductory information, main headline, short introductory description, two primary action buttons, small statistic or information cards. Right Section: Animated Banner, animated visual preview of the Tennis AI Coach training and AI analysis experience.The left section of the Home page should be implemented directly from the Home Page  prototype, with only the buttons using existing shared components.`
+- required shared components: `Button`,
+- required feature components: `AnimationBaner`
 - dependencies: None
 
 ### Features
@@ -18,8 +18,8 @@
 - layout: `Public Layout`
 - Example Prototype: `design/pages/features.html`
 - name: `feature`
-- required sections: `Main Section: headline, short description, three StatCard items, two primary buttons.`
-- required shared components: `Button`, `StatCard`
+- required sections: `Main Section: headline, short description, three StatCard items, two primary buttons.The Features page should follow the Public Layout and match the prototype directly for the page title, secondary description, and all other page-level content; only the Feature Cards and buttons should use reusable components.`
+- required shared components: `Button`, `FeatureCard`
 - required feature components: None
 - dependencies: None
 
@@ -29,8 +29,8 @@
 - layout: `Training Layout`
 - Example Prototype: `design/pages/training.html`
 - name: `training`
-- required sections: `Main Section: headline, short description, three StatCard items, two primary buttons.`
-- required shared components: `Button`, `StatCard`
+- required sections: `Follow the referenced Training HTML prototype for the page title, secondary text, section titles, descriptions, fields, labels, buttons/actions, and all other page-level content. The current prototype contains the camera preview/entry area and Coaching Cue, Connection, and Session panels; it contains no collapsible form sections, so do not invent any. Where the referenced prototype contains collapsible form sections, use the existing CollapseForm component. The Training page component owns and creates each such form configuration, deriving its title, secondary description, fields, labels, relevant field configuration, buttons/actions, and other required content directly from that prototype. Supply the corresponding CollapseForm instances through their existing title/description props and page-rendered default/footer slots; Training-specific data, configuration, form handling, and actions belong to the page, while CollapseForm remains generic and reusable. Implement all remaining elements directly as page-level DOM/layout matching the prototype; do not extract static sections into new components. Keep the shared Button for Start Training near the camera preview. Preserve the existing camera/full-screen training modal or camera training flow, reusing its implementation without duplicate camera logic or a second training flow. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
+- required shared components: `Button`; `CollapseForm` only for collapsible form sections present in the referenced prototype (none in the current prototype).
 - required feature components: None
 - dependencies: None
 
@@ -40,8 +40,8 @@
 - Layout: `Public Layout`
 - Example Prototype: `design/pages/pricing.html`
 - name: `pricing`
-- required sections: `The main section of the pricing page includes the page heading, a short introductory text, and three plan cards: Starter, Performance, and Pro.`
-- required shared components: `StatCard`
+- required sections: `Follow the Pricing prototype directly for the complete page structure and all page-level content. Use the existing PaymentPlanCard component for the Starter, Performance, and Pro pricing plan cards. All other headings, descriptions, sections, labels, supporting content, and layout remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
+- required shared components: `PaymentPlanCard`
 - required feature components: None
 - dependencies: None
 
@@ -51,8 +51,8 @@
 - layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/dashboard.html`
 - name: `dashboard`
-- required sections: `Overview Cards Section - contains three summary cards in a single row. Main Dashboard Section - contains one large primary card with the main dashboard information. Information Section - contains additional supporting information. Sidebar and top header are provided by the Authenticated Application Layout and are not part of the page sections..`
-- required shared components: `StatCard`
+- required sections: `Follow the Dashboard prototype directly for all page content, sections, containers, text, and visual structure, implemented as page-level DOM/layout. Do not introduce page-specific shared components or extract static sections into reusable components. Keep Session History available as defined in the prototype. Sidebar and top header remain provided by the Authenticated Application Layout and are not part of the page sections.`
+- required shared components: None
 - required feature components: None
 - dependencies: None
 
@@ -62,8 +62,8 @@
 - Route: `/history`
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/history.html`
-- required sections: `Required Sections: History Section – contains the page heading and a short introductory description, and uses a grid layout with two components: TrainingSession and SessionInsights.`
-- required shared components: `StatCard`, `BaseTable`
+- required sections: `Follow the History HTML/design prototype for all sections and page-level elements. Use the existing shared BaseTable component for the session/history table. All other headings, descriptions, controls, containers, filters, surrounding layout, and visual elements remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
+- required shared components: `BaseTable`
 - required feature components: None
 - dependencies: `TrainingHistoryStore`
 
@@ -83,8 +83,8 @@
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/profile.html`
 - name: `profile`
-- required sections: `The page contains a profile form with four collapsible forms`
-- required shared components: `CollapsibleForm`
+- required sections: `Follow the referenced Profile HTML prototype for the page title, secondary text, section titles, secondary descriptions, fields, labels, buttons/actions, and all other page-level content. The four collapsible sections are Personal Information, Tennis Profile (including Training Goals), Physical Information, and Account Overview; each uses the existing CollapseForm component. The Profile page component owns and creates the data/configuration for each section, deriving its title, secondary description, all fields and their labels and relevant configuration (including types, options, validation constraints, and read-only attributes), buttons/actions, and any additional content directly from the prototype. Supply each CollapseForm instance from this page-owned configuration through its existing title/description props and page-rendered default/footer slots for fields, actions, and other content. Profile-specific values, configuration, form handling, and actions remain in the Profile page; CollapseForm stays generic and reusable. Do not create separate components for individual Profile sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the prototype. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
+- required shared components: `CollapseForm`
 - required feature components: None
 - dependencies: `UserStore`
 
@@ -94,8 +94,8 @@
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/settings.html`
 - name: `settings`
-- required sections: `The page contains a profile form with seven collapsible panels`
-- required shared components: `CollapsibleForm`
+- required sections: `Follow the referenced Settings HTML prototype as the source of truth for the page title, secondary text, all collapsible sections, and all other page-level content. Each collapsible section uses the existing shared CollapseForm component. The Settings page owns and creates each section's data/configuration directly from the prototype. Pass only the section title/header and secondary title/description through the existing title and description props. Define and render all section-specific fields, labels, selects, controls, buttons, actions, and other body content in the Settings page, supplying that content through CollapseForm's default slot and its footer slot where appropriate. Field configuration, values, validation, form handling, and action behavior remain owned by the Settings page; do not pass a field schema to CollapseForm or move Settings-specific content or behavior into it. Keep CollapseForm generic and reusable. Do not create separate components for individual Settings sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the Settings prototype. Do not invent fields, controls, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
+- required shared components: `CollapseForm`
 - required feature components: None
 - dependencies: `UserStore`
 
@@ -116,10 +116,10 @@
 - Route: `/checkout`
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/checkout.html`
-- name: `settings`
-- required sections: `The Checkout page contains two main sections: a left section with SelectedPlanCard and PaymentInformationCard components stacked vertically, and a right section with an OrderSummaryCard component`
+- name: `checkout`
+- required sections: `Follow the Checkout HTML prototype: PerformanceCard and PaymentInformationCard are stacked in the left column, with OrderSummaryCard in the right column. Checkout owns and supplies each card's display data through props, handles the checkout action and status message, and retains page-level headings and layout. Reuse these three presentation-focused cards; do not create separate page prototypes. Payment fields remain disabled sample displays. Cards contain no composables, fetching, billing calculations, or page-level business logic.`
 - required shared components:  None
-- required feature components: `CollapsibleForm`, `PaymentInformationCard`, `OrderSummaryCard`
+- required feature components: `PerformanceCard`, `PaymentInformationCard`, `OrderSummaryCard`
 - dependencies: `CheckoutStore`
 
 ---
