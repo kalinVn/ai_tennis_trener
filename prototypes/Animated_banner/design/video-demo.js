@@ -3,17 +3,19 @@
   if (!video) return;
   const court = document.getElementById('video-demo-court');
   const message = document.getElementById('video-load-error');
-  const $ = id => document.getElementById(id);
+  const audioIndicator = document.getElementById('coaching-audio');
+  const coachingMessage = document.getElementById('coaching-message');
+  let shownMessage = '';
   const playbackRate = 0.3;
   const loopDuration = 15; // Seconds of playback at the configured slow-motion speed.
   // Manual source-pixel annotations from the user's 1280x720 reference images.
   const freezes = [
-    { time: 2.9, duration: 5500, segments: [
+    { time: 2.9, duration: 5500, feedback: ['Good arm position', 'Bend your knees', 'Toss the ball higher', 'Keep the racket position stable'], segments: [
       [[512,378],[526,367]], [[573,356],[587,355]],
       [[543,415],[543,430]], [[566,409],[566,433]],
       [[548,455],[553,477]], [[570,457],[575,475]],
     ] },
-    { time: 3.7, duration: 3500, segments: [
+    { time: 3.7, duration: 3500, feedback: ['Keep the racket position stable', 'Follow through'], segments: [
       [[539,338],[542,347]], [[552,358],[562,358]],
       [[613,354],[632,373]], [[563,369],[563,397]],
       [[563,413],[562,435]], [[592,419],[588,445]],
@@ -28,6 +30,40 @@
   let held = false, settled = false;
   let holdTimer = null, remaining = 0, timerStarted = 0;
 
+  function holdElapsed() {
+    return activeFreeze.duration - remaining + (holdTimer === null ? 0 : performance.now()-timerStarted);
+  }
+  function updateCoaching() {
+    const onScreen = visible && !document.hidden && !video.error;
+    const isCoaching = held && settled && video.paused && !video.seeking
+      && Math.abs(video.currentTime-activeFreeze.time)<.001;
+    if (audioIndicator) audioIndicator.dataset.active = String(onScreen && !video.seeking
+      && (isCoaching || (!video.paused && video.readyState >= 3)));
+    if (!coachingMessage) return;
+    if (!onScreen || !isCoaching) {
+      coachingMessage.hidden = true;
+      coachingMessage.textContent = '';
+      shownMessage = '';
+      return;
+    }
+    // Scripted prototype cues share the exact hold clock used by the line overlay.
+    // No independent timers or CSS animations can outlive a video pause.
+    const interval = activeFreeze.duration / activeFreeze.feedback.length;
+    const elapsed = Math.min(holdElapsed(),activeFreeze.duration);
+    const index = Math.min(Math.floor(elapsed/interval),activeFreeze.feedback.length-1);
+    const text = activeFreeze.feedback[index];
+    if (text !== shownMessage) {coachingMessage.textContent = text;shownMessage = text;}
+    const localTime = elapsed-index*interval;
+    const entrance = reduced ? 1 : Math.min(1,localTime/400);
+    const exit = reduced ? 1 : Math.min(1,Math.max(0,(interval-localTime)/180));
+    coachingMessage.hidden = false;
+    coachingMessage.style.opacity = String(Math.min(entrance,exit));
+    const eased = 1-Math.pow(1-entrance,3);
+    const drift = reduced ? 0 : Math.max(0,(localTime-400)/(interval-400))*5;
+    const lift = (1-eased)*28-drift-(1-exit)*10;
+    coachingMessage.style.transform = `translate(${(1-eased)*-14}px, ${lift}px) scale(${.94+.06*eased})`;
+  }
+
   function drawAnnotations() {
     if (!context) return;
     const c = canvas.getBoundingClientRect(), v = video.getBoundingClientRect();
@@ -40,7 +76,7 @@
     const scale = Math.max(v.width/1280,v.height/720);
     const left = v.left-c.left+(v.width-1280*scale)/2;
     const top = v.top-c.top+(v.height-720*scale)/2;
-    const elapsed = activeFreeze.duration - remaining + (holdTimer === null ? 0 : performance.now()-timerStarted);
+    const elapsed = holdElapsed();
     context.strokeStyle = '#39ff14';
     context.lineWidth = Math.max(2,3*scale);
     context.lineCap = 'round';
@@ -69,6 +105,7 @@
       holdTimer = null;
       held = settled = false;
       drawAnnotations();
+      updateCoaching();
       playWhenAllowed();
     },remaining);
   }
@@ -81,21 +118,24 @@
       suspendHoldTimer();
       held = settled = false;
       drawAnnotations();
+      updateCoaching();
     }
     if (!held) {
       const index = freezes.findIndex(freeze => freeze.time > video.currentTime);
       nextFreeze = index < 0 ? freezes.length : index;
     }
   });
-  video.addEventListener('playing',()=>{if(held)video.pause();});
+  video.addEventListener('playing',()=>{if(held)video.pause();updateCoaching();});
+  for (const event of ['pause','waiting','seeking','ended','loadeddata']) video.addEventListener(event,updateCoaching);
   if (canvas) new ResizeObserver(drawAnnotations).observe(canvas);
   window.addEventListener('resize',drawAnnotations);
   document.addEventListener('visibilitychange',()=>{
     if(document.hidden){suspendHoldTimer();video.pause();}
-    else{resumeHoldTimer();playWhenAllowed();}
+    else{resumeHoldTimer();playWhenAllowed();cancelAnimationFrame(frameId);frameId=requestAnimationFrame(updateBanner);}
+    updateCoaching();
   });
   window.addEventListener('pagehide',suspendHoldTimer);
-  window.addEventListener('pageshow',()=>{resumeHoldTimer();playWhenAllowed();});
+  window.addEventListener('pageshow',()=>{resumeHoldTimer();playWhenAllowed();cancelAnimationFrame(frameId);frameId=requestAnimationFrame(updateBanner);});
 
   function loopVideo() {
     const end = Math.min(loopDuration * playbackRate, video.duration);
@@ -115,20 +155,16 @@
   }
   let visible = true, frameId = 0;
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  function updateTelemetry(t) {
-    if(!visible)return;
+  function updateBanner() {
+    if(!visible || document.hidden)return;
     loopVideo();
     if(held && settled)drawAnnotations();
-    // Illustrative telemetry, not measurements from the video.
-    const phase = reduced ? 0.3 : ((video.currentTime || t/1000)%7)/7;
-    const seq=[['READY','Prepare for the next shot.','156°','72 km/h','(0.3, -0.7)'],['TRACKING','Move toward the ball.','132°','65 km/h','(0.6, -0.4)'],['IMPACT','Follow through.','112°','94 km/h','(0.9, +0.2)'],['RECOVERY','Recover.','147°','81 km/h','(-0.4, +0.1)']];
-    const st=seq[Math.floor(phase*seq.length)%seq.length];
-    $('move-phase').textContent=st[0];$('ai-feedback').textContent=st[1];$('body-angle').textContent=st[2];$('ball-speed').textContent=st[3];$('racket-vector').textContent=st[4];$('live-coach').textContent=st[1];
-    if(!reduced)frameId=requestAnimationFrame(updateTelemetry);
+    updateCoaching();
+    if(!reduced)frameId=requestAnimationFrame(updateBanner);
   }
   // Also enforce the loop when animation frames are throttled.
   video.addEventListener('timeupdate',loopVideo);
-  video.addEventListener('error',()=>{message.hidden=false;},{once:true});
+  video.addEventListener('error',()=>{message.hidden=false;suspendHoldTimer();held=settled=false;drawAnnotations();updateCoaching();},{once:true});
   video.addEventListener('loadeddata',()=>{message.hidden=true;},{once:true});
   video.addEventListener('canplay',playWhenAllowed);
   // HTML5 playback remains muted, looping, inline. No custom player controls.
@@ -137,9 +173,10 @@
   video.playbackRate=playbackRate;
   if('IntersectionObserver' in window)new IntersectionObserver(entries=>{
     visible=entries[0].isIntersecting;
-    if(visible){cancelAnimationFrame(frameId);frameId=requestAnimationFrame(updateTelemetry);resumeHoldTimer();playWhenAllowed();}
+    if(visible){cancelAnimationFrame(frameId);frameId=requestAnimationFrame(updateBanner);resumeHoldTimer();playWhenAllowed();}
     else{cancelAnimationFrame(frameId);suspendHoldTimer();video.pause();}
+    updateCoaching();
   }).observe(court);
-  frameId=requestAnimationFrame(updateTelemetry);
+  frameId=requestAnimationFrame(updateBanner);
   if(reduced){video.pause();}
 })();
