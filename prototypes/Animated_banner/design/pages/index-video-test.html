@@ -25,7 +25,7 @@
 .video-demo-court .coaching-mic::after {content:"";position:absolute;inset:-5px;border:1px solid rgba(183,255,74,.28);border-radius:50%;opacity:0;}
 .video-demo-court .coaching-audio[data-active="true"] .coaching-mic::after {animation:coaching-pulse 1.6s ease-in-out infinite;}
 .video-demo-court .coaching-audio[data-active="true"] .coaching-mic {animation:coaching-glow 1.6s ease-in-out infinite;}
-.video-demo-court .coaching-message {max-width:100%;margin:0;padding:11px 14px;border:1px solid rgba(183,255,74,.3);border-radius:13px 3px 13px 13px;background:rgba(11,30,23,.94);color:#e5f6e6;font-size:13px;line-height:1.45;box-shadow:0 8px 24px #0003;transform-origin:top right;will-change:transform,opacity;}
+.video-demo-court .coaching-message {max-width:100%;margin:0;padding:11px 14px;border:1px solid rgba(183,255,74,.3);border-radius:13px 3px 13px 13px;background:rgba(11,30,23,.94);color:#e5f6e6;font-size:13px;line-height:1.45;box-shadow:0 8px 24px #0003;width:100%;min-height:60px;box-sizing:border-box;}
 @keyframes coaching-pulse {0%,100%{opacity:.18;transform:scale(.94)}50%{opacity:.9;transform:scale(1.24)}}
 @keyframes coaching-glow {0%,100%{box-shadow:0 0 0 0 rgba(183,255,74,.08);color:#85b747}50%{box-shadow:0 0 18px 4px rgba(183,255,74,.28);color:#d2ff83;border-color:#b7ff4a}}
 .video-demo-court .video-load-error {position:absolute;left:20px;right:20px;top:36%;z-index:3;padding:14px;border:1px solid rgba(255,255,255,.2);background:#071910e8;border-radius:12px;text-align:center;line-height:1.6;font-size:13px}
@@ -85,13 +85,13 @@
 <div class="video-overlay-top">
 <span class="video-pill"><strong>●</strong> Camera · Connected</span>
 <span class="video-pill"><strong>●</strong> Analysis · Active</span>
-<span class="video-pill">DEMO · simulated tracking</span>
+<span class="video-pill"><strong>●</strong> Audio · Connected</span>
 </div>
 <div class="coaching-audio" id="coaching-audio" data-active="false">
 <div class="coaching-mic" role="img" aria-label="Coaching audio feedback" title="Coaching feedback">
 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>
 </div>
-<p class="coaching-message" id="coaching-message" role="status" aria-live="polite" aria-atomic="true" hidden></p>
+<p class="coaching-message" id="coaching-message" aria-live="off" hidden></p>
 </div>
 <div id="video-load-error" class="video-load-error" hidden>Video unavailable. Connect to the internet or download the tennis clip and place it in <code>design/assets/tennis-rally.webm</code>. <a href="https://commons.wikimedia.org/wiki/File:2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" target="_blank" rel="noopener">Open the source video</a>.</div>
 </div>

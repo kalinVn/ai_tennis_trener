@@ -5,17 +5,18 @@
   const message = document.getElementById('video-load-error');
   const audioIndicator = document.getElementById('coaching-audio');
   const coachingMessage = document.getElementById('coaching-message');
-  let shownMessage = '';
+  const feedback = ['Good arm position', 'Bend your knees', 'Toss the ball higher',
+    'Keep the racket position stable', 'Follow through'];
   const playbackRate = 0.3;
   const loopDuration = 15; // Seconds of playback at the configured slow-motion speed.
   // Manual source-pixel annotations from the user's 1280x720 reference images.
   const freezes = [
-    { time: 2.9, duration: 5500, feedback: ['Good arm position', 'Bend your knees', 'Toss the ball higher', 'Keep the racket position stable'], segments: [
+    { time: 2.9, duration: 5500, segments: [
       [[512,378],[526,367]], [[573,356],[587,355]],
       [[543,415],[543,430]], [[566,409],[566,433]],
       [[548,455],[553,477]], [[570,457],[575,475]],
     ] },
-    { time: 3.7, duration: 3500, feedback: ['Keep the racket position stable', 'Follow through'], segments: [
+    { time: 3.7, duration: 3500, segments: [
       [[539,338],[542,347]], [[552,358],[562,358]],
       [[613,354],[632,373]], [[563,369],[563,397]],
       [[563,413],[562,435]], [[592,419],[588,445]],
@@ -40,28 +41,34 @@
     if (audioIndicator) audioIndicator.dataset.active = String(onScreen && !video.seeking
       && (isCoaching || (!video.paused && video.readyState >= 3)));
     if (!coachingMessage) return;
-    if (!onScreen || !isCoaching) {
+    if (!onScreen || video.seeking || video.readyState < 2) {
       coachingMessage.hidden = true;
-      coachingMessage.textContent = '';
-      shownMessage = '';
       return;
     }
-    // Scripted prototype cues share the exact hold clock used by the line overlay.
-    // No independent timers or CSS animations can outlive a video pause.
-    const interval = activeFreeze.duration / activeFreeze.feedback.length;
-    const elapsed = Math.min(holdElapsed(),activeFreeze.duration);
-    const index = Math.min(Math.floor(elapsed/interval),activeFreeze.feedback.length-1);
-    const text = activeFreeze.feedback[index];
-    if (text !== shownMessage) {coachingMessage.textContent = text;shownMessage = text;}
-    const localTime = elapsed-index*interval;
-    const entrance = reduced ? 1 : Math.min(1,localTime/400);
-    const exit = reduced ? 1 : Math.min(1,Math.max(0,(interval-localTime)/180));
+    // Scripted cues span the whole playback cycle, including the annotation holds.
+    // Media time drives typing during playback; the overlay clock drives it in holds.
+    const end = Math.min(loopDuration * playbackRate, video.duration || loopDuration * playbackRate);
+    let elapsed = video.currentTime / playbackRate * 1000;
+    let duration = end / playbackRate * 1000;
+    if (context && !reduced) freezes.forEach((freeze, index) => {
+      if (freeze.time >= end) return;
+      duration += freeze.duration;
+      if (held && freeze === activeFreeze) {
+        elapsed += settled ? Math.min(holdElapsed(), freeze.duration) : 0;
+      } else if (video.currentTime > freeze.time ||
+        (video.currentTime === freeze.time && index < nextFreeze)) {
+        elapsed += freeze.duration;
+      }
+    });
+    const interval = duration / feedback.length;
+    const index = Math.min(Math.floor(elapsed / interval), feedback.length - 1);
+    const text = feedback[index];
+    const letters = reduced ? text.length : Math.floor((elapsed - index * interval) / 55) + 1;
+    const typed = text.slice(0, letters);
+    if (coachingMessage.textContent !== typed) coachingMessage.textContent = typed;
+    // Expose the complete cue without announcing every individual character.
+    coachingMessage.setAttribute('aria-label', text);
     coachingMessage.hidden = false;
-    coachingMessage.style.opacity = String(Math.min(entrance,exit));
-    const eased = 1-Math.pow(1-entrance,3);
-    const drift = reduced ? 0 : Math.max(0,(localTime-400)/(interval-400))*5;
-    const lift = (1-eased)*28-drift-(1-exit)*10;
-    coachingMessage.style.transform = `translate(${(1-eased)*-14}px, ${lift}px) scale(${.94+.06*eased})`;
   }
 
   function drawAnnotations() {
