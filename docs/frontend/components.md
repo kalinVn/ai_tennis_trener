@@ -31,7 +31,7 @@ CSS in the prototype Vue components is for visual reference only; production sty
 
 Visual design prototypes for the Button component:
 
-`docs/prototypes/design/components/buttons/`
+`prototypes/design/components/buttons`
 
 Use these prototypes as the source of truth for the visual appearance of the Button, including variants, sizes, states, spacing, colors, typography, borders, and interaction states.
 
@@ -39,7 +39,7 @@ Use these prototypes as the source of truth for the visual appearance of the But
 
 Vue implementation prototype for the shared Button component:
 
-`docs/prototypes/design/components/buttons/`
+`prototypes/design/components/buttons`
 
 This reference defines the expected Vue component structure, props, emitted events, controller logic, and SCSS organization.
 
@@ -121,13 +121,13 @@ Presentational card for a numbered feature, title, and description. The parent s
 Reusable public top navigation with the existing AI logo and Tennis AI Coach title, parent-supplied links, and two authentication actions. It owns the responsive menu toggle, Escape dismissal, and resize cleanup. It contains no authentication logic, routing, API access, or store integration.
 
 - `items`: array of `{ label, href, active? }` objects; defaults to an empty array. Use unique `href` values. Optional `active` marks the current page.
-- Login uses the shared [Button.vue](../prototypes/design/components/buttons/Button.vue) with `variant="secondary"` and `size="small"`; clicking emits `login`.
+- Login uses the shared [Button.vue](../../prototypes/design/components/buttons/Button.vue) with `variant="secondary"` and `size="small"`; clicking emits `login`.
 - Start Free uses the same Button with `variant="primary"` and `size="small"`; clicking emits `register`.
 
 
 #### Visual Design Reference
 
-[public-navigation.html](../prototypes/design/components/navigation/public-navigation.html) defines the branding, alignment, link states, and mobile menu appearance. The existing [public layout](../prototypes/design/layouts/public.html) supplies the two-action arrangement.
+[public-navigation.html](../../prototypes/design/components/navigation/public-navigation.html) defines the branding, alignment, link states, and mobile menu appearance. The existing [public layout](../../prototypes/design/layouts/public.html) supplies the two-action arrangement.
 
 #### Vue Implementation Reference
 
@@ -143,7 +143,7 @@ The component preserves the 244px desktop sidebar and phone drawer breakpoints. 
 
 #### Visual Design Reference
 
-[authenticated-navigation.html](../prototypes/design/components/navigation/authenticated-navigation.html) defines the sidebar's appearance, branding, link states, and responsive layout.
+[authenticated-navigation.html](../../prototypes/design/components/navigation/authenticated-navigation.html) defines the sidebar's appearance, branding, link states, and responsive layout.
 
 #### Vue Implementation Reference
 
@@ -151,7 +151,7 @@ The component preserves the 244px desktop sidebar and phone drawer breakpoints. 
 
 ### BaseTable
 
-Reusable presentational table based on the [History / Training Sessions table](../prototypes/design/pages/history.html). It renders a supplied `title`, dynamic `columns` (`{ key, label }`), and `rows`; each column selects `row[column.key]`. Optional `rowKey` defaults to `id`, falling back to the row index when absent. Per-column `cell-<key>` slots receive `value`, `row`, and `column` for parent-owned formatting such as the existing status pills.
+Reusable presentational table based on the [History / Training Sessions table](../../prototypes/design/pages/history.html). It renders a supplied `title`, dynamic `columns` (`{ key, label }`), and `rows`; each column selects `row[column.key]`. Optional `rowKey` defaults to `id`, falling back to the row index when absent. Per-column `cell-<key>` slots receive `value`, `row`, and `column` for parent-owned formatting such as the existing status pills.
 
 The parent supplies configuration and data through props and owns any integration with Pinia, the specified application state architecture. `BaseTable.vue` contains no store access, duplicated state, API calls, or History-specific business logic.
 
@@ -164,7 +164,7 @@ The HTML defines the visual reference; `BaseTable.vue` defines the reusable rend
 
 ### PaymentPlanCard
 
-Reusable presentational subscription card based on the Performance plan card in [Subscription](../prototypes/design/pages/subscription.html). It displays the plan name, price, billing period, feature list, active badge, and the shared primary Button. A parent can render multiple cards for Change Plan, supplying each plan independently.
+Reusable presentational subscription card based on the Performance plan card in [Subscription](../../prototypes/design/pages/subscription.html). It displays the plan name, price, billing period, feature list, active badge, and the shared primary Button. A parent can render multiple cards for Change Plan, supplying each plan independently.
 
 - `plan`, `currency`, `value`, `period`: parent-supplied display values; `value` accepts a string or number. The card displays currency before value and `/` before period, without billing calculations or currency conversion.
 - `features`: array of feature strings, displayed as a plain list matching the original summary styling.
@@ -172,16 +172,16 @@ Reusable presentational subscription card based on the Performance plan card in 
 - `activeLabel`: badge text; defaults to `Active`. The HTML specimen uses `Active · demo` to match the original.
 - `actionLabel`: optional button text; otherwise shows `Change plan` when active and `Choose plan` when inactive. Clicking emits `action` for the parent to handle.
 
-The parent owns plan data, store integration, and action handling. The card contains no Pinia access, API calls, subscription logic, or billing state. It reuses [Button.vue](../prototypes/design/components/buttons/Button.vue) without duplicating its styling.
+The parent owns plan data, store integration, and action handling. The card contains no Pinia access, API calls, subscription logic, or billing state. It reuses [Button.vue](../../prototypes/design/components/buttons/Button.vue) without duplicating its styling.
 
 - Visual design reference: [PaymentPlanCard.html](../../prototypes/design/components/cards/PaymentPlanCard.html)
 - Vue prototype: [PaymentPlanCard.vue](../../prototypes/components/cards/PaymentPlanCard.vue)
 
 ### CollapseForm
 
-Reusable collapsible form container based on the Tennis Profile section in [Profile](../prototypes/design/pages/profile.html). `title` is required; `description` is optional. Native `<details>` starts expanded and owns only its local collapse/expand UI state, including keyboard interaction and the plus/minus indicator.
+Reusable collapsible form container based on the Tennis Profile section in [Profile](../../prototypes/design/pages/profile.html). `title` is required; `description` is optional. Native `<details>` starts expanded and owns only its local collapse/expand UI state, including keyboard interaction and the plus/minus indicator.
 
-The default slot accepts arbitrary fields, components, or layout containers. The named `footer` slot provides the existing wrapping two-button alignment. The parent supplies shared [Button](../prototypes/design/components/buttons/Button.vue) instances, their labels, and their actions; use `primary` and `ghost` variants to reproduce Profile's Save/Reset appearance. No fields or buttons are hardcoded into `CollapseForm.vue`.
+The default slot accepts arbitrary fields, components, or layout containers. The named `footer` slot provides the existing wrapping two-button alignment. The parent supplies shared [Button](../../prototypes/design/components/buttons/Button.vue) instances, their labels, and their actions; use `primary` and `ghost` variants to reproduce Profile's Save/Reset appearance. No fields or buttons are hardcoded into `CollapseForm.vue`.
 
 The parent reads Pinia/store values, passes them to slotted fields, receives field changes, and updates the store from its footer actions. `CollapseForm` holds no form data and never accesses or updates Pinia. It does not render a `<form>` or handle submission; the parent may wrap it in a form and own submit/reset behavior.
 
@@ -192,7 +192,7 @@ The HTML demonstrates the original Tennis Profile content and footer styling. It
 
 ### CameraPreviewModal
 
-[CameraPreviewModal.vue](../../prototypes/components/modal/CameraPreviewModal.vue) converts the [camera design](../prototypes/design/pages/camera.html) into a viewport-sized modal inside Training. [TrainingCamera.vue](../../prototypes/components/training/TrainingCamera.vue) requests camera and microphone through [useCameraSession.js](../../prototypes/composables/useCameraSession.js), then mounts the modal without replacing Training or navigating.
+[CameraPreviewModal.vue](../../prototypes/components/modal/CameraPreviewModal.vue) converts the [camera design](../../prototypes/design/pages/camera.html) into a viewport-sized modal inside Training. [TrainingCamera.vue](../../prototypes/components/training/TrainingCamera.vue) requests camera and microphone through [useCameraSession.js](../../prototypes/composables/useCameraSession.js), then mounts the modal without replacing Training or navigating.
 
 The modal accepts `stream`, `endpoint`, and optional `analysisFps` (default 5). It emits `analysis-result` for parent-owned session handling and `close` after releasing media. The optional `overlay` slot receives the latest backend `result`. Microphone capture is active with a local mute control; video playback stays muted to prevent microphone loopback. No microphone upload or coaching-audio protocol is invented.
 
@@ -204,7 +204,7 @@ Run the Training prototype using [prototypes/README.md](../../prototypes/README.
 
 ### Checkout cards
 
-The [Checkout HTML prototype](../prototypes/design/pages/checkout.html) remains the single page-level visual reference for these three reusable feature cards. The Vue cards reuse its classes from [styles.css](../prototypes/design/styles.css), preserving headings, spacing, fields, table structure, and actions. No separate card pages are required.
+The [Checkout HTML prototype](../../prototypes/design/pages/checkout.html) remains the single page-level visual reference for these three reusable feature cards. The Vue cards reuse its classes from [style.css](../../prototypes/design/style.css), preserving headings, spacing, fields, table structure, and actions. No separate card pages are required.
 
 The [Checkout entry](../../prototypes/checkout/main.js) supplies all dynamic display values through props and owns the demo checkout action and feedback state. Cards contain no composables, fetching, store access, payment calculations, or page-level business logic. Static labels match the prototype. Use unique `headingId` / `idPrefix` values when rendering multiple instances.
 

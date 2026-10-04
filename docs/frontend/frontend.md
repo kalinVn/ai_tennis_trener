@@ -20,15 +20,15 @@ Application source belongs under `frontend/`.
 
 The visual prototype catalog is:
 
-`docs/prototypes/design/index.html`
+`prototypes/design/index.html`
 
 Page-level prototypes are stored under:
 
-`docs/prototypes/design/pages/`
+`prototypes/design/pages`
 
 Component-level prototypes are stored under:
 
-`docs/prototypes/design/components/`
+`prototypes/design/components`
 
 These prototypes define the intended visual direction, hierarchy, layouts, navigation patterns, training-screen composition, authentication interaction, and pricing presentation.
 
@@ -84,8 +84,8 @@ The authoritative pages and routes specification is [docs/frontend/pages-and-rou
 
 The visual sources of truth for shared navigation layouts and states are:
 
-- Public: [public-navigation.html](../prototypes/design/components/navigation/public-navigation.html)
-- Authenticated: [authenticated-navigation.html](../prototypes/design/components/navigation/authenticated-navigation.html)
+- Public: [public-navigation.html](../../prototypes/design/components/navigation/public-navigation.html)
+- Authenticated: [authenticated-navigation.html](../../prototypes/design/components/navigation/authenticated-navigation.html)
 
 These dedicated prototypes take precedence over navigation examples in older page and layout prototypes.
 ---

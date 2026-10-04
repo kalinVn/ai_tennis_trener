@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Profile · Tennis AI Coach</title>
+  <link rel="stylesheet" href="../style.css">
+  
+  <style>
+    /* Upload-field-only presentation; the native input remains keyboard accessible. */
+    .upload-field { position: relative; }
+    .upload-field__title { font-size: 13px; font-weight: 400; color: var(--muted); }
+    .field.upload-field input.upload-field__input[type="file"] {
+      position: absolute;
+      width: 1px;
+      max-width: 1px;
+      height: 1px;
+      min-height: 0;
+      padding: 0;
+      margin: -1px;
+      border: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+    .upload-field .upload-field__choose {
+      justify-self: start;
+      min-height: 51px;
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .upload-field__icon { width: 20px; height: 20px; flex: 0 0 20px; }
+    .upload-field__input:focus-visible + .upload-field__choose { outline: 2px solid var(--accent2); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) { .upload-field__choose { transition: none; } }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="dashboard.html"><span class="logo">AI</span>Coach</a>
+    <div class="side-links">
+      <a href="dashboard.html">Dashboard</a>
+      <a href="training.html">Training</a>
+      <a href="history.html">History</a>
+      <a href="subscription.html">Subscription</a>
+      <a href="profile.html" aria-current="page">Profile</a>
+      <a href="settings.html">Settings</a>
+    </div>
+    <p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authenticated Application Layout · demo</p>
+  </aside>
+  <div class="app-main">
+    <header class="app-top">
+      <span class="eyebrow" style="margin:0">Tennis AI Coach / Profile</span>
+      <div class="flex"><span class="muted">Artur Bortnik demo user</span><a class="btn small" href="index.html">Log out</a></div>
+    </header>
+    <main class="app-content">
+      <div class="profile-intro">
+        <div class="eyebrow">ACCOUNT</div>
+        <h1>Profile</h1>
+        <p>Manage your personal details, tennis profile and training goals.</p>
+      </div>
+      <div class="profile-stack">
+        <details class="panel profile-section" open>
+          <summary><div><h2 id="personal-heading">Personal Information</h2><p>Your name, contact details and public profile.</p></div></summary>
+          <form id="personal-form" class="profile-body" aria-labelledby="personal-heading">
+            <div class="profile-identity">
+              <div class="profile-avatar" id="avatar-preview" aria-label="Profile avatar">AM</div>
+              <div><strong>Profile picture</strong><p>Optional. Preview only; no image is uploaded.</p>
+                <div class="field upload-field">
+                  <span class="upload-field__title" id="avatar-title">Choose an image</span>
+                  <input class="upload-field__input" id="avatar" type="file" aria-labelledby="avatar-title avatar-choose" name="avatar_preview" accept="image/png,image/jpeg,image/webp">
+                  <label class="btn upload-field__choose" for="avatar">
+                    <svg class="upload-field__icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M10 13V3m-4 4 4-4 4 4M3 12v4a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-4"/></svg>
+                    <span id="avatar-choose">Choose File</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div class="profile-grid form-grid">
+              <div class="field"><label for="first-name">First name *</label><input id="first-name" name="first_name" value="Alex" autocomplete="given-name" required></div>
+              <div class="field"><label for="last-name">Last name *</label><input id="last-name" name="last_name" value="Morgan" autocomplete="family-name" required></div>
+              <div class="field"><label for="username">Username</label><input id="username" name="username" value="alexmorgan" autocomplete="username" minlength="3" maxlength="32" pattern="[A-Za-z0-9_.-]{3,32}" title="3–32 letters, digits, dots, hyphens or underscores"></div>
+              <div class="field"><label for="display-name">Display name</label><input id="display-name" name="display_name" value="Alex" maxlength="60"></div>
+              <div class="field"><label for="profile-email">Email *</label><input id="profile-email" name="email" type="email" value="alex@example.com" autocomplete="email" required><small>Email verification is managed by the backend.</small></div>
+              <div class="field"><label for="email-status">Email status</label><input id="email-status" value="Verified (demo)" readonly aria-readonly="true"></div>
+              <div class="field"><label for="phone-country">Phone country code (optional)</label><select id="phone-country" name="phone_country_code"><option value="">Choose code</option><option value="+359" selected>🇧🇬 +359 Bulgaria</option><option value="+44">+44 United Kingdom</option><option value="+1">+1 United States / Canada</option><option value="+49">+49 Germany</option><option value="other">Other</option></select></div>
+              <div class="field"><label for="phone">Phone number (optional)</label><input id="phone" name="phone" type="tel" autocomplete="tel-national" inputmode="tel" placeholder="e.g. 888 123 456"><small>Only needed if you choose to provide it; verification and SMS are not active.</small></div>
+              <div class="field"><label for="phone-status">Phone verification</label><input id="phone-status" value="Not verified" readonly aria-readonly="true"></div>
+              <div class="field"><label for="birthdate">Date of birth (optional)</label><input id="birthdate" name="date_of_birth" type="date" autocomplete="bday"><small>Collect only if needed for an agreed product feature.</small></div>
+              <div class="field"><label for="country">Country / region (optional)</label><input id="country" name="country" autocomplete="country-name" placeholder="Your country"></div>
+              <div class="field"><label for="city">City (optional)</label><input id="city" name="city" autocomplete="address-level2" placeholder="Your city"></div>
+              <div class="field wide"><label for="bio">About me (optional)</label><textarea id="bio" name="bio" maxlength="500" placeholder="A few words about your tennis journey"></textarea></div>
+            </div>
+            <div class="profile-actions"><button class="btn primary" type="submit">Save Changes</button><button class="btn ghost" type="reset">Reset Changes</button><span class="muted" style="font-size:13px">* Required fields</span></div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
+        </details>
+        <details class="panel profile-section" open>
+          <summary><div><h2 id="tennis-heading">Tennis Profile</h2><p>Information that helps adapt tennis-specific guidance.</p></div></summary>
+          <form id="tennis-form" class="profile-body" aria-labelledby="tennis-heading"><div class="profile-grid form-grid">
+            <div class="field"><label for="level">Playing level</label><select id="level" name="playing_level"><option>Beginner</option><option selected>Intermediate</option><option>Advanced</option><option>Competitive</option></select></div>
+            <div class="field"><label for="experience">Playing experience</label><select id="experience" name="playing_experience"><option value="">Not specified</option><option value="under-1">Under 1 year</option><option value="1-3">1–3 years</option><option value="3-5">3–5 years</option><option value="5-10">5–10 years</option><option value="10-plus">10+ years</option></select></div>
+            <div class="field"><label for="hand">Dominant hand</label><select id="hand" name="dominant_hand"><option value="">Not specified</option><option>Right</option><option>Left</option></select></div>
+            <div class="field"><label for="backhand">Backhand</label><select id="backhand" name="backhand_style"><option value="">Not specified</option><option>One-handed</option><option>Two-handed</option></select></div>
+            <div class="field"><label for="play-style">Playing style</label><select id="play-style" name="playing_style"><option value="">Not specified</option><option>Aggressive baseliner</option><option>Defensive baseliner</option><option>All-court</option><option>Serve and volley</option><option>Still exploring</option></select></div>
+            <div class="field"><label for="surface">Preferred court surface</label><select id="surface" name="preferred_surface"><option value="">No preference</option><option>Hard court</option><option>Clay</option><option>Grass</option><option>Other</option></select></div>
+            <div class="field"><label for="favorite-stroke">Favorite stroke</label><select id="favorite-stroke" name="favorite_stroke"><option value="">Not specified</option><option>Forehand</option><option>Backhand</option><option>Serve</option><option>Volley</option></select></div>
+            <div class="field"><label for="training-frequency">Typical training frequency</label><select id="training-frequency" name="typical_training_frequency"><option value="">Not specified</option><option value="1">Once a week</option><option value="2">Twice a week</option><option value="3">Three times a week</option><option value="4+">Four or more times</option></select></div>
+          </div>
+          <h3>Training Goals</h3><p>What you want the AI coach to help you improve.</p>
+          <div class="profile-grid form-grid">
+            <div class="field"><label for="main-goal">Primary goal</label><select id="main-goal" name="primary_goal"><option>Improve technique</option><option>Better footwork</option><option>Better consistency</option><option>Increase accuracy</option><option>Prepare for matches</option><option>General fitness</option></select></div>
+            <div class="field"><label for="training-time">Preferred session length</label><select id="training-time" name="preferred_session_minutes"><option value="">Not specified</option><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select></div>
+            <div class="field wide"><label>Strokes and skills to improve</label><div class="flex">
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="forehand" checked>Forehand</label>
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="backhand">Backhand</label>
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="serve">Serve</label>
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="volley">Volley</label>
+              <label class="profile-check"><input type="checkbox" name="focus_strokes" value="footwork" checked>Footwork</label>
+            </div></div>
+            <div class="field wide"><label for="goal-notes">Your training goal (optional)</label><textarea id="goal-notes" name="goal_notes" maxlength="500" placeholder="Describe what you would like to achieve"></textarea></div>
+          </div><div class="profile-actions"><button class="btn primary" type="submit">Save Changes</button><button class="btn ghost" type="reset">Reset Changes</button></div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
+        </details>
+        <details class="panel profile-section">
+          <summary><div><h2 id="physical-heading">Physical Information</h2><p>Optional measurements; enter only if useful for your training.</p></div></summary>
+          <form id="physical-form" class="profile-body" aria-labelledby="physical-heading"><p class="profile-help">These values are optional and should not be required to use the app.</p><div class="profile-grid form-grid">
+            <div class="field"><label for="height">Height (cm)</label><input id="height" name="height_cm" type="number" min="80" max="250" step="1" inputmode="numeric" placeholder="e.g. 180"></div>
+            <div class="field"><label for="wingspan">Arm span (cm)</label><input id="wingspan" name="arm_span_cm" type="number" min="80" max="280" step="1" inputmode="numeric" placeholder="Optional"></div>
+            <div class="field"><label for="intensity">Preferred training intensity</label><select id="intensity" name="preferred_intensity"><option value="">Not specified</option><option>Light</option><option>Moderate</option><option>High</option></select></div>
+          </div><div class="profile-actions"><button class="btn primary" type="submit">Save Changes</button><button class="btn ghost" type="reset">Reset Changes</button></div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
+        </details>
+        <details class="panel profile-section">
+          <summary><div><h2 id="account-heading">Account Overview</h2><p>Read-only account details and links to security and billing.</p></div></summary>
+          <form id="account-form" class="profile-body" aria-labelledby="account-heading"><div class="profile-account">
+            <div><small>Account type</small><strong>Individual player · demo</strong></div>
+            <div><small>Account status</small><strong class="accent">Active · demo</strong></div>
+            <div><small>Registered on</small><strong>Example — backend value</strong></div>
+            <div><small>Last sign-in</small><strong>Example — backend value</strong></div>
+          </div><div class="flex" style="margin-top:21px"><a class="btn" href="settings.html">Password and security</a><a class="btn" href="subscription.html">Subscription and billing</a></div><div class="profile-actions"><button class="btn primary" type="submit">Save Changes</button><button class="btn ghost" type="reset">Reset Changes</button></div>
+            <p class="callout" role="status" aria-live="polite" hidden></p>
+          </form>
+        </details>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../app.js"></script>
+<script>
+  const personalForm = document.getElementById('personal-form');
+  const personalNote = personalForm.querySelector('[role="status"]');
+  const avatar = document.getElementById('avatar');
+  const preview = document.getElementById('avatar-preview');
+  let avatarUrl = null;
+  function updateAvatarPreview() {
+    if (avatarUrl) URL.revokeObjectURL(avatarUrl);
+    avatarUrl = null;
+    const file = avatar.files && avatar.files[0];
+    if (!file) { preview.textContent = 'AM'; return; }
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type) || file.size > 3 * 1024 * 1024) {
+      avatar.value = ''; preview.textContent = 'AM';
+      personalNote.textContent = 'Choose a JPG, PNG or WebP image smaller than 3 MB.';
+      personalNote.hidden = false;
+      return;
+    }
+    avatarUrl = URL.createObjectURL(file);
+    preview.replaceChildren();
+    const image = document.createElement('img'); image.src = avatarUrl; image.alt = 'Selected profile picture preview';
+    preview.append(image);
+  }
+  avatar.addEventListener('change', updateAvatarPreview);
+
+  document.querySelectorAll('.profile-section form').forEach(form => {
+    setupPanelForm(form, {
+      afterReset: () => { if (form === personalForm) updateAvatarPreview(); }
+    });
+  });
+</script>
+</body>
+</html>

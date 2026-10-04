@@ -9,7 +9,7 @@ Status: planning complete; implementation not started. Authentication presentati
 ## Sources and Repository Findings
 
 - Requirements: `docs/frontend/frontend.md`.
-- Visual references: `docs/prototypes/design/index.html` (catalog) and `docs/prototypes/design/pages/` (current application prototypes). The previously referenced standalone `tennis-ai-coach.html` is no longer present; the library preserves the current multi-page prototypes.
+- Visual references: `prototypes/design/index.html` (catalog) and `prototypes/design/pages` (current application prototypes). The previously referenced standalone `tennis-ai-coach.html` is no longer present; the library preserves the current multi-page prototypes.
 - Planning workflow: `claude/skills/plan-new-frontend-design.md`.
 - Shared rules: `claude/rules/frontend/frontend-design-system.md`.
 - Existing application: `frontend/index.html` contains only `test 2`. No Vue source, package manifest, application tests, or backend application files were found in the inspected repository. Existing uncommitted content must be preserved when implementation begins.

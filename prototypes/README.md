@@ -2,7 +2,7 @@
 
 The source components remain reference implementations; application code stays separate.
 All prototype composables live in `composables/`. The older shared Button is reused
-from `../docs/prototypes/design/components/buttons/`; its unchanged `ButtonController.js`
+from `design/components/buttons`; its unchanged `ButtonController.js`
 composable now also lives in `composables/`.
 
 ## Training camera
@@ -14,7 +14,7 @@ npm --prefix prototypes install
 npm --prefix prototypes run dev
 ```
 
-Open `http://127.0.0.1:5173/docs/prototypes/design/pages/training.html` (use the port
+Open `http://127.0.0.1:5173/prototypes/design/pages/training.html` (use the port
 printed by Vite). The Training layout and camera component HTML specimens use the
 same Vue launcher. Opening Training directly as a local HTML file shows a Start
 Training link to `camera.html`, which opens its existing full-screen design modal.
@@ -61,7 +61,7 @@ from the local-file Training preview. It does not use the browser Fullscreen API
 
 ## Checkout cards
 
-Open `/docs/prototypes/design/pages/checkout.html` through the same Vite server to
+Open `/prototypes/design/pages/checkout.html` through the same Vite server to
 render `PerformanceCard`, `PaymentInformationCard`, and `OrderSummaryCard` in the
 existing Checkout layout. `checkout/main.js` owns the sample props and demo action
 feedback; the cards reuse the page stylesheet and contain no payment logic.

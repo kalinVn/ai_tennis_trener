@@ -1,5 +1,5 @@
 <script setup>
-import Button from '../../../docs/prototypes/design/components/buttons/Button.vue'
+import Button from '../../design/components/buttons/Button.vue'
 
 defineProps({
   plan: { type: String, required: true },

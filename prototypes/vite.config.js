@@ -11,9 +11,9 @@ export default defineConfig({
   plugins: [vue(), {
     name: 'preserve-prototype-navigation-script',
     closeBundle() {
-      const target = root + '/prototypes/dist/docs/prototypes/design'
+      const target = root + '/prototypes/dist/prototypes/design'
       mkdirSync(target, { recursive: true })
-      copyFileSync(root + '/docs/prototypes/design/app.js', target + '/app.js')
+      copyFileSync(root + '/prototypes/design/app.js', target + '/app.js')
     },
   }],
   resolve: { alias: { vue: require.resolve('vue/dist/vue.esm-bundler.js') } },
@@ -22,10 +22,10 @@ export default defineConfig({
     outDir: 'prototypes/dist',
     emptyOutDir: true,
     rollupOptions: { input: {
-      checkout: root + '/docs/prototypes/design/pages/checkout.html',
-      training: root + '/docs/prototypes/design/pages/training.html',
-      layout: root + '/docs/prototypes/design/layouts/training.html',
-      camera: root + '/docs/prototypes/design/components/camera-preview.html',
+      checkout: root + '/prototypes/design/pages/checkout.html',
+      training: root + '/prototypes/design/pages/training.html',
+      layout: root + '/prototypes/design/layouts/training.html',
+      camera: root + '/prototypes/design/components/camera-preview.html',
     } },
   },
 })
