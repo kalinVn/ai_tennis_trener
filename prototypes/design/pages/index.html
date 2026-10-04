@@ -1,11 +1,11 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Home · Tennis AI Coach</title><link rel="stylesheet" href="../style.css"></head><body><nav class="public-nav"><div class="container nav-inner">
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Home · Tennis AI Coach</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../components/home_page_slider/design/home-hero.css"></head><body><nav class="public-nav"><div class="container nav-inner">
 <a class="brand" href="index.html"><span class="logo">AI</span>Tennis AI Coach</a>
 <div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="training.html">Training</a><a href="pricing.html">Pricing</a></div>
 <div class="nav-actions"><button class="btn small" onclick="openAuth('login')">Log in</button><button class="btn primary small" onclick="openAuth('register')">Start free</button></div>
 </div></nav><main class="container public-main"><section class="container hero">
-<div>
+<div class="hero-copy">
 <div class="eyebrow">● Live AI coaching · Camera-first training</div>
-<h1>Train smarter.<br/>Move better.<br/><span style="color:var(--accent)">Win more.</span></h1>
+<h1><span data-align="train">Train smarter.</span><br>Move better.<br><span data-align="win" style="color:var(--accent)">Win more.</span></h1>
 <p>Your camera becomes a private tennis coach. Analyze movement, review key moments, and receive focused feedback without turning the interface into a cockpit.</p>
 <div class="cta">
 <a class="btn primary" href="training.html">Start training</a>
@@ -17,12 +17,34 @@
 <div class="stat"><strong>1 cue</strong><span>At the right moment</span></div>
 </div>
 </div>
-<div class="court">
-<div class="centerline"></div>
-<div class="player"><div class="head"></div><div class="body"></div><div class="limb a1"></div><div class="limb a2"></div><div class="limb l1"></div><div class="limb l2"></div><div class="racket"></div></div>
-<div class="chip c1">Camera · Connected</div>
-<div class="chip c2">Analysis · Ready</div>
-<div class="chip c3">Coach: <b style="color:var(--accent)">“Recover.”</b></div>
+<div class="court video-demo-court" id="video-demo-court">
+<div class="real-video-viewport">
+<!-- Video: NaBUru38 / Wikimedia Commons, CC BY-SA 4.0; blurred with illustrative overlays. See components/home_page_slider/README.md for attribution. -->
+<video class="real-video" id="rally-video" autoplay muted loop playsinline preload="metadata" aria-label="Blurred tennis rally demonstration">
+<source src="../components/home_page_slider/assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" type="video/webm">
+<source src="https://commons.wikimedia.org/wiki/Special:Redirect/file/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" type="video/webm">
+</video>
+<div class="video-shade"></div>
+<canvas class="freeze-points" id="freeze-points" aria-hidden="true"></canvas>
+</div>
+<div class="video-overlay-top">
+<span class="video-pill"><strong>●</strong> Camera · Connected</span>
+<span class="video-pill"><strong>●</strong> Analysis · Active</span>
+<span class="video-pill"><strong>●</strong> Audio · Connected</span>
+</div>
+<div class="coaching-audio" id="coaching-audio" data-active="false">
+<div class="coaching-mic" role="img" aria-label="Coaching audio feedback" title="Coaching feedback">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3M8 22h8"/></svg>
+</div>
+<p class="coaching-message" aria-live="off"><span id="coaching-message" hidden></span><span class="coaching-waiting" aria-label="Analyzing">•••</span></p>
+</div>
+<aside class="ai-telemetry" aria-label="Illustrative motion tracking preview">
+<h3>● AI MOTION TRACKING</h3>
+<div class="ai-row"><span>Mode</span><strong>Serve preview</strong></div>
+<div class="ai-row"><span>Overlay</span><strong>Arm / leg</strong></div>
+<div class="ai-row"><span>Phase</span><strong id="tracking-phase">READY</strong></div>
+</aside>
+<div id="video-load-error" class="video-load-error" hidden>Video unavailable. Connect to the internet or download the tennis clip and place it in <code>components/home_page_slider/assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm</code>. <a href="https://commons.wikimedia.org/wiki/File:2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" target="_blank" rel="noopener">Open the source video</a>.</div>
 </div>
 </section><section class="section"><div class="callout"><b>Pages are separate:</b> Features, Pricing, Training and the signed-in workspace each have their own HTML file. Login/Register remain demo dialogs.</div></section></main><footer class="public-footer"><div class="container footer-row"><span>© Tennis AI Coach · visual prototype</span><span>Privacy · Terms · Support</span></div></footer><div class="modal" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title">
 <div class="modal-card"><div class="modal-header"><div><div class="eyebrow">WELCOME</div><h2 id="auth-title" style="font-size:27px">Your tennis workspace</h2></div><button class="close" aria-label="Close" onclick="closeAuth()">×</button></div>
@@ -32,4 +54,4 @@
 <div class="field"><label for="pass">Password</label><input required id="pass" type="password" minlength="4" placeholder="••••••••"></div>
 <button class="btn primary" id="auth-submit" style="width:100%">Log in (demo)</button></form>
 <p style="font-size:12px;margin-top:12px">Prototype only. Demo navigation, no account is created and no credentials are sent.</p>
-</div></div><script src="../app.js"></script></body></html>
+</div></div><script src="../app.js"></script><script src="../components/home_page_slider/design/video-demo.js"></script><script src="../components/home_page_slider/design/hero-alignment.js"></script></body></html>

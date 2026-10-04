@@ -19,7 +19,7 @@ function banner() {
   const elements = { 'rally-video': video, 'video-demo-court': {}, 'video-load-error': {},
     'coaching-audio': indicator, 'coaching-message': message, 'freeze-points': canvas };
   const document = Object.assign(new EventTarget(), { hidden: false, getElementById: id => elements[id] });
-  runInNewContext(readFileSync(new URL('../Animated_banner/design/video-demo.js', import.meta.url), 'utf8'), {
+  runInNewContext(readFileSync(new URL('../design/components/home_page_slider/design/video-demo.js', import.meta.url), 'utf8'), {
     document, window: Object.assign(new EventTarget(), { devicePixelRatio: 1 }), Event,
     performance: { now: () => now }, matchMedia: () => ({ matches: false }),
     ResizeObserver: class { observe() {} },
