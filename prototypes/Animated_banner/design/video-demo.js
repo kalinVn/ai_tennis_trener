@@ -10,16 +10,16 @@
   const loopDuration = 15; // Seconds of playback at the configured slow-motion speed.
   // Manual source-pixel annotations from the user's 1280x720 reference images.
   const freezes = [
-    { time: 2.9, duration: 5500, feedback: ['Good arm position', 'Bend your knees', 'Toss the ball higher'], labels: ['Angle: 42°', 'Vector: [0.74, -0.31]'], segments: [
+    { time: 2.9, duration: 5500, feedback: ['Good arm position', 'Bend your knees', 'Toss the ball higher'], labels: ['Angle: 42°', 'Vector: [0.74, -0.31]', 'Knee Flexion: 28°', 'Hip Height: 82 cm', 'L-Foot: [0.42, 0.81]', 'R-Foot: [-0.35, 0.76]'], segments: [
       [[512,378],[526,367]], [[573,356],[587,355]],
       [[543,415],[543,430]], [[566,409],[566,433]],
       [[548,455],[553,477]], [[570,457],[575,475]],
     ] },
-    { time: 3.7, duration: 3500, feedback: ['Keep the racket position stable', 'Follow through'], labels: ['Rotation: 27°', 'ΔX: 18 px'], segments: [
+    { time: 3.7, duration: 3500, feedback: ['Keep the racket position stable', 'Follow through'], labels: ['Rotation: 27°', 'ΔX: 18 px', null, null, 'Knee Flexion: 38°', 'Hip Height: 76 cm', 'L-Foot: [0.18, 0.94]', 'R-Foot: [-0.12, 0.91]'], segments: [
       [[539,338],[542,347]], [[552,358],[562,358]],
       [[613,354],[632,373]], [[563,369],[563,397]],
       [[563,413],[562,435]], [[592,419],[588,445]],
-      [[561,457],[566,482]], [[587,458],[587,482]],
+      [[561,457],[566,482]], [[587,458],[589,482]],
     ] },
   ];
   let nextFreeze = 0, activeFreeze = null;
@@ -81,15 +81,24 @@
       context.moveTo(left+x1*scale,top+y1*scale);
       context.lineTo(left+(x1+(x2-x1)*progress)*scale,top+(y1+(y2-y1)*progress)*scale);
       context.stroke();
-      if (index < 2) {
+      if (activeFreeze.labels[index]) {
+        const lowerIndex = index - (activeFreeze.segments.length - 4);
+        const lowerBody = lowerIndex >= 0;
+        const compact = c.width <= 600;
+        // Compact layouts keep leg data left of the player, clear of the right UI.
+        const labelLeft = lowerBody ? compact || lowerIndex % 2 === 0 : index === 0;
+        const offsetY = lowerBody
+          ? (compact ? [0, 17, 8, 25][lowerIndex] : 3)
+          : (compact && index === 1 ? 18 : -10);
         // Illustrative values, anchored to the source-video geometry, not measurements.
         context.save();
         context.globalAlpha = progress * .85;
-        context.translate(left + (x1+x2)/2*scale + (index === 0 ? -10 : 12),
-          top + (y1+y2)/2*scale + (c.width <= 600 && index === 1 ? 18 : -10));
-        context.rotate(Math.max(-.25, Math.min(.25, Math.atan2(y2-y1,x2-x1))));
+        context.translate(left + (x1+x2)/2*scale + (labelLeft ? -10 : 12),
+          top + (y1+y2)/2*scale + offsetY);
+        const rotationLimit = lowerBody ? .12 : .25;
+        context.rotate(Math.max(-rotationLimit, Math.min(rotationLimit, Math.atan2(y2-y1,x2-x1))));
         context.font = `${Math.max(9, Math.min(11, 10*scale))}px monospace`;
-        context.textAlign = index === 0 ? 'right' : 'left';
+        context.textAlign = labelLeft ? 'right' : 'left';
         context.textBaseline = 'bottom';
         context.fillStyle = '#caffad';
         context.shadowColor = '#07100c';
