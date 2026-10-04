@@ -13,7 +13,8 @@ function banner() {
     getBoundingClientRect: () => ({ left: 0, top: 0, width: 800, height: 450 }),
   });
   const indicator = { dataset: {} }, message = { hidden: true, textContent: '', style: {}, setAttribute(name, value) { this[name] = value; } };
-  const context = { setTransform() {}, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {} };
+  const labels = [];
+  const context = { save() {}, restore() {}, translate() {}, rotate() {}, fillText(text) { labels.push(text); }, setTransform() { labels.length = 0; }, beginPath() {}, moveTo() {}, lineTo() {}, stroke() {} };
   const canvas = { getContext: () => context, getBoundingClientRect: video.getBoundingClientRect };
   const elements = { 'rally-video': video, 'video-demo-court': {}, 'video-load-error': {},
     'coaching-audio': indicator, 'coaching-message': message, 'freeze-points': canvas };
@@ -35,43 +36,40 @@ function banner() {
   function hold(time) {
     video.currentTime = time; tick(); video.dispatchEvent(new Event('seeked')); tick(300);
   }
-  return { video, document, message, indicator, tick, hold };
+  return { video, document, message, indicator, tick, hold, labels };
 }
 
-test('coaching types throughout playback and both unchanged holds, then restarts with the loop', () => {
+test('pause coaching and labels follow both hold clocks and clear on resume', () => {
   const b = banner(); b.tick();
-  assert.equal(b.indicator.dataset.active, 'true');
-  assert.equal(b.message.hidden, false); assert.equal(b.message.textContent, 'G');
-  b.video.currentTime = .033; b.tick(); assert.equal(b.message.textContent, 'Goo');
-  b.video.currentTime = .6; b.tick(); assert.equal(b.message.textContent, 'Good arm position');
-  b.video.currentTime = 1.8; b.tick(); assert.equal(b.message.textContent, 'Bend your knees');
-  b.hold(2.9);
-  assert.ok(b.video.paused); assert.equal(b.message['aria-label'], 'Toss the ball higher');
-  b.tick(3000); assert.equal(b.message.textContent, 'Toss the ball higher');
-  b.tick(2199); assert.ok(b.video.paused);
-  b.tick(1); assert.ok(!b.video.paused); assert.ok(!b.message.hidden);
-  assert.equal(b.message['aria-label'], 'Keep the racket position stable');
-  b.hold(3.7); assert.ok(b.video.paused);
-  assert.equal(b.message['aria-label'], 'Keep the racket position stable');
-  b.tick(3199); assert.ok(b.video.paused);
-  b.tick(1); assert.ok(!b.video.paused); assert.equal(b.message.textContent, 'Follow through');
+  assert.equal(b.indicator.dataset.active, 'true'); assert.ok(b.message.hidden);
+  b.hold(2.9); assert.ok(b.video.paused);
+  assert.equal(b.message.textContent, 'Good a');
+  assert.deepEqual(b.labels, ['Angle: 42°']);
+  b.tick(100); assert.deepEqual(b.labels, ['Angle: 42°', 'Vector: [0.74, -0.31]']);
+  b.tick(1200); assert.equal(b.message.textContent, 'Good arm position');
+  b.tick(1400); assert.equal(b.message.textContent, 'Bend your knees');
+  b.tick(2499); assert.ok(b.video.paused);
+  b.tick(1); assert.ok(!b.video.paused); assert.ok(b.message.hidden); assert.deepEqual(b.labels, []);
+  b.hold(3.7); assert.equal(b.message['aria-label'], 'Keep the racket position stable');
+  assert.deepEqual(b.labels, ['Rotation: 27°']);
+  b.tick(2300); assert.equal(b.message.textContent, 'Follow through');
+  assert.deepEqual(b.labels, ['Rotation: 27°', 'ΔX: 18 px']);
+  b.tick(899); assert.ok(b.video.paused);
+  b.tick(1); assert.ok(!b.video.paused); assert.ok(b.message.hidden); assert.deepEqual(b.labels, []);
   assert.equal(b.video.playbackRate, .3);
-  b.video.currentTime = 4.5; b.tick();
-  assert.equal(b.video.currentTime, 0); assert.equal(b.message.textContent, 'G');
+  b.video.currentTime = 4.5; b.tick(); assert.equal(b.video.currentTime, 0);
+  b.hold(2.9); assert.equal(b.message.textContent, 'Good a');
 });
 
-test('manual pauses and hidden tabs freeze typing; seeking selects the new cue', () => {
-  const b = banner(); b.video.currentTime = .033; b.tick(); b.video.pause();
-  const partial = b.message.textContent; b.tick(10000); assert.equal(b.message.textContent, partial);
-  b.video.play(); b.hold(2.9); const heldText = b.message.textContent;
+test('hidden tabs suspend the hold; external seeking clears temporary analysis', () => {
+  const b = banner(); b.hold(2.9); const partial = b.message.textContent;
   b.document.hidden = true; b.document.dispatchEvent(new Event('visibilitychange'));
   b.tick(10000); assert.ok(b.message.hidden); assert.ok(b.video.paused);
   assert.equal(b.indicator.dataset.active, 'false');
   b.document.hidden = false; b.document.dispatchEvent(new Event('visibilitychange')); b.tick();
-  assert.equal(b.message.textContent, heldText);
+  assert.equal(b.message.textContent, partial);
   b.video.currentTime = 3.2; b.video.seeking = true; b.video.dispatchEvent(new Event('seeking'));
   assert.ok(b.message.hidden);
-  b.video.seeking = false; b.video.dispatchEvent(new Event('seeked')); b.tick();
-  assert.equal(b.message.textContent, 'Keep the racket position stable');
-  b.tick(10000); assert.equal(b.message.textContent, 'Keep the racket position stable');
+  b.video.seeking = false; b.video.dispatchEvent(new Event('seeked')); b.tick(10000);
+  assert.ok(b.message.hidden); assert.deepEqual(b.labels, []);
 });
