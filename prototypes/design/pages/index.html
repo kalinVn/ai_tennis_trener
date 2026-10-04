@@ -3,7 +3,8 @@
 <div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="training.html">Training</a><a href="pricing.html">Pricing</a></div>
 <div class="nav-actions"><button class="btn small" onclick="openAuth('login')">Log in</button><button class="btn primary small" onclick="openAuth('register')">Start free</button></div>
 </div></nav><main class="container public-main"><section class="container hero">
-<div class="hero-copy">
+<div id="home-info-root" style="display:contents">
+<div class="hero-copy" style="position:relative;z-index:2;min-width:0">
 <div class="eyebrow">● Live AI coaching · Camera-first training</div>
 <h1><span data-align="train">Train smarter.</span><br>Move better.<br><span data-align="win" style="color:var(--accent)">Win more.</span></h1>
 <p>Your camera becomes a private tennis coach. Analyze movement, review key moments, and receive focused feedback without turning the interface into a cockpit.</p>
@@ -15,6 +16,7 @@
 <div class="stat"><strong>&lt; 1s</strong><span>Target feedback loop</span></div>
 <div class="stat"><strong>Live</strong><span>Camera analysis UI</span></div>
 <div class="stat"><strong>1 cue</strong><span>At the right moment</span></div>
+</div>
 </div>
 </div>
 <div class="court video-demo-court" id="video-demo-court">
@@ -54,4 +56,14 @@
 <div class="field"><label for="pass">Password</label><input required id="pass" type="password" minlength="4" placeholder="••••••••"></div>
 <button class="btn primary" id="auth-submit" style="width:100%">Log in (demo)</button></form>
 <p style="font-size:12px;margin-top:12px">Prototype only. Demo navigation, no account is created and no credentials are sent.</p>
-</div></div><script src="../app.js"></script><script src="../components/home_page_slider/video-demo.js"></script><script src="../components/home_page_slider/hero-alignment.js"></script></body></html>
+</div></div><script src="../app.js"></script><script src="../components/home_page_slider/video-demo.js"></script><script>
+// Preserve the static file preview; Vite mounts the reusable Vue section over HTTP.
+if (location.protocol === 'file:') {
+  const alignment = document.createElement('script');
+  alignment.src = '../components/home_page_slider/hero-alignment.js';
+  document.body.append(alignment);
+}
+</script>
+<script type="module">
+if (location.protocol !== 'file:') import('../../home/main.js');
+</script></body></html>

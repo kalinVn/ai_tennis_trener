@@ -225,3 +225,11 @@ All props are required strings: `idPrefix`, `title`, `description`, `cardholderD
 [OrderSummaryCard.vue](../../prototypes/components/cards/OrderSummaryCard.vue) presents the Plan, Billing period, Subtotal, Tax, and Demo total rows, explanatory note, Complete checkout action, Cancel link, and status message.
 
 Required string props: `headingId`, `title`, `plan`, `billingPeriod`, `subtotal`, `tax`, `total`, `note`, `actionLabel`, `cancelLabel`, and `cancelHref`. `statusMessage` is an optional string defaulting to empty. Amounts are supplied as formatted display strings. The action emits `complete` without a payload; the page handles it and supplies any resulting status message. Cancel follows `cancelHref`. The card performs no transaction or subscription logic.
+
+### HomePageInfoSection
+
+- Vue component: `HomePageInfoSection`
+- Vue source: [HomePageInfoSection.vue](../../prototypes/components/sections/HomePageInfoSection.vue)
+- HTML prototype: [home-page-info-section.html](../prototypes/design/components/sections/home-page-info-section.html)
+
+Reusable Home feature section containing the existing eyebrow, headline, description, both CTA links and all three feature cards. Buttons remain inline markup; no separate button components are introduced. `trainingHref` and `dashboardHref` default to the existing Home page destinations. It reuses the Home styles and measures headline alignment on mount, font readiness and resize, cleaning up its observer on unmount. Home mounts it through `prototypes/home/main.js`; direct `file://` previews preserve the equivalent static markup.

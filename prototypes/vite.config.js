@@ -14,6 +14,9 @@ export default defineConfig({
       const target = root + '/prototypes/dist/prototypes/design'
       mkdirSync(target, { recursive: true })
       copyFileSync(root + '/prototypes/design/app.js', target + '/app.js')
+      const slider = '/components/home_page_slider'
+      mkdirSync(target + slider, { recursive: true })
+      copyFileSync(root + '/prototypes/design' + slider + '/video-demo.js', target + slider + '/video-demo.js')
     },
   }],
   resolve: { alias: { vue: require.resolve('vue/dist/vue.esm-bundler.js') } },
@@ -22,6 +25,7 @@ export default defineConfig({
     outDir: 'prototypes/dist',
     emptyOutDir: true,
     rollupOptions: { input: {
+      home: root + '/prototypes/design/pages/index.html',
       checkout: root + '/prototypes/design/pages/checkout.html',
       training: root + '/prototypes/design/pages/training.html',
       layout: root + '/prototypes/design/layouts/training.html',

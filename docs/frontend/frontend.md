@@ -112,6 +112,8 @@ Each shared visual pattern has a reusable implementation across pages.
 
 ## Feature Components
 
+- `HomePageInfoSection`: [Vue component](../../prototypes/components/sections/HomePageInfoSection.vue), [HTML prototype](../prototypes/design/components/sections/home-page-info-section.html). Existing Home headline, description, CTA links and feature cards; see [component details](components.md#homepageinfosection).
+
 Feature components are project- or feature-specific UI components, distinct from generic shared UI elements.
 
 - `FeatureCard` — presents a numbered product feature with a title and description.
