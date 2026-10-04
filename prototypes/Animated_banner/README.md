@@ -2,7 +2,7 @@
 
 Open `design/pages/index-video-test.html` through a local server from inside `design/`, e.g. `python3 -m http.server 8000`, then open `http://localhost:8000/pages/index-video-test.html`.
 
-The HTML includes a **real HTML5 `<video>`**, blurred video playing at 0.3× speed, and illustrative telemetry. Each loop plays the first 4.5 seconds of source footage over 15 seconds at 0.3× speed (shorter source clips loop at their natural end); the source file is unchanged. The slightly larger video area fades into the page background, with the telemetry panel offset further right on wide screens. No external player or tracking library. Original `index.html` remains untouched.
+The HTML includes a **real HTML5 `<video>`**, blurred video playing at 0.3× speed, and illustrative telemetry. Each loop plays the first 4.5 seconds of source footage over 15 seconds at 0.3× speed (shorter source clips loop at their natural end); the source file is unchanged. The fluid page wrapper grows to 1360px, giving the video about 180px more width on wide desktop screens (about 788px total). The video fades into the background and the 230px telemetry panel aligns with its right edge. At 1100px and below, the hero stacks into one column; at 600px and below, the coaching cue and full-width telemetry sit beneath the video so they remain readable without covering the footage. No external player or tracking library. Original `index.html` remains untouched.
 
 Video is served remotely from Wikimedia Commons for this test (internet connection required). For offline use download the clip from https://commons.wikimedia.org/wiki/File:2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm and save it as `design/assets/tennis-rally.webm`.
 
