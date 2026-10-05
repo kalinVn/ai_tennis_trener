@@ -230,6 +230,16 @@ Required string props: `headingId`, `title`, `plan`, `billingPeriod`, `subtotal`
 
 - Vue component: `HomePageInfoSection`
 - Vue source: [HomePageInfoSection.vue](../../prototypes/components/sections/HomePageInfoSection.vue)
-- HTML prototype: [home-page-info-section.html](../prototypes/design/components/sections/home-page-info-section.html)
+- HTML prototype: [home-page-info-section.html](../../prototypes/design/components/sections/home-page-info-section.html)
 
 Reusable Home feature section containing the existing eyebrow, headline, description, both CTA links and all three feature cards. Buttons remain inline markup; no separate button components are introduced. `trainingHref` and `dashboardHref` default to the existing Home page destinations. It reuses the Home styles and measures headline alignment on mount, font readiness and resize, cleaning up its observer on unmount. Home mounts it through `prototypes/home/main.js`; direct `file://` previews preserve the equivalent static markup.
+
+
+### HomePageVideoSlider
+
+- Vue component: `HomePageVideoSlider`
+- Vue source: [HomePageVideoSlider.vue](../../prototypes/components/sliders/home-page-video-slider/HomePageVideoSlider.vue)
+- HTML prototype: [index.html](../../prototypes/components/sliders/home-page-video-slider/index.html)
+
+Reusable Home feature component containing the application video slider and interactive AI tennis analysis preview. The component uses `Pixi.js` for rendering, animations and visual overlay logic. It includes the video slider, microphone control, audio connection state, three information/status control elements and Motion Tracking visualization. Motion Tracking displays analysis overlays such as body tracking lines, movement vectors, angles and biomechanical values synchronized with the active video sequence. The component owns its video and slider state, microphone interaction, analysis timing, Pixi.js rendering lifecycle, resize handling and cleanup on unmount.
+HomePageVideoSlider implementation details: `prototypes/components/sliders/home-page-video-slider/slider.js` owns Pixi initialization, line/text rendering, pause and coaching timing, active microphone/status state, observers, listeners, and cleanup. `HomePageVideoSlider.vue` contains the markup and mount/unmount wiring; `slider.css` preserves the presentation. The component imports its video from its own `assets/` directory. No composable or service is used. HTML-only/file previews retain the original Canvas demo, using the same relocated video asset; Home under Vite mounts the Vue/Pixi component. Microphone/status cues remain illustrative, with no audio recording.

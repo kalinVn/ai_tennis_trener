@@ -62,6 +62,7 @@ Frontend:
 - HTML5
 - CSS3 / SCSS
 - HTML5 Canvas API — video overlays, pose landmarks, trajectories and visual feedback
+- pixi.js
 - MediaDevices API — camera access
 - ESLint — static code analysis and code-quality rules
 - Prettier — code formatting

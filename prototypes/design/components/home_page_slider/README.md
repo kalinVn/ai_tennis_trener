@@ -1,10 +1,10 @@
 # Tennis AI Coach — Blurred HTML5 tennis video demo
 
-Open `home_page_slider.html` for the centered, video-only preview. All CSS and JavaScript files live directly in `home_page_slider/`; media remains in `assets/`. The full hero is integrated into `../../pages/index.html` and shares `home-hero.css`, `video-demo.js`, and `hero-alignment.js`.
+Open `home_page_slider.html` for the centered, video-only preview. All CSS and JavaScript files live directly in `home_page_slider/`; reference PNGs remain in `assets/`, while the video lives in `../../../components/sliders/home-page-video-slider/assets/`. The full hero is integrated into `../../pages/index.html` and shares `home-hero.css`, `video-demo.js`, and `hero-alignment.js`.
 
 The HTML includes a **real HTML5 `<video>`**, blurred video playing at 0.3× speed, and video-synchronized coaching messages. Each loop plays the first 4.5 seconds of source footage at 0.3× speed, with a 5.5-second freeze at source timestamp 2.900s and a second 3.5-second freeze at 3.700s. The first pause starts after about 9.7 seconds of viewing; the second follows 2.7 seconds of playback after the first resumes. The resulting loop takes about 24 seconds plus seek latency. Shorter clips loop at their natural end and skip freeze timestamps beyond their duration; the source file is unchanged. The fluid page wrapper grows to 1360px, with the desktop video enlarged by a further 12% (about 989px wide and 665px tall). It extends left beneath the text section with a broader fade; the text stays above the video. An upper-right microphone has a visible 1.6-second glow pulse and expanding ring during playback and coaching pauses. At 1100px and below, the hero stacks into one column; the microphone and small message bubble remain inside the responsive video area. No external player or tracking library. The preview contains only the video slider; the full Home page retains the hero text and navigation.
 
-Video loads from the bundled `assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm`, with the existing Wikimedia URL as a fallback.
+Video loads from the bundled `../../../components/sliders/home-page-video-slider/assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm`, with the existing Wikimedia URL as a fallback.
 
 Video attribution: NaBUru38, *2018 Davis Cup Americas Zone - Uruguay vs Mexico - 04.webm*, Creative Commons Attribution-ShareAlike 4.0 (https://creativecommons.org/licenses/by-sa/4.0/). This demo applies blur and overlays. Retain attribution and comply with license if redistributing.
 

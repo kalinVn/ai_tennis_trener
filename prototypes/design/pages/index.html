@@ -19,11 +19,12 @@
 </div>
 </div>
 </div>
+<div id="home-slider-root" style="display:contents">
 <div class="court video-demo-court" id="video-demo-court">
 <div class="real-video-viewport">
 <!-- Video: NaBUru38 / Wikimedia Commons, CC BY-SA 4.0; blurred with illustrative overlays. See components/home_page_slider/README.md for attribution. -->
 <video class="real-video" id="rally-video" autoplay muted loop playsinline preload="metadata" aria-label="Blurred tennis rally demonstration">
-<source src="../components/home_page_slider/assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" type="video/webm">
+<source src="../../components/sliders/home-page-video-slider/assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" type="video/webm">
 <source src="https://commons.wikimedia.org/wiki/Special:Redirect/file/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" type="video/webm">
 </video>
 <div class="video-shade"></div>
@@ -48,6 +49,7 @@
 </aside>
 <div id="video-load-error" class="video-load-error" hidden>Video unavailable. Connect to the internet or download the tennis clip and place it in <code>components/home_page_slider/assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm</code>. <a href="https://commons.wikimedia.org/wiki/File:2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" target="_blank" rel="noopener">Open the source video</a>.</div>
 </div>
+</div>
 </section><section class="section"><div class="callout"><b>Pages are separate:</b> Features, Pricing, Training and the signed-in workspace each have their own HTML file. Login/Register remain demo dialogs.</div></section></main><footer class="public-footer"><div class="container footer-row"><span>© Tennis AI Coach · visual prototype</span><span>Privacy · Terms · Support</span></div></footer><div class="modal" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title">
 <div class="modal-card"><div class="modal-header"><div><div class="eyebrow">WELCOME</div><h2 id="auth-title" style="font-size:27px">Your tennis workspace</h2></div><button class="close" aria-label="Close" onclick="closeAuth()">×</button></div>
 <div class="tabs"><button class="btn primary" id="loginTab" onclick="setAuth('login')">Login</button><button class="btn" id="registerTab" onclick="setAuth('register')">Register</button></div>
@@ -56,7 +58,7 @@
 <div class="field"><label for="pass">Password</label><input required id="pass" type="password" minlength="4" placeholder="••••••••"></div>
 <button class="btn primary" id="auth-submit" style="width:100%">Log in (demo)</button></form>
 <p style="font-size:12px;margin-top:12px">Prototype only. Demo navigation, no account is created and no credentials are sent.</p>
-</div></div><script src="../app.js"></script><script src="../components/home_page_slider/video-demo.js"></script><script>
+</div></div><script src="../app.js"></script><script>if (location.protocol === 'file:') { const script = document.createElement('script'); script.src = '../components/home_page_slider/video-demo.js'; document.body.append(script); }</script><script>
 // Preserve the static file preview; Vite mounts the reusable Vue section over HTTP.
 if (location.protocol === 'file:') {
   const alignment = document.createElement('script');
