@@ -39,26 +39,26 @@ function banner() {
   return { video, document, message, indicator, tick, hold, labels };
 }
 
-test('pause coaching and labels follow both hold clocks and clear on resume', () => {
+test('coaching runs during playback and freezes while labels follow hold clocks', () => {
   const b = banner(); b.tick();
-  assert.equal(b.indicator.dataset.active, 'true'); assert.ok(b.message.hidden);
+  assert.equal(b.indicator.dataset.active, 'true'); assert.equal(b.message.hidden, false);
   b.hold(2.9); assert.ok(b.video.paused);
   assert.equal(b.message.textContent, 'Good a');
   assert.deepEqual(b.labels, ['Angle: 42°']);
   b.tick(100); assert.deepEqual(b.labels, ['Angle: 42°', 'Vector: [0.74, -0.31]']);
   b.tick(1200); assert.equal(b.message.textContent, 'Good arm position');
-  b.tick(1400); assert.equal(b.message.textContent, 'Bend your knees');
+  b.tick(1400); assert.equal(b.message.textContent, 'Good arm position');
   b.tick(2499); assert.ok(b.video.paused);
-  b.tick(1); assert.ok(!b.video.paused); assert.ok(b.message.hidden); assert.deepEqual(b.labels, []);
-  b.hold(3.7); assert.equal(b.message['aria-label'], 'Keep the racket position stable');
+  b.tick(1); assert.ok(!b.video.paused); assert.equal(b.message.hidden, false); assert.deepEqual(b.labels, []);
+  b.hold(3.7); assert.equal(b.message['aria-label'], 'Bend your knees');
   assert.deepEqual(b.labels, ['Rotation: 27°']);
-  b.tick(2300); assert.equal(b.message.textContent, 'Follow through');
+  b.tick(2300); assert.equal(b.message.textContent, '...');
   assert.deepEqual(b.labels, ['Rotation: 27°', 'ΔX: 18 px', 'Knee Flexion: 38°', 'Hip Height: 76 cm', 'L-Foot: [0.18, 0.94]', 'R-Foot: [-0.12, 0.91]']);
   b.tick(899); assert.ok(b.video.paused);
-  b.tick(1); assert.ok(!b.video.paused); assert.ok(b.message.hidden); assert.deepEqual(b.labels, []);
+  b.tick(1); assert.ok(!b.video.paused); assert.equal(b.message.hidden, false); assert.deepEqual(b.labels, []);
   assert.equal(b.video.playbackRate, .3);
   b.video.currentTime = 4.5; b.tick(); assert.equal(b.video.currentTime, 0);
-  b.hold(2.9); assert.equal(b.message.textContent, 'Good a');
+  b.hold(2.9); assert.equal(b.message.textContent, '...');
 });
 
 test('hidden tabs suspend the hold; external seeking clears temporary analysis', () => {
@@ -69,9 +69,9 @@ test('hidden tabs suspend the hold; external seeking clears temporary analysis',
   b.document.hidden = false; b.document.dispatchEvent(new Event('visibilitychange')); b.tick();
   assert.equal(b.message.textContent, partial);
   b.video.currentTime = 3.2; b.video.seeking = true; b.video.dispatchEvent(new Event('seeking'));
-  assert.ok(b.message.hidden);
+  assert.equal(b.message.hidden, false);
   b.video.seeking = false; b.video.dispatchEvent(new Event('seeked')); b.tick(10000);
-  assert.ok(b.message.hidden); assert.deepEqual(b.labels, []);
+  assert.equal(b.message.hidden, false); assert.deepEqual(b.labels, []);
 });
 
 
@@ -89,4 +89,24 @@ test('lower-body values appear only as their own strokes start drawing', () => {
     }
     b.tick(6000); assert.deepEqual(b.labels, []);
   }
+});
+
+test('playback shows evenly spaced sentences with 1.5-second ellipsis gaps', () => {
+  const b = banner();
+  const sentences = ['Good arm position', 'Bend your knees', 'Toss the ball higher', 'Keep the racket position stable', 'Follow through'];
+  b.tick();
+  for (const sentence of sentences) {
+    assert.equal(b.video.paused, false);
+    assert.equal(b.message.textContent, sentence[0]);
+    b.tick(3299);
+    assert.equal(b.message.textContent, sentence);
+    b.tick(1);
+    assert.equal(b.message.textContent, '...');
+    assert.equal(b.message.hidden, false);
+    assert.equal(b.indicator.dataset.active, 'true');
+    b.tick(1499);
+    assert.equal(b.message.textContent, '...');
+    b.tick(1);
+  }
+  assert.equal(b.message.textContent, 'G');
 });

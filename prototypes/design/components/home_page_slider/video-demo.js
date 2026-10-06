@@ -33,27 +33,32 @@
   function holdElapsed() {
     return activeFreeze.duration - remaining + (holdTimer === null ? 0 : performance.now()-timerStarted);
   }
+  const coachingSentences = freezes.flatMap(({ feedback }) => feedback);
+  const audioDuration = loopDuration * 1000 + freezes.reduce((sum, item) => sum + item.duration, 0);
+  const sentenceDuration = audioDuration / coachingSentences.length;
+  const textDuration = sentenceDuration - Math.min(1500, sentenceDuration / 2);
+  let audioElapsed = 0, audioUpdatedAt = null;
+
   function updateCoaching() {
-    const onScreen = visible && !document.hidden && !video.error;
-    const isCoaching = held && settled && video.paused && !video.seeking
-      && Math.abs(video.currentTime-activeFreeze.time)<.001;
-    if (audioIndicator) audioIndicator.dataset.active = String(onScreen && !video.seeking
-      && (isCoaching || (!video.paused && video.readyState >= 3)));
-    if (trackingPhase) trackingPhase.textContent = isCoaching ? 'ANALYZING' : 'READY';
+    const now = performance.now();
+    if (audioUpdatedAt !== null) audioElapsed += now - audioUpdatedAt;
+    const running = visible && !document.hidden && !video.error && !reduced;
+    audioUpdatedAt = running ? now : null;
+    if (audioIndicator) audioIndicator.dataset.active = String(running);
+    if (trackingPhase) trackingPhase.textContent = held && settled ? 'ANALYZING' : 'READY';
     if (!coachingMessage) return;
-    if (!onScreen || !isCoaching || video.readyState < 2) {
+    if (!running) {
       coachingMessage.hidden = true;
       return;
     }
-    // Coaching and technical annotations share the existing hold clock.
-    const elapsed = Math.min(holdElapsed(), activeFreeze.duration);
-    const interval = activeFreeze.duration / activeFreeze.feedback.length;
-    const index = Math.min(Math.floor(elapsed / interval), activeFreeze.feedback.length - 1);
-    const text = activeFreeze.feedback[index];
-    const letters = reduced ? text.length : Math.floor((elapsed - index * interval) / 55) + 1;
-    const typed = text.slice(0, letters);
+    const elapsed = audioElapsed % audioDuration;
+    const index = Math.floor(elapsed / sentenceDuration);
+    const slotElapsed = elapsed - index * sentenceDuration;
+    const text = slotElapsed >= textDuration ? '...' : coachingSentences[index];
+    const typingInterval = Math.min(55, textDuration / text.length);
+    const letters = Math.floor(slotElapsed / typingInterval) + 1;
+    const typed = text === '...' ? text : text.slice(0, letters);
     if (coachingMessage.textContent !== typed) coachingMessage.textContent = typed;
-    // Expose the complete cue without announcing every individual character.
     coachingMessage.setAttribute('aria-label', text);
     coachingMessage.hidden = false;
   }

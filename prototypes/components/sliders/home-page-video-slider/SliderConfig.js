@@ -4,6 +4,7 @@ export const loopDuration = 15;
 export const lineStepMs = 350;
 export const lineDrawMs = 300;
 export const typingStepMs = 55;
+export const coachingGapMs = 1500;
 export const freezeTolerance = 0.001;
 export const overlayConfig = {
   sourceWidth: 1280,
@@ -30,7 +31,7 @@ export const overlayConfig = {
   maxFontSize: 11,
 };
 // Manual source-pixel annotations from the user's 1280x720 reference images.
-export const freezes = [
+export const homepageTimelineItems = [
   {
     time: 2.9,
     duration: 5500,

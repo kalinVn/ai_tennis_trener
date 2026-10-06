@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
-import { createHomePageVideoSlider } from "./slider.js";
+import { SliderController } from "./SliderController.js";
 import videoUrl from "./assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm";
 
 const root = ref(null);
@@ -10,9 +10,10 @@ const audioIndicator = ref(null);
 const coachingMessage = ref(null);
 const trackingPhase = ref(null);
 const errorMessage = ref(null);
-let slider;
-onMounted(() => {
-  slider = createHomePageVideoSlider({
+let slider = null;
+
+onMounted(async () => {
+  slider = new SliderController({
     root: root.value,
     video: video.value,
     canvas: canvas.value,
@@ -21,9 +22,21 @@ onMounted(() => {
     trackingPhase: trackingPhase.value,
     errorMessage: errorMessage.value,
   });
+
+  try {
+    await slider.init();
+    slider?.play();
+  } catch (error) {
+    slider?.destroy();
+    if (!errorMessage.value) return;
+    errorMessage.value.textContent = "Video analysis preview unavailable.";
+    errorMessage.value.hidden = false;
+    console.error("HomePageVideoSlider initialization failed", error);
+  }
 });
 onBeforeUnmount(() => {
   slider?.destroy();
+  slider = null;
 });
 </script>
 
@@ -44,7 +57,7 @@ onBeforeUnmount(() => {
       ></video>
       <div class="video-shade"></div>
       <canvas
-        class="freeze-points"
+        class="frally-videos"
         ref="canvas"
         data-slider="freeze-points"
         aria-hidden="true"

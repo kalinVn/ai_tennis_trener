@@ -1,17 +1,16 @@
 # Home Page Video Slider
 
-`HomePageVideoSlider.vue` owns all DOM refs and passes their elements explicitly to `slider.js`. All runtime modules remain local to this directory:
+`HomePageVideoSlider.vue` owns all DOM refs and passes their elements to a `SliderController` instance. The component calls `await sliderController.init()` followed by `sliderController.play()` on mount, displays initialization errors in its Vue error element, and calls `sliderController.destroy()` on unmount. All runtime classes remain local to this directory:
 
-- `slider.js`: connects modules, waits for Pixi initialization, and owns teardown.
-- `sliderConfig.js`: authored freeze annotations, coaching messages, timing, and overlay constants.
-- `pixiRenderer.js`: Pixi Application, Graphics/Text overlays, responsive cover mapping, and renderer cleanup.
-- `videoController.js`: playback, seeking, freeze holds, and the shared hold clock.
-- `coachingDisplay.js`: typed coaching cues, tracking phase, and illustrative microphone activity.
-- `sliderLifecycle.js`: media/browser listeners, visibility observers, animation frames, and their cleanup.
+- `SliderController.js`: owns the three dependencies, coordinates async initialization and playback, and tears down the instance. `init()` validates all required elements before creating resources and propagates errors to Vue. `play()` only starts the initialized slider; destruction is idempotent.
+- `SliderConfig.js`: authored freeze annotations, coaching messages, timing, and overlay constants.
+- `PixiRenderer.js`: owns the Pixi Application and Graphics/Text overlays, responsive cover mapping, and renderer cleanup. It does not control playback or browser lifecycle.
+- `VideoController.js`: configures the video and builds its paused timeline in `init()`. Lifecycle-controlled `play()` calls `playTimeline()` and `playAudioUI()`; the audio timeline is created on first playback and reused on subsequent calls. Both timelines repeat indefinitely. The video timeline owns 0.3× playback, authored freeze frames, hold durations, and looping. Only freeze tweens call `renderPlayerBodyAnalysis(timelineItem)`; geometry and drawing remain in `PixiRenderer`. Playback transitions clear annotations and update the tracking phase. The independent audio timeline flattens the authored coaching sentences in order and divides the full configured slider duration equally between them: currently 24 seconds (15 seconds playback plus 9 seconds holds), giving five 4.8-second slots. Each slot shows a sentence for 3.3 seconds, then `...` for 1.5 seconds, including the gap before the next loop. Typing uses 55ms per character, accelerated only if needed to fit the sentence portion of a slot, with the microphone indicator active throughout the running sequence. Audio updates never consult freeze or video pause state. `pause()` and `destroy()` suspend or release both timelines and hide audio UI. No separate RAF, Pixi ticker, or hold timer controls playback.
+- `SliderLifecycle.js`: owns media/browser listeners and visibility/resize observers. It pauses both timelines and video while hidden, offscreen, or showing an error. Seeking and buffering pause only the video timeline; audio continues on its own clock. Ready media resumes video without restarting audio. Reduced motion keeps the sequence paused. External seeks skip earlier holds and reposition only the video clock, clearing temporary analysis.
 - `slider.css`: preserved presentation and active-state CSS animations.
 
 Playback remains 0.3×, with holds at 2.9s for 5.5s and 3.7s for 3.5s, sequential 350ms line starts and 300ms line drawing. No service/composable or actual microphone recording is involved. Values are authored demo annotations, not computer-vision measurements.
 
-Home uses this component under Vite; static HTML previews retain their Canvas fallback. All use the single local WebM in this directory’s `assets/`. Destroy is idempotent, including while async Pixi initialization is pending; observers, event listeners, RAF, hold timer, media playback and renderer resources are released.
+Home uses this component under Vite; static HTML previews retain their Canvas fallback with the same independent sentence schedule and ellipsis gaps. All use the single local WebM in this directory’s `assets/`. Destroy is idempotent, including while async Pixi initialization is pending; observers, event listeners, both GSAP timelines, media playback and renderer resources are released.
 
 Video: NaBUru38, *2018 Davis Cup Americas Zone - Uruguay vs Mexico - 04.webm*, [Wikimedia source](https://commons.wikimedia.org/wiki/File:2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Displayed blurred with illustrative overlays.
