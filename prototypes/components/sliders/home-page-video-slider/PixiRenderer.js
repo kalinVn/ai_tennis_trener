@@ -13,10 +13,9 @@ export class PixiRenderer {
     this.video = video;
     this.graphics = null;
     this.labels = [];
-    this.annotation = null;
-    this.elapsed = 0;
+    this.currentPositionParameters = null;
     this.initialized = false;
-    this.disposed = false;
+    
   }
 
   async init() {
@@ -31,10 +30,8 @@ export class PixiRenderer {
       preference: "webgl",
     });
     this.initialized = true;
-    if (this.disposed) {
-      app.destroy(false, { children: true });
-      return;
-    }
+    app.destroy(false, { children: true });
+    
     canvas.style.width = "100%";
     canvas.style.height = "100%";
     this.graphics = new Graphics();
@@ -50,23 +47,19 @@ export class PixiRenderer {
           },
         }),
     );
+
     app.stage.addChild(this.graphics, ...this.labels);
   }
 
   destroy() {
-    if (this.disposed) return;
-    this.disposed = true;
-    if (this.initialized) this.app.destroy(false, { children: true });
+    if (this.initialized) {
+      this.app.destroy(false, { children: true });
+    }
   }
 
-  resize() {
-    this.drawAnnotations(this.annotation, this.elapsed);
-  }
-
-  drawAnnotations(activeFreeze, elapsed) {
-    if (!this.initialized || this.disposed) return;
-    this.annotation = activeFreeze;
-    this.elapsed = elapsed;
+  showPlayerParameters(activeFreeze, elapsed) {
+    if (!this.initialized) return;
+    this.currentPositionParameters = activeFreeze;
     const { app, canvas, video, graphics, labels } = this;
     const canvasBounds = canvas.getBoundingClientRect();
     const videoBounds = video.getBoundingClientRect();

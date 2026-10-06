@@ -16,7 +16,8 @@ async function banner(destroyBeforeReady = false, options = {}) {
   let now = 0,
     id = 0;
   const frames = new Map(),
-    timers = new Map();
+    timers = new Map(),
+    intervals = new Map();
   const video = Object.assign(new EventTarget(), {
     currentTime: 0,
     duration: 7,
@@ -139,6 +140,11 @@ async function banner(destroyBeforeReady = false, options = {}) {
       return id;
     },
     clearTimeout: (id) => timers.delete(id),
+    setInterval: (cb, delay) => {
+      intervals.set(++id, { cb, delay });
+      return id;
+    },
+    clearInterval: (id) => intervals.delete(id),
   };
   if (options.observeIntersection) {
     sandbox.IntersectionObserver = class {
@@ -189,27 +195,35 @@ async function banner(destroyBeforeReady = false, options = {}) {
     instance.destroy();
   }
   gsap.ticker.sleep();
-  const timeline = instance.videoController?.timeline;
-  const audioTimeline = instance.videoController?.audioTimeline;
+  const timeline = instance.videoController?.videoTimeline;
+  const audioTimeline = instance.videoController?.audioTimeline.timeline;
   function tick(ms = 0) {
-    if (timeline?.parent && !timeline.paused()) {
-      timeline.totalTime(timeline.totalTime() + ms / 1000, false);
+    let remaining = ms / 1000;
+    while (remaining > 1e-9) {
+      const analysis = instance.videoController?.playerAnalysisTimeline.timeline;
+      const clock = instance.videoController?.currentTimelineData ? analysis : timeline;
+      let step = remaining;
+      if (clock?.parent && !clock.paused()) {
+        const next = clock.getChildren()
+          .map((child) => child.startTime())
+          .filter((time) => time > clock.time() + 1e-8);
+        const boundary = Math.min(clock.duration(), ...next);
+        step = Math.min(step, boundary - clock.time());
+        if (step < 1e-8) step = Math.min(remaining, 0.000001);
+        clock.totalTime(clock.totalTime() + step, false);
+      }
+      if (audioTimeline?.parent && !audioTimeline.paused()) {
+        audioTimeline.totalTime(audioTimeline.totalTime() + step, false);
+      }
+      remaining -= step;
+      gsap.ticker.sleep();
     }
-    if (audioTimeline?.parent && !audioTimeline.paused()) {
-      audioTimeline.totalTime(audioTimeline.totalTime() + ms / 1000, false);
-    }
-    gsap.ticker.sleep();
   }
   function hold(time) {
-    const holdTween = timeline
-      .getChildren()
-      .find((child) => child.vars.elapsed === (time === 2.9 ? 5500 : 3500));
-    const position = holdTween.startTime();
-    const cycleStart =
-      Math.floor(timeline.totalTime() / timeline.duration()) *
-      timeline.duration();
+    const position = time / 0.3;
+    const cycleStart = Math.floor(timeline.totalTime() / timeline.duration()) * timeline.duration();
     tick((cycleStart + position - timeline.totalTime()) * 1000);
-    video.dispatchEvent(new Event("seeked"));
+    video.dispatchEvent(new Event("canplay"));
     tick(300);
   }
   return {
@@ -224,10 +238,11 @@ async function banner(destroyBeforeReady = false, options = {}) {
     timeline,
     audioTimeline,
     errorMessage,
+    trackingPhase: elements.trackingPhase,
+    panelIntervals: () => [...intervals.values()],
     initializationCount: () => initializationCount,
     initializationError,
-    setVisible: (visible) =>
-      intersectionCallback([{ isIntersecting: visible }]),
+    window: sandbox.window,
     resources: () => ({
       destroys,
       disconnects,
@@ -284,34 +299,6 @@ test("body annotations follow freeze clocks while coaching spans playback", asyn
   assert.equal(b.message["aria-label"], "Toss the ball higher");
 });
 
-test("hidden tabs suspend the hold; external seeking clears temporary analysis", async () => {
-  const b = await banner();
-  b.hold(2.9);
-  const partial = b.message.textContent;
-  b.document.hidden = true;
-  b.document.dispatchEvent(new Event("visibilitychange"));
-  b.tick(10000);
-  assert.ok(b.message.hidden);
-  assert.ok(b.video.paused);
-  assert.equal(b.indicator.dataset.active, "false");
-  b.document.hidden = false;
-  b.document.dispatchEvent(new Event("visibilitychange"));
-  b.tick();
-  assert.equal(b.message.textContent, partial);
-  const audioPosition = b.audioTimeline.totalTime();
-  b.video.currentTime = 3.2;
-  b.video.seeking = true;
-  b.video.dispatchEvent(new Event("seeking"));
-  assert.equal(b.message.hidden, false);
-  b.video.seeking = false;
-  b.video.dispatchEvent(new Event("seeked"));
-  b.tick();
-  assert.equal(b.message.hidden, false);
-  assert.equal(b.audioTimeline.totalTime(), audioPosition);
-  assert.deepEqual(b.labels, []);
-  assert.ok(!b.video.paused);
-});
-
 test("lower-body values appear only as their own strokes start drawing", async () => {
   for (const [time, firstLegIndex] of [
     [2.9, 2],
@@ -334,20 +321,20 @@ test("lower-body values appear only as their own strokes start drawing", async (
       );
     }
     b.tick(
-      (time === 2.9 ? 5500 : 3500) - b.instance.videoController.cue.elapsed,
+      (time === 2.9 ? 5500 : 3500) - b.instance.videoController.playerAnalysisTimeline.timeline.time() * 1000,
     );
     assert.deepEqual(b.labels, []);
   }
 });
 
-test("destroy during a hold releases timers, animation frames, observers and media listeners", async () => {
+test("destroy during a hold releases timers, animation frames and media listeners", async () => {
   const b = await banner();
   b.hold(2.9);
   b.instance.destroy();
   b.instance.destroy();
   assert.deepEqual(b.resources(), {
     destroys: 1,
-    disconnects: 1,
+    disconnects: 0,
     timers: 0,
     frames: 0,
   });
@@ -367,48 +354,6 @@ test("unmount during async Pixi initialization destroys the renderer without sta
     frames: 0,
   });
   assert.ok(b.video.paused);
-});
-
-test("offscreen holds preserve their clock and release both observers", async () => {
-  const b = await banner(false, { observeIntersection: true });
-  b.hold(2.9);
-  const partial = b.message.textContent;
-  b.setVisible(false);
-  b.tick(10000);
-  assert.ok(b.video.paused);
-  assert.ok(b.message.hidden);
-  assert.equal(b.indicator.dataset.active, "false");
-  assert.equal(b.resources().frames, 0);
-  b.setVisible(true);
-  b.tick();
-  assert.equal(b.message.textContent, partial);
-  b.tick(5199);
-  assert.ok(b.video.paused);
-  b.tick(1);
-  assert.ok(!b.video.paused);
-  b.instance.destroy();
-  assert.deepEqual(b.resources(), {
-    destroys: 1,
-    disconnects: 2,
-    timers: 0,
-    frames: 0,
-  });
-});
-
-test("reduced motion stays paused without recurring animation or coaching", async () => {
-  const b = await banner(false, { reducedMotion: true });
-  b.tick();
-  b.video.dispatchEvent(new Event("canplay"));
-  b.video.currentTime = 2.9;
-  b.video.dispatchEvent(new Event("timeupdate"));
-  b.tick(10000);
-  assert.ok(b.video.paused);
-  assert.ok(b.message.hidden);
-  assert.equal(b.indicator.dataset.active, "false");
-  assert.deepEqual(b.labels, []);
-  assert.equal(b.resources().frames, 0);
-  assert.equal(b.resources().timers, 0);
-  b.instance.destroy();
 });
 
 test("video errors clear an active hold, overlay and coaching state", async () => {
@@ -436,7 +381,7 @@ test("play only starts the initialized slider without reinitializing it", async 
   assert.ok(b.video.paused);
   assert.deepEqual(b.resources(), {
     destroys: 1,
-    disconnects: 1,
+    disconnects: 0,
     timers: 0,
     frames: 0,
   });
@@ -483,9 +428,9 @@ test("both GSAP timelines repeat without growing or rebuilding", async () => {
   const children = timeline.getChildren();
   const audioChildren = b.audioTimeline.getChildren();
   assert.equal(b.audioTimeline.repeat(), -1);
-  assert.ok(Math.abs(b.audioTimeline.duration() - timeline.duration()) < 0.000001);
+  assert.equal(b.audioTimeline.duration(), 24);
   assert.equal(timeline.repeat(), -1);
-  assert.ok(Math.abs(timeline.duration() - 24) < 0.000001);
+  assert.ok(Math.abs(timeline.duration() - 15) < 0.000001);
   for (let cycle = 0; cycle < 3; cycle++) {
     b.hold(2.9);
     assert.equal(b.video.currentTime, 2.9);
@@ -499,7 +444,7 @@ test("both GSAP timelines repeat without growing or rebuilding", async () => {
       ((cycle + 1) * timeline.duration() - timeline.totalTime()) * 1000 + 0.001,
     );
     assert.equal(b.video.currentTime, 0);
-    assert.equal(b.instance.videoController.timeline, timeline);
+    assert.equal(b.instance.videoController.videoTimeline, timeline);
     assert.deepEqual(timeline.getChildren(), children);
     assert.deepEqual(b.audioTimeline.getChildren(), audioChildren);
   }
@@ -508,55 +453,21 @@ test("both GSAP timelines repeat without growing or rebuilding", async () => {
   assert.equal(b.audioTimeline.parent, null);
 });
 
-test("buffering and seeking pause only the video clock until media is ready", async () => {
+test("analysis pauses the main clock while audio advances, then resumes after the full hold", async () => {
   const b = await banner();
-  b.tick(1000);
-  b.video.readyState = 2;
-  b.video.dispatchEvent(new Event("waiting"));
-  const beforeBuffer = b.timeline.totalTime();
-  const audioBeforeBuffer = b.audioTimeline.totalTime();
-  b.tick(10000);
-  assert.equal(b.timeline.totalTime(), beforeBuffer);
-  assert.equal(b.audioTimeline.totalTime(), audioBeforeBuffer + 10);
-  assert.ok(b.video.paused);
-  b.video.readyState = 4;
-  b.video.dispatchEvent(new Event("canplay"));
-  b.tick(1000);
-  assert.equal(b.timeline.totalTime(), beforeBuffer + 1);
-  assert.equal(b.audioTimeline.totalTime(), audioBeforeBuffer + 11);
-  assert.ok(!b.video.paused);
-
   b.hold(2.9);
-  b.video.seeking = true;
-  b.video.dispatchEvent(new Event("seeking"));
-  const beforeSeek = b.timeline.totalTime();
-  b.tick(10000);
-  assert.equal(b.timeline.totalTime(), beforeSeek);
-  assert.equal(b.message.hidden, false);
-  assert.equal(b.indicator.dataset.active, "true");
-  b.video.seeking = false;
-  b.video.dispatchEvent(new Event("seeked"));
+  const position = b.timeline.time();
+  const audioPosition = b.audioTimeline.time();
+  assert.equal(b.timeline.paused(), true);
+  assert.ok(b.video.paused);
+  assert.ok(Math.abs(b.instance.videoController.playerAnalysisTimeline.timeline.time() - 0.3) < 0.001);
   b.tick(5199);
+  assert.equal(b.timeline.time(), position);
   assert.ok(b.video.paused);
+  assert.ok(Math.abs(b.audioTimeline.time() - audioPosition - 5.199) < 0.001);
   b.tick(1);
-  assert.ok(!b.video.paused);
-  b.instance.destroy();
-});
-
-test("freeze callbacks pause only the video while the timeline advances the cue", async () => {
-  const b = await banner();
-  const holdTween = b.timeline
-    .getChildren()
-    .find((child) => child.vars.elapsed === 5500);
-  b.tick((holdTween.startTime() + 0.1 - b.timeline.totalTime()) * 1000);
   assert.equal(b.timeline.paused(), false);
-  assert.equal(b.video.currentTime, 2.9);
-  assert.ok(b.video.paused);
-  assert.ok(Math.abs(b.instance.videoController.cue.elapsed - 100) < 0.001);
-  b.tick(5399);
-  assert.ok(b.video.paused);
-  b.tick(1);
-  assert.ok(!b.video.paused);
+  assert.equal(b.video.paused, false);
   b.instance.destroy();
 });
 
@@ -567,7 +478,7 @@ test("audio timing runs independently of video playback and body analysis", asyn
   b.video.currentTime = 1;
   b.video.paused = false;
   b.audioTimeline.totalTime(0.3, false);
-  assert.equal(controller.activeFreeze, null);
+  assert.equal(controller.currentTimelineData, null);
   assert.equal(b.message.textContent, "Good a");
   assert.equal(b.indicator.dataset.active, "true");
   assert.deepEqual(b.labels, []);
@@ -578,12 +489,12 @@ test("audio timing runs independently of video playback and body analysis", asyn
   b.instance.destroy();
 });
 
-test("body analysis updates only during freeze tweens and never changes audio UI", async () => {
+test("body analysis updates only during analysis timelines and never changes audio UI", async () => {
   const b = await banner();
   const controller = b.instance.videoController;
   const calls = [];
-  const render = controller.renderPlayerBodyAnalysis.bind(controller);
-  controller.renderPlayerBodyAnalysis = (item) => {
+  const render = controller.playerAnalysisTimeline.render.bind(controller.playerAnalysisTimeline);
+  controller.playerAnalysisTimeline.render = (item) => {
     calls.push(item.time);
     render(item);
   };
@@ -593,7 +504,7 @@ test("body analysis updates only during freeze tweens and never changes audio UI
   assert.ok(calls.length > 0);
   const text = b.message.textContent;
   const active = b.indicator.dataset.active;
-  controller.renderPlayerBodyAnalysis(controller.activeFreeze);
+  controller.playerAnalysisTimeline.render(controller.currentTimelineData);
   assert.equal(b.message.textContent, text);
   assert.equal(b.indicator.dataset.active, active);
   b.tick(5200);
@@ -607,7 +518,7 @@ test("body analysis updates only during freeze tweens and never changes audio UI
 test("playback rejection suspends both clocks and hides audio UI", async () => {
   const b = await banner();
   b.video.play = () => Promise.reject(new Error("Playback unavailable"));
-  b.instance.videoController.beginPlayback();
+  b.instance.videoController.onVideoResume();
   await Promise.resolve();
   assert.ok(b.timeline.paused());
   assert.ok(b.audioTimeline.paused());
@@ -646,20 +557,112 @@ test("sentences occupy equal slots with typing, replacement and clean replay", a
   const count = timelines.length;
   b.instance.play();
   b.instance.play();
-  assert.equal(b.instance.videoController.audioTimeline, b.audioTimeline);
+  assert.equal(b.instance.videoController.audioTimeline.timeline, b.audioTimeline);
   assert.equal(b.audioTimeline.totalTime(), position);
   assert.equal(timelines.length, count);
   b.instance.destroy();
 });
 
-test("initialization leaves audio uncreated until playback starts", async () => {
+test("initialization creates paused audio and defers analysis until a hold", async () => {
   const b = await banner(false, { deferPlayback: true });
-  assert.equal(b.instance.videoController.audioTimeline, null);
+  assert.ok(b.instance.videoController.audioTimeline.timeline.paused());
+  assert.equal(b.instance.videoController.playerAnalysisTimeline.timeline, null);
   assert.ok(b.message.hidden);
   b.instance.play();
-  const audio = b.instance.videoController.audioTimeline;
+  const audio = b.instance.videoController.audioTimeline.timeline;
   assert.ok(audio);
   assert.equal(audio.paused(), false);
   assert.equal(b.message.textContent, "G");
   b.instance.destroy();
+});
+
+test("GSAP stops at the explicit pause position even when a frame overshoots", async () => {
+  const b = await banner();
+  b.tick(1);
+  b.timeline.render(2.9 / 0.3 + 0.2, false, false);
+  gsap.ticker.sleep();
+  assert.equal(b.timeline.paused(), true);
+  assert.ok(Math.abs(b.timeline.time() - 2.9 / 0.3) < 0.000001);
+  assert.equal(b.video.currentTime, 2.9);
+  assert.equal(b.audioTimeline.paused(), false);
+  const analysis = b.instance.videoController.playerAnalysisTimeline.timeline;
+  assert.equal(analysis.duration(), 5.5);
+  b.instance.destroy();
+  assert.equal(analysis.parent, null);
+});
+
+test("motion panel rotates independently and keeps a single interval until teardown", async () => {
+  const b = await banner();
+  assert.equal(b.trackingPhase.textContent, "READY");
+  assert.equal(b.panelIntervals().length, 1);
+  const interval = b.panelIntervals()[0];
+  assert.equal(interval.delay, 2500);
+  b.instance.play();
+  assert.equal(b.panelIntervals().length, 1);
+  interval.cb();
+  assert.equal(b.trackingPhase.textContent, "TRACKING PLAYER");
+  b.hold(2.9);
+  assert.equal(b.trackingPhase.textContent, "TRACKING PLAYER");
+  interval.cb();
+  assert.equal(b.trackingPhase.textContent, "ANALYZING MOTION");
+  b.tick(5200);
+  assert.equal(b.trackingPhase.textContent, "ANALYZING MOTION");
+  for (const status of ["DETECTING POSE", "TRACKING JOINTS", "MOTION ANALYSIS", "READY"]) {
+    interval.cb();
+    assert.equal(b.trackingPhase.textContent, status);
+  }
+  b.instance.destroy();
+  b.instance.destroy();
+  assert.equal(b.panelIntervals().length, 0);
+  b.instance.play();
+  assert.equal(b.panelIntervals().length, 0);
+});
+
+test("motion panel does not start before playback or after interrupted initialization", async () => {
+  const b = await banner(false, { deferPlayback: true });
+  assert.equal(b.panelIntervals().length, 0);
+  b.instance.destroy();
+  const cancelled = await banner(true);
+  assert.equal(cancelled.panelIntervals().length, 0);
+  const failed = await banner(false, { failInitialization: true });
+  assert.equal(failed.panelIntervals().length, 0);
+});
+
+
+test("browser visibility and media readiness events do not control playback", async () => {
+  const b = await banner(false, { reducedMotion: true, observeIntersection: true });
+  const controller = b.instance.videoController;
+  const calls = [];
+  controller.play = () => calls.push("play");
+  controller.pause = () => calls.push("pause");
+  b.document.hidden = true;
+  b.document.dispatchEvent(new Event("visibilitychange"));
+  for (const event of ["pagehide", "pageshow", "resize"]) {
+    b.window.dispatchEvent(new Event(event));
+  }
+  for (const event of ["waiting", "canplay", "playing", "loadeddata", "seeking", "seeked"]) {
+    b.video.dispatchEvent(new Event(event));
+  }
+  assert.deepEqual(calls, []);
+  assert.equal(b.timeline.paused(), false);
+  b.instance.play();
+  assert.deepEqual(calls, ["play"]);
+  b.instance.destroy();
+});
+
+test("lifecycle reports video errors and removes its listener on destroy", async () => {
+  const b = await banner();
+  let pauses = 0;
+  b.instance.videoController.pause = () => pauses++;
+  b.video.dispatchEvent(new Event("error"));
+  assert.equal(b.errorMessage.hidden, false);
+  assert.equal(pauses, 1);
+  b.instance.destroy();
+
+  const stopped = await banner();
+  stopped.instance.videoController.pause = () => pauses++;
+  stopped.instance.destroy();
+  stopped.video.dispatchEvent(new Event("error"));
+  assert.equal(stopped.errorMessage.hidden, true);
+  assert.equal(pauses, 1);
 });

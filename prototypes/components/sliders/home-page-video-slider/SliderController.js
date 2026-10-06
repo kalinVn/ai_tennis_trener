@@ -1,5 +1,6 @@
+import { AIMotionTrackingPanel } from "./AIMotionTrackingPanel.js";
 import { PixiRenderer } from "./PixiRenderer.js";
-import { VideoController } from "./VideoController.js";
+import { VideoTimelineController } from "./VideoTimelineController.js";
 import { SliderLifecycle } from "./SliderLifecycle.js";
 
 export class SliderController {
@@ -8,6 +9,7 @@ export class SliderController {
     this.pixiRenderer = null;
     this.videoController = null;
     this.sliderLifecycle = null;
+    this.aiMotionTrackingPanel = null;
   }
 
   async init() {
@@ -26,27 +28,31 @@ export class SliderController {
     }
 
     this.pixiRenderer = new PixiRenderer(this.elements);
-    this.videoController = new VideoController(
+    this.videoController = new VideoTimelineController(
       this.elements,
       this.pixiRenderer,
     );
     this.sliderLifecycle = new SliderLifecycle(
       this.elements,
       this.videoController,
-      this.pixiRenderer,
     );
     this.videoController.pause();
     await this.pixiRenderer.init();
     if (this.pixiRenderer.disposed) return;
     this.videoController.init();
     this.sliderLifecycle.init();
+    this.aiMotionTrackingPanel = new AIMotionTrackingPanel(this.elements);
   }
 
   play() {
-    this.sliderLifecycle.start();
+    if (!this.pixiRenderer?.initialized || this.pixiRenderer.disposed) return;
+    this.videoController.play();
+    this.aiMotionTrackingPanel?.play();
   }
 
   destroy() {
+    this.aiMotionTrackingPanel?.destroy();
+    this.aiMotionTrackingPanel = null;
     this.sliderLifecycle?.destroy();
     this.videoController?.destroy();
     this.pixiRenderer?.destroy();

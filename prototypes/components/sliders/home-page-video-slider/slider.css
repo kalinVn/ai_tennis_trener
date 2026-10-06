@@ -149,6 +149,7 @@
 .video-demo-court .ai-telemetry {
   position: absolute;
   right: 8px;
+  transform: translateX(-50%);
   bottom: 54px;
   z-index: 5;
   width: 190px;
