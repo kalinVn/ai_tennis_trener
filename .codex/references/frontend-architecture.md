@@ -1,0 +1,11 @@
+# Frontend Architecture Context for Planning
+
+Use the existing architecture guidance as read-only context rather than copying six maintained documents into another tree:
+
+1. Read the [architect entry point](../../claude/skills/frontend-code-architect/frontend-code-architect.md) and [architecture rules](../../claude/skills/frontend-code-architect/architecture-rules.md) for responsibilities, dependency direction, narrow contracts, atomic APIs, and avoiding duplicate ownership or premature abstractions.
+2. Read [component/feature placement](../../claude/skills/frontend-code-architect/frontend-structure-and-components.md) with the [Codex structure reference](../skills/frontend-project-structure.md). Preserve Cards/Fields families, feature-local code, related composables, separate application stores, and genuinely shared resources.
+3. For resource-owning or asynchronous features, read [lifecycle and ownership](../../claude/skills/frontend-code-architect/lifecycle-and-ownership.md): initialization/cancellation, idempotent cleanup, one authoritative state owner, distinct timeline/phase duration, completion ownership, and local/global failure policy.
+4. Apply the [review workflow](../../claude/skills/frontend-code-architect/review-workflow.md) at plan level: inspect similar systems when available, define feature boundaries, check dependencies/ownership/placement/CSS contracts/dead state, preserve behavior, and schedule meaningful validation. Do not perform its proposed implementation changes.
+5. For complex playback/animation/rendering features, consult the [Home Page Video Slider reference](../../claude/skills/frontend-code-architect/reference-home-page-video-slider.md), then verify current code if using it as evidence. Its proposed hierarchy is an example, not a universal requirement or proof that the implementation already matches it. The [historical review](../../docs/code-improvements/home-page-video-slider.md) is supporting evidence, not a replacement frontend plan.
+
+Use these sources to make concrete placement, state/resource ownership, lifecycle, and dependency decisions inside the normal planner's Project Structure section. Cite the sources actually used. Do not invent additional classes, shared components, or modules just to match an example; keep unspecified mandatory decisions visible as blockers.

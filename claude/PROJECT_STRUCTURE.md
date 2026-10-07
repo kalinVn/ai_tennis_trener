@@ -46,7 +46,7 @@ tennis-ai-coach/
 │   ├── skills/
 │   │   │
 │   │   ├── vue3.md
-│   │   ├── typescript.md
+│   │   ├── es6.md
 │   │   ├── authentication.md
 │   │   ├── oauth.md
 │   │   ├── two-factor-auth.md

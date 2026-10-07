@@ -54,7 +54,7 @@ Major domains:
 
 Frontend:
 - Vue 3
-- TypeScript
+- ES6
 - Vue Router
 - Vite
 - `vite.config.ts` — development server and build configuration

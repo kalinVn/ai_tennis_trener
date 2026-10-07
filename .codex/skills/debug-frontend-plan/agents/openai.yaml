@@ -1,0 +1,4 @@
+interface:
+  display_name: "debug_frontend_plan"
+  short_description: "Debug frontend planning; save EN/BG plans and stop"
+  default_prompt: "Use $debug-frontend-plan with specification_path=docs/frontend/frontend.md to generate and validate the frontend plan, translate it into Bulgarian, save both outputs, and stop."
