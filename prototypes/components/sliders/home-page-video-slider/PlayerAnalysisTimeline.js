@@ -1,22 +1,26 @@
 import { gsap } from "gsap";
+import { AnimationTimeline } from "./AnimationTimeline.js";
 
 export class PlayerAnalysisTimeline {
   constructor(pixiRenderer) {
-    this.pixiRenderer = pixiRenderer;
     this.timeline = null;
+    this.animationTimeline = new AnimationTimeline(pixiRenderer);
   }
 
-  play(timelineItem, onComplete) {
-    this.timeline?.kill();
+  play(currentPositionParameters, onComplete) {
+    this.destroy();
     this.timeline = gsap.timeline({
       paused: true,
-      onUpdate: () => this.render(timelineItem),
-      onComplete,
+      onComplete: () => {
+        this.animationTimeline.clear();
+        onComplete();
+      },
     });
+    this.timeline.add(this.animationTimeline.play(currentPositionParameters), 0);
     this.timeline.call(
-      () => this.render(timelineItem),
+      () => this.animationTimeline.pause(),
       null,
-      timelineItem.duration / 1000,
+      currentPositionParameters.duration / 1000,
     );
     this.timeline.play();
   }
@@ -29,11 +33,14 @@ export class PlayerAnalysisTimeline {
     this.timeline?.resume();
   }
 
-  destroy() {
-    this.timeline?.kill();
+  clear() {
+    this.destroy();
+    this.animationTimeline.clear();
   }
 
-  render(timelineItem) {
-    this.pixiRenderer.showPlayerParameters(timelineItem, this.timeline.time() * 1000);
+  destroy() {
+    this.timeline?.kill();
+    this.timeline = null;
+    this.animationTimeline.destroy();
   }
 }

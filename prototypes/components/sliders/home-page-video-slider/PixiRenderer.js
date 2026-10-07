@@ -1,8 +1,5 @@
 import { Application, Graphics, Text } from "pixi.js";
 import {
-  lineStepMs,
-  lineDrawMs,
-  freezeTolerance,
   overlayConfig,
 } from "./SliderConfig.js";
 
@@ -19,9 +16,9 @@ export class PixiRenderer {
   }
 
   async init() {
-    const { app, canvas } = this;
-    await app.init({
-      canvas,
+    
+    await this.app.init({
+      canvas: this.canvas,
       backgroundAlpha: 0,
       antialias: true,
       autoStart: false,
@@ -30,10 +27,9 @@ export class PixiRenderer {
       preference: "webgl",
     });
     this.initialized = true;
-    app.destroy(false, { children: true });
     
-    canvas.style.width = "100%";
-    canvas.style.height = "100%";
+    this.canvas.style.width = "100%";
+    this.canvas.style.height = "100%";
     this.graphics = new Graphics();
     this.labels = Array.from(
       { length: overlayConfig.labelCount },
@@ -48,45 +44,40 @@ export class PixiRenderer {
         }),
     );
 
-    app.stage.addChild(this.graphics, ...this.labels);
+    this.app.stage.addChild(this.graphics, ...this.labels);
   }
 
-  destroy() {
+  destroy () {
     if (this.initialized) {
       this.app.destroy(false, { children: true });
     }
   }
 
-  showPlayerParameters(activeFreeze, elapsed) {
-    if (!this.initialized) return;
-    this.currentPositionParameters = activeFreeze;
-    const { app, canvas, video, graphics, labels } = this;
-    const canvasBounds = canvas.getBoundingClientRect();
-    const videoBounds = video.getBoundingClientRect();
+  updateRendererSize () {
+    const canvasBounds = this.canvas.getBoundingClientRect();
+    const videoBounds = this.video.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     if (
-      app.screen.width !== canvasBounds.width ||
-      app.screen.height !== canvasBounds.height ||
-      app.renderer.resolution !== dpr
+      this.app.screen.width !== canvasBounds.width ||
+      this.app.screen.height !== canvasBounds.height ||
+      this.app.renderer.resolution !== dpr
     ) {
-      app.renderer.resize(canvasBounds.width, canvasBounds.height, dpr);
-      canvas.style.width = "100%";
-      canvas.style.height = "100%";
+      this.app.renderer.resize(canvasBounds.width, canvasBounds.height, dpr);
+      this.canvas.style.width = "100%";
+      this.canvas.style.height = "100%";
     }
-    graphics.clear();
-    labels.forEach((label) => {
+    return { canvasBounds, videoBounds };
+  }
+
+  preparePlayerParameters (currentPositionParameters) {
+    if (!this.initialized) return;
+    this.currentPositionParameters = currentPositionParameters;
+    const { canvasBounds, videoBounds } = this.updateRendererSize();
+    this.graphics.clear();
+    this.labels.forEach((label) => {
       label.visible = false;
     });
-    if (
-      !activeFreeze ||
-      !video.paused ||
-      video.seeking ||
-      Math.abs(video.currentTime - activeFreeze.time) > freezeTolerance
-    ) {
-      app.render();
-      return;
-    }
-    // Centered cover crop; transformed bounds already include scale(1.07).
+    
     const scale = Math.max(
       videoBounds.width / overlayConfig.sourceWidth,
       videoBounds.height / overlayConfig.sourceHeight,
@@ -100,29 +91,34 @@ export class PixiRenderer {
       canvasBounds.top +
       (videoBounds.height - overlayConfig.sourceHeight * scale) / 2;
 
-    const geometry = { scale, left, top, width: canvasBounds.width };
-    activeFreeze.segments.forEach((segment, index) => {
-      this.drawSegment(activeFreeze, geometry, segment, index, elapsed);
-    });
-    app.render();
+    this.geometry = { scale, left, top, width: canvasBounds.width };
   }
 
-  drawSegment(freeze, geometry, segment, index, elapsed) {
-    const { graphics } = this;
-    const { scale, left, top } = geometry;
-    const [[x1, y1], [x2, y2]] = segment;
-    const progress = Math.min(
-      1,
-      Math.max(0, (elapsed - index * lineStepMs) / lineDrawMs),
-    );
-    if (progress === 0) return;
+  render() {
+    if (this.initialized) this.app.render();
+  }
 
-    graphics.moveTo(left + x1 * scale, top + y1 * scale);
-    graphics.lineTo(
-      left + (x1 + (x2 - x1) * progress) * scale,
-      top + (y1 + (y2 - y1) * progress) * scale,
+  clearPlayerParameters () {
+    if (!this.initialized) return;
+
+    this.currentPositionParameters = null;
+    this.graphics.clear();
+    this.labels.forEach((label) => { label.visible = false; });
+    this.render();
+  }
+
+  drawSegment (currentPositionParameters, segment, index, drawing) {
+    if (!this.initialized) return;
+    const { scale, left, top } = this.geometry;
+    const [[x1, y1]] = segment;
+
+    this.graphics.moveTo(left + x1 * scale, top + y1 * scale);
+    this.graphics.lineTo(
+      left + drawing.end[0] * scale,
+      top + drawing.end[1] * scale,
     );
-    graphics.stroke({
+
+    this.graphics.stroke({
       color: overlayConfig.lineColor,
       width: Math.max(
         overlayConfig.minLineWidth,
@@ -130,23 +126,24 @@ export class PixiRenderer {
       ),
       cap: "round",
     });
-    if (freeze.labels[index]) {
+
+    if (currentPositionParameters.labels[index]) {
       this.drawLabel(
         this.labels[index],
-        freeze,
-        geometry,
+        currentPositionParameters,
+        this.geometry,
         segment,
         index,
-        progress,
+        drawing.labelAlpha,
       );
     }
   }
 
-  drawLabel(label, freeze, geometry, segment, index, progress) {
+  drawLabel(label, currentPositionParameters, geometry, segment, index, alpha) {
     const { scale, left, top, width } = geometry;
     const [[x1, y1], [x2, y2]] = segment;
     const lowerIndex =
-      index - (freeze.segments.length - overlayConfig.lowerBodyCount);
+      index - (currentPositionParameters.segments.length - overlayConfig.lowerBodyCount);
     const lowerBody = lowerIndex >= 0;
     const compact = width <= overlayConfig.compactWidth;
     // Compact layouts keep leg data left of the player, clear of the right UI.
@@ -160,13 +157,14 @@ export class PixiRenderer {
         : overlayConfig.upperOffset;
     // Illustrative values, anchored to the source-video geometry, not measurements.
     label.visible = true;
-    label.alpha = progress * overlayConfig.labelAlpha;
+    label.alpha = alpha;
     label.position.set(
       left +
         ((x1 + x2) / 2) * scale +
         (labelLeft ? overlayConfig.leftOffset : overlayConfig.rightOffset),
       top + ((y1 + y2) / 2) * scale + offsetY,
     );
+
     const rotationLimit = lowerBody
       ? overlayConfig.lowerRotationLimit
       : overlayConfig.upperRotationLimit;
@@ -179,6 +177,7 @@ export class PixiRenderer {
       Math.min(overlayConfig.maxFontSize, overlayConfig.fontSize * scale),
     );
     label.anchor.set(labelLeft ? 1 : 0, 1);
-    label.text = freeze.labels[index];
+    label.text = currentPositionParameters.labels[index];
   }
+
 }

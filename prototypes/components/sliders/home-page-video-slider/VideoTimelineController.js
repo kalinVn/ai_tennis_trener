@@ -9,7 +9,8 @@ import { AudioTimeline } from "./AudioTimeline.js";
 import { PlayerAnalysisTimeline } from "./PlayerAnalysisTimeline.js";
 
 export class VideoTimelineController {
-  constructor(elements, pixiRenderer) {
+
+  constructor (elements, pixiRenderer) {
     this.elements = elements;
     this.video = elements.video;
     this.pixiRenderer = pixiRenderer;
@@ -17,6 +18,7 @@ export class VideoTimelineController {
     const coachingSentences = homepageTimelineItems.flatMap(
       ({ feedback }) => feedback,
     );
+
     this.currentTimelineData = null;
     this.audioTimeline = new AudioTimeline(elements, coachingSentences);
     this.playerAnalysisTimeline = new PlayerAnalysisTimeline(pixiRenderer);
@@ -66,7 +68,7 @@ export class VideoTimelineController {
     this.playerAnalysisTimeline.pause();
     this.video.pause();
     
-    if (this.video.error) this.pixiRenderer.showPlayerParameters(null, 0);
+    if (this.video.error) this.playerAnalysisTimeline.clear();
   }
 
   destroy() {
@@ -78,13 +80,13 @@ export class VideoTimelineController {
 
   onVideoResume(time) {
     this.currentTimelineData = null;
-    this.pixiRenderer.showPlayerParameters(null, 0);
+    this.playerAnalysisTimeline.clear();
     if (time !== undefined) this.video.currentTime = time;
     this.videoTimeline.resume();
     this.video.play().catch(() => this.pause());
   }
 
-  onVideoPause(timelineItem) {
+  onVideoPause (timelineItem) {
     this.videoTimeline.pause();
     this.currentTimelineData = timelineItem;
     this.video.pause();

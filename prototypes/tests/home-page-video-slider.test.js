@@ -493,10 +493,10 @@ test("body analysis updates only during analysis timelines and never changes aud
   const b = await banner();
   const controller = b.instance.videoController;
   const calls = [];
-  const render = controller.playerAnalysisTimeline.render.bind(controller.playerAnalysisTimeline);
-  controller.playerAnalysisTimeline.render = (item) => {
+  const update = controller.pixiRenderer.preparePlayerParameters.bind(controller.pixiRenderer);
+  controller.pixiRenderer.preparePlayerParameters = (item) => {
     calls.push(item.time);
-    render(item);
+    update(item);
   };
   b.tick(1000);
   assert.deepEqual(calls, []);
@@ -504,7 +504,7 @@ test("body analysis updates only during analysis timelines and never changes aud
   assert.ok(calls.length > 0);
   const text = b.message.textContent;
   const active = b.indicator.dataset.active;
-  controller.playerAnalysisTimeline.render(controller.currentTimelineData);
+  controller.pixiRenderer.preparePlayerParameters(controller.currentTimelineData);
   assert.equal(b.message.textContent, text);
   assert.equal(b.indicator.dataset.active, active);
   b.tick(5200);
