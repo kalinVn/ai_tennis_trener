@@ -7,6 +7,8 @@ defineProps({
   value: { type: [String, Number], required: true },
   period: { type: String, required: true },
   features: { type: Array, default: () => [] },
+  selected: { type: Boolean, default: false },
+  selectedLabel: { type: String, default: 'Most popular' },
   active: { type: Boolean, default: false },
   activeLabel: { type: String, default: 'Active' },
   actionLabel: { type: String, default: '' },
@@ -15,20 +17,23 @@ const emit = defineEmits(['action'])
 </script>
 
 <template>
-  <article class="payment-plan-card">
+  <article class="payment-plan-card" :class="{ 'payment-plan-card--selected': selected }">
+    <div v-if="selected && selectedLabel" class="eyebrow payment-plan-card__selected-label">{{ selectedLabel }}</div>
     <span v-if="active" class="payment-plan-card__status">{{ activeLabel }}</span>
     <h2 class="payment-plan-card__name">{{ plan }}</h2>
     <ul class="payment-plan-card__features">
       <li v-for="(feature, index) in features" :key="index">{{ feature }}</li>
     </ul>
     <h2 class="payment-plan-card__price">{{ currency }}{{ value }} <span class="payment-plan-card__period">/ {{ period }}</span></h2>
-    <Button variant="primary" @click="emit('action')">{{ actionLabel || (active ? 'Change plan' : 'Choose plan') }}</Button>
+    <Button :variant="selected || active ? 'primary' : 'secondary'" @click="emit('action')">{{ actionLabel || (active ? 'Change plan' : 'Choose plan') }}</Button>
   </article>
 </template>
 
 <style scoped>
 /* Visual values from the Subscription page's Performance plan panel. */
 .payment-plan-card {
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
   min-width: 0;
   padding: 22px;
@@ -39,6 +44,15 @@ const emit = defineEmits(['action'])
   font: 16px/1.55 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   overflow-wrap: anywhere;
 }
+.payment-plan-card--selected { outline: 2px solid #b7ff4a80; }
+.payment-plan-card > .button, .payment-plan-card__status { align-self: flex-start; }
+/* Pricing's existing compact hierarchy; Subscription retains its current-plan layout. */
+:global(.pricing) .payment-plan-card__selected-label { order: 0; }
+:global(.pricing) .payment-plan-card__name { order: 1; margin: 0 0 10px; font-size: 21px; line-height: 1.55; letter-spacing: normal; }
+:global(.pricing) .payment-plan-card__price { order: 2; margin: 0; color: #b7ff4a; font-size: 43px; line-height: 1.55; letter-spacing: normal; }
+:global(.pricing) .payment-plan-card__period { font-size: 13.3333px; }
+:global(.pricing) .payment-plan-card__features { order: 3; margin: 0; color: #a8b5ae; }
+:global(.pricing) .payment-plan-card > .button { order: 4; width: 100%; }
 .payment-plan-card__status {
   box-sizing: border-box;
   display: inline-block;

@@ -104,15 +104,14 @@ checks passed at 1440×900, 414×896 and 896×414. Profile regression checks als
 passed after sharing the form handler; all Settings field definitions remain
 unchanged.
 
-Application Pricing is available at `pages/application-pricing.html`, using the
-existing application shell and Pricing plan cards/demo dialog. The shared script
-adds Pricing last in application sidebars using ordinary anchor navigation and
-`aria-current` on that page. Public `pages/pricing.html` remains unchanged.
+Pricing is available at `pages/pricing.html`, using the public layout and existing
+plan cards/demo dialog. The shared script links application sidebars to this
+Pricing page using ordinary anchor navigation.
 
 Checkout is available at `pages/checkout.html` (the documented `/checkout` route)
 and last in the application sidebar. It uses the existing application layout,
 Performance plan (€19/month), order summary, disabled sample payment fields, a
-demo-only completion message, and links back to Application Pricing. No payment
+demo-only completion message, and links back to Pricing. No payment
 provider, network submission, card storage or subscription creation is involved.
 
 `pages/not-found.html` is a 404 prototype using the existing Public Layout,

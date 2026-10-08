@@ -2,46 +2,47 @@ CSS in the prototype Vue components is for visual reference only; production sty
 
 ### Button
 
-- `Button` is a reusable shared UI component.
-- Used for user actions throughout the application.
-- Supports the following variants:
-  - `primary`
-  - `secondary`
-- Supports the following sizes:
-  - `small`
-  - `medium`
-  - `large`
-- Supports the following states:
-  - `default`
-  - `hover`
-  - `active`
-  - `disabled`
-  - `loading`
-- Supports the following button types:
-  - `button`
-  - `submit`
-- Displays text content and may optionally include an icon.
-- Emits a `click` event to the parent component when activated.
-- The parent component handles the event and decides which action should be executed.
-- The component must not contain page-specific or business logic.
-- The component must not directly access application stores, backend APIs, routing logic, or page-specific functionality.
-- Actions such as navigation, opening a modal, saving data, updating a store, or starting a feature are handled by the parent component.
+`Button = presentation + UI state + event emission`. This is the authoritative project Button contract. Start Training, View Progress, Save, Reset, and similar labels are usages of this shared component, never separate reusable button components.
 
-#### Design Reference
+#### Props and States
 
-Visual design prototypes for the Button component:
+| Prop | Supported values / type | Default |
+| --- | --- | --- |
+| `variant` | `primary`, `secondary`, `ghost` | `primary` |
+| `size` | `small`, `medium` | `medium` |
+| `type` | `button`, `submit`, `reset` | `button` |
+| `disabled` | Boolean | `false` |
+| `loading` | Boolean | `false` |
 
-`prototypes/design/components/buttons`
+Supported UI states are default, hover, active, focus-visible, disabled, and loading. Loading displays the existing spinner and sets `aria-busy`; either `disabled` or `loading` disables activation. Content comes from the default slot, including text and optional icons. Native attributes such as accessible names and pressed/expanded state remain supported.
 
-Use these prototypes as the source of truth for the visual appearance of the Button, including variants, sizes, states, spacing, colors, typography, borders, and interaction states.
+`primary` uses the accent fill; `secondary` uses the panel fill; `ghost` uses a transparent background with the shared border and interaction styles. Ghost is already implemented in the shared stylesheet and required by the [Profile](../../prototypes/design/pages/profile.html), [Settings](../../prototypes/design/pages/settings.html) and [CollapseForm](../../prototypes/design/components/forms/CollapseForm.html) reset-action designs. Existing styled links may also use ghost CSS; that does not imply a Button navigation prop. No subtle or destructive variants are defined. The existing implementation supports small/medium only, not a large size.
 
-#### Implementation Reference
+#### Emits and Ownership
 
-Vue implementation prototype for the shared Button component:
+Emits:
 
-`prototypes/design/components/buttons`
+- `click` — forwards the original DOM event when activation is enabled.
 
-This reference defines the expected Vue component structure, props, emitted events, controller logic, and SCSS organization.
+The component has no business logic, callback props (`callback`, `onAction`, or similar), store/API access, or page-specific actions. The parent handles `click`; action logic belongs to the page, owning feature, composable, or appropriate store/service. Form submission/reset remains owned by the parent form.
+
+```vue
+<Button @click="startTraining">
+  Start Training
+</Button>
+```
+
+The existing [ButtonController.js](../../prototypes/composables/ButtonController.js) exports `useButtonController`: it derives `isDisabled` from disabled/loading, suppresses disabled clicks, and emits enabled clicks. This is UI behavior, not an action dispatcher. Planned production placement is `frontend/src/components/buttons/Button.vue` plus `frontend/src/composables/ButtonController.ts`, preserving that separation in TypeScript. These planned files are not claimed to exist.
+
+#### Navigation
+
+The inspected Button renders a native button and does not support a `to` prop or `RouterLink` mode. Preserve the existing parent-owned navigation convention: an action may invoke the owning page/feature handler, while link destinations use the existing link/navigation components. Do not implement separate navigation logic in page-specific button components or document an unsupported `to` API. Navigation destinations and access policy stay outside Button.
+
+#### References
+
+- [Button.vue](../../prototypes/design/components/buttons/Button.vue): current props, slot, event wiring and native button semantics.
+- [main.scss](../../prototypes/design/components/buttons/main.scss): variants, sizes, focus, disabled/loading and reduced-motion styles.
+- [Button visual prototypes](../../prototypes/design/components/buttons): visual examples; their page labels do not define additional components.
 
 ### Field
 
@@ -118,7 +119,7 @@ Presentational card for a numbered feature, title, and description. The parent s
 
 ### TopNav
 
-Reusable public top navigation with the existing AI logo and Tennis AI Coach title, parent-supplied links, and two authentication actions. It owns the responsive menu toggle, Escape dismissal, and resize cleanup. It contains no authentication logic, routing, API access, or store integration.
+Reusable public top navigation with the existing AI logo and Tennis AI Coach title and parent-supplied links. The current Vue prototype exposes login and register events; the approved visible navigation follows the dedicated prototype and Navigation Requirements in frontend.md (Home, Training, Pricing, Login Modal). The older two-action layout does not require an extra registration button in production navigation. It owns the responsive menu toggle, Escape dismissal, and resize cleanup. It contains no authentication logic, routing, API access, or store integration.
 
 - `items`: array of `{ label, href, active? }` objects; defaults to an empty array. Use unique `href` values. Optional `active` marks the current page.
 - Login uses the shared [Button.vue](../../prototypes/design/components/buttons/Button.vue) with `variant="secondary"` and `size="small"`; clicking emits `login`.
@@ -127,7 +128,7 @@ Reusable public top navigation with the existing AI logo and Tennis AI Coach tit
 
 #### Visual Design Reference
 
-[public-navigation.html](../../prototypes/design/components/navigation/public-navigation.html) defines the branding, alignment, link states, and mobile menu appearance. The existing [public layout](../../prototypes/design/layouts/public.html) supplies the two-action arrangement.
+[public-navigation.html](../../prototypes/design/components/navigation/public-navigation.html) defines the branding, alignment, actions, link states, and mobile menu appearance. It takes precedence over the older two-action arrangement in the public layout.
 
 #### Vue Implementation Reference
 
@@ -164,18 +165,45 @@ The HTML defines the visual reference; `BaseTable.vue` defines the reusable rend
 
 ### PaymentPlanCard
 
-Reusable presentational subscription card based on the Performance plan card in [Subscription](../../prototypes/design/pages/subscription.html). It displays the plan name, price, billing period, feature list, active badge, and the shared primary Button. A parent can render multiple cards for Change Plan, supplying each plan independently.
+The existing shared plan card is named `PaymentPlanCard` in this repository (the PaymentCardPlan concept). Preserve that filename. Pricing and Subscription mount this same Vue component; no separate selected-plan or subscription-plan implementation is required.
 
-- `plan`, `currency`, `value`, `period`: parent-supplied display values; `value` accepts a string or number. The card displays currency before value and `/` before period, without billing calculations or currency conversion.
-- `features`: array of feature strings, displayed as a plain list matching the original summary styling.
-- `active`: shows the current-plan badge; defaults to `false`.
-- `activeLabel`: badge text; defaults to `Active`. The HTML specimen uses `Active · demo` to match the original.
-- `actionLabel`: optional button text; otherwise shows `Change plan` when active and `Choose plan` when inactive. Clicking emits `action` for the parent to handle.
+| Prop | Type / default | Display responsibility |
+| --- | --- | --- |
+| `plan` | Required string | Plan name |
+| `currency` | Required string | Currency prefix |
+| `value` | Required string or number | Parent-supplied price; no calculations |
+| `period` | Required string | Text after the slash, such as month |
+| `features` | String array, empty by default | Existing plan description/features |
+| `selected` | Boolean, `false` | Presentation-only selected outline, label and primary action styling |
+| `selectedLabel` | String, `Most popular` | Existing Pricing highlight label; empty hides the label |
+| `active` | Boolean, `false` | Current-subscription badge, independent of selection |
+| `activeLabel` | String, `Active` | Current-subscription badge text |
+| `actionLabel` | String, empty | Explicit button label, otherwise Change plan when active or Choose plan |
 
-The parent owns plan data, store integration, and action handling. The card contains no Pinia access, API calls, subscription logic, or billing state. It reuses [Button.vue](../../prototypes/design/components/buttons/Button.vue) without duplicating its styling.
+```vue
+<PaymentPlanCard :selected="true" />
+```
 
-- Visual design reference: [PaymentPlanCard.html](../../prototypes/design/components/cards/PaymentPlanCard.html)
-- Vue prototype: [PaymentPlanCard.vue](../../prototypes/components/cards/PaymentPlanCard.vue)
+This shows only selection usage; actual instances also supply the required display props. Selection does not change plan data, price, subscription state or entitlement. It reproduces Pricing's existing `2px solid #b7ff4a80` outline, Most popular eyebrow and primary Button. Non-selected Pricing cards use secondary Button; the active Subscription plan keeps its existing primary Change plan action. The existing `.pricing` container controls compact title/price/description ordering; Subscription retains its current-plan hierarchy. This is layout styling of one component, not a separate card architecture.
+
+Emits `action` without a payload through a shared Button `click`. The page owns actions and data. Cards contain no callback prop, store access, backend request, price calculation or billing logic.
+
+- Vue implementation: [PaymentPlanCard.vue](../../prototypes/components/cards/PaymentPlanCard.vue).
+- Normal design prototype: [payment-plan-card.html](../../prototypes/design/components/cards/payment-plan-card.html).
+- Selected design prototype: [payment-plan-card-selected.html](../../prototypes/design/components/cards/payment-plan-card-selected.html). Both files illustrate the same shared Vue component; selected is a presentation state.
+- Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/subscription/main.js). Pricing preserves the demo registration dialog; Subscription preserves the existing informational Change plan message.
+
+### BillingDetailsCard
+
+Reusable billing-details presentation taken directly from Subscription: heading, next-renewal text, payment-method text and Manage billing action. It is distinct from a plan card and adds no billing fields or real integration.
+
+- `title`: string, default `Billing details`.
+- `renewalText`: required string, currently `Next renewal: Oct 26, 2026 (illustrative).`.
+- `paymentMethodText`: required string, currently `Payment method: Not connected.`.
+- `actionLabel`: string, default `Manage billing`.
+- Emits `action` without a payload via the shared secondary Button. The page handles it with the existing informational demo message; there is no dedicated billing button component.
+
+Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/cards/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. The Compare public pricing link stays in the Subscription page and points to `pricing.html`.
 
 ### CollapseForm
 
@@ -200,19 +228,21 @@ The modal accepts `stream`, `endpoint`, and optional `analysisFps` (default 5). 
 
 No real backend transport contract exists yet. The explicit prototype contract is binary JPEG frames sent to a configured WebSocket endpoint and JSON `{ type, payload }` messages returned. It accepts events including `stroke_analysis`, `player_feedback`, `ball_position`, `player_position`, `pose_analysis`, `training_instruction`, and `analysis_error`. Feedback text uses `payload.text` or `payload.message`; explicitly low-confidence text is withheld. The host/backend must provide authentication and validate this prototype contract before real integration. No endpoint is hardcoded; without one, only camera/microphone preview is available.
 
+For production Vue/behavior separation, place the modal view at `frontend/src/modules/training/components/CameraPreviewModal.vue` and its existing inline UI behavior in `frontend/src/modules/training/composables/useCameraPreviewModal.ts`: dialog lifecycle, media attachment/detachment, microphone mute, feedback derivation, scroll restoration and closure. This is a planned extraction of inspected behavior, not an existing file or new feature. Keep capture/cancellation in the module's `useVideoAnalysis.ts`, transport in `services/trainingTransport.ts`, and camera acquisition/track ownership in `useCameraSession.ts`. The modal requests track release through that owner on close/device loss/unmount; it does not independently stop the same tracks again. The feature forwards results to session state and the existing overlay slot. These mappings define responsibility without adding business logic to any Button.
+
 Run the Training prototype using [prototypes/README.md](../../prototypes/README.md). Existing field composables now have one canonical copy under `prototypes/composables/`; field behavior is unchanged.
 
 ### Checkout cards
 
-The [Checkout HTML prototype](../../prototypes/design/pages/checkout.html) remains the single page-level visual reference for these three reusable feature cards. The Vue cards reuse its classes from [style.css](../../prototypes/design/style.css), preserving headings, spacing, fields, table structure, and actions. No separate card pages are required.
+The [Checkout HTML prototype](../../prototypes/design/pages/checkout.html) remains the single page-level visual reference for its three Checkout feature cards. The Vue cards reuse its classes from [style.css](../../prototypes/design/style.css), preserving headings, spacing, fields, table structure, and actions. No separate card pages are required.
 
-The [Checkout entry](../../prototypes/checkout/main.js) supplies all dynamic display values through props and owns the demo checkout action and feedback state. Cards contain no composables, fetching, store access, payment calculations, or page-level business logic. Static labels match the prototype. Use unique `headingId` / `idPrefix` values when rendering multiple instances.
+The existing prototype [Checkout entry](../../prototypes/checkout/main.js) mounts the Checkout plan-summary component and supplies all dynamic display values through props and owns the demo checkout action and feedback state. Cards contain no composables, fetching, store access, payment calculations, or page-level business logic. Static labels match the prototype. Use unique `headingId` / `idPrefix` values when rendering multiple instances.
 
 #### PerformanceCard
 
-[PerformanceCard.vue](../../prototypes/components/cards/PerformanceCard.vue) presents the selected Performance plan section, distinct from the subscription `PaymentPlanCard`.
+[PerformanceCard.vue](../../prototypes/components/cards/PerformanceCard.vue) is the existing Checkout order-summary presentation, not the selectable Pricing/Subscription plan card. Checkout is outside the plan-card unification scope: it shows a selected order's description, formatted price, billing note and back link, without Choose/Change plan actions or a feature list.
 
-All props are required strings: `headingId`, `badge`, `plan`, `description`, `price`, `period`, `billingNote`, `backLabel`, and `backHref`. The page supplies formatted price and period text; the card performs no formatting or billing calculation. Back to plans is a normal link to the supplied destination.
+Its existing required string props are `headingId`, `badge`, `plan`, `description`, `price`, `period`, `billingNote`, `backLabel`, and `backHref`. The page owns formatting and navigation destinations. It performs no billing calculation or transaction. Do not merge these props into PaymentPlanCard merely to reconcile the older proposed architecture.
 
 #### PaymentInformationCard
 
@@ -232,14 +262,14 @@ Required string props: `headingId`, `title`, `plan`, `billingPeriod`, `subtotal`
 - Vue source: [HomePageInfoSection.vue](../../prototypes/components/sections/HomePageInfoSection.vue)
 - HTML prototype: [home-page-info-section.html](../../prototypes/design/components/sections/home-page-info-section.html)
 
-Reusable Home feature section containing the existing eyebrow, headline, description, both CTA links and all three feature cards. Buttons remain inline markup; no separate button components are introduced. `trainingHref` and `dashboardHref` default to the existing Home page destinations. It reuses the Home styles and measures headline alignment on mount, font readiness and resize, cleaning up its observer on unmount. Home mounts it through `prototypes/home/main.js`; direct `file://` previews preserve the equivalent static markup.
+Reusable Home feature section containing the existing eyebrow, headline, description, both CTA links and all three feature cards. Production CTA actions use the shared Button contract above, with page/feature-owned handlers; no page-specific button components are introduced. The current prototype still contains inline CTA links and must be adapted during implementation, preserving navigation semantics. `trainingHref` and `dashboardHref` default to the existing Home page destinations. It reuses the Home styles and measures headline alignment on mount, font readiness and resize, cleaning up its observer on unmount. Home mounts it through `prototypes/home/main.js`; direct `file://` previews preserve the equivalent static markup.
 
 
 ### HomePageVideoSlider
 
 - Vue component: `HomePageVideoSlider`
-- Vue source: [HomePageVideoSlider.vue](../../prototypes/components/sliders/home-page-video-slider/HomePageVideoSlider.vue)
-- HTML prototype: [index.html](../../prototypes/components/sliders/home-page-video-slider/index.html)
+- Authoritative implementation entry: [HomePageVideoSlider.vue](../../prototypes/components/sliders/home-page-video-slider/HomePageVideoSlider.vue). Use this existing Vue component and its local collaborators/styles as the slider reference; no separate slider HTML entry is required.
+- Home integration entry: [prototypes/home/main.js](../../prototypes/home/main.js) imports the component and mounts it at `home-slider-root`.
 
 Reusable Home feature component containing the application video slider and interactive AI tennis analysis preview. The component uses `Pixi.js` for rendering, animations and visual overlay logic. It includes the video slider, microphone control, audio connection state, three information/status control elements and Motion Tracking visualization. Motion Tracking displays analysis overlays such as body tracking lines, movement vectors, angles and biomechanical values synchronized with the active video sequence. The component owns its video and slider state, microphone interaction, analysis timing, Pixi.js rendering lifecycle, resize handling and cleanup on unmount.
 HomePageVideoSlider implementation details: `HomePageVideoSlider.vue` owns all DOM refs and interacts only with a `SliderController` instance through explicit `init()`, `play()` and `destroy()` calls, handling initialization errors in Vue. `SliderController.js` owns `PixiRenderer`, `VideoTimelineController`, `SliderLifecycle`, and `AIMotionTrackingPanel`, validating required elements before async initialization and coordinating cleanup. `play()` starts playback without calling `init()`. `AIMotionTrackingPanel.js` independently rotates demo Phase statuses every 2.5 seconds in the existing panel; `SliderController` starts its single interval on playback and clears it on destruction. Video pause/resume and seek handlers do not update tracking text. Local `SliderConfig.js` contains static timing and annotation data; `PixiRenderer.js` handles overlays; `VideoTimelineController.js` creates the main timeline and initializes `AudioTimeline` in `init()`. `play()` coordinates video playback and `AudioTimeline.play()` through public APIs. `AudioTimeline.js` owns coaching, typing and microphone UI; `PlayerAnalysisTimeline.js` owns the analysis phase and starts an `AnimationTimeline` GSAP sequence nested within that phase. Segment tweens control drawing order, progress and label alpha; `PixiRenderer` only prepares geometry, draws individual segments/labels and renders the stage. Both GSAP timelines repeat indefinitely. Coaching sentences occupy equal slots across the full configured slider cycle (currently five 4.8-second slots across 24 seconds, each with 3.3 seconds of sentence display and 1.5 seconds of `...`), independently of freezes. Explicit pause points at `timelineItem.time / playbackRate` invoke `onVideoPause()`, stopping the main timeline and video. `PlayerAnalysisTimeline` creates its GSAP timeline only when a hold begins, runs the drawing sequence and invokes `onVideoResume()` after the configured duration; drawing stays in `PixiRenderer`. The controller exposes `init()`, `play()`, `pause()` and `destroy()`; `SliderLifecycle.js` handles only video errors (showing the error UI and pausing video through the controller) and removes its listener on destruction. `SliderController.play()` starts the video controller directly after initialization. Visibility, page hide/show, resize, intersection, readiness, buffering and seek events no longer drive automatic playback control. There is no separate RAF loop, hold timer or Pixi ticker for video timing. All class files use PascalCase names. `slider.css` preserves the presentation. The component imports its video from its own `assets/` directory. No composable or service is used. HTML-only/file previews retain the original Canvas demo, using the same relocated video asset; Home under Vite mounts the Vue/Pixi component. Microphone/status cues remain illustrative, with no audio recording.

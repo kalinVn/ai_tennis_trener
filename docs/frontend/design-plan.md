@@ -1,6 +1,6 @@
 # Tennis AI Coach — Frontend Design Plan
 
-Status: planning complete; implementation not started. Authentication presentation is a proposed default pending optional user preference.
+Status: historical draft; not an approved current implementation plan. Button and plan-card contracts below are synchronized with [components.md](components.md); other sections require revalidation against the current [frontend specification](frontend.md) and [routes](pages-and-routes.md). Implementation has not started.
 
 ## Frontend Type
 
@@ -74,7 +74,7 @@ The orchestrator selects implementation skills from the page requirements and de
 
 | Page / layout | Purpose and required sections | Shared components | Feature components | Dependencies |
 | --- | --- | --- | --- | --- |
-| Landing / PublicLayout | Hero and value proposition; features; labeled training preview; pricing preview; login/register entry points; footer | Button, Card, Badge, NavigationItem, PageHeader, AsyncState, Dialog | SubscriptionPlanCard | public plan definitions and verified product copy; local illustrative court asset |
+| Landing / PublicLayout | Hero and value proposition; features; labeled training preview; pricing preview; login/register entry points; footer | Button, Card, Badge, NavigationItem, PageHeader, AsyncState, Dialog | None | public plan definitions and verified product copy; local illustrative court asset |
 | Login / AuthLayout | Email, password, validation, submit/loading/authentication error; registration switch | Button, FormField, Card, AsyncState | None | backend login/session contract; safe return destination |
 | Registration / AuthLayout | Name, email, password, validation, submit/loading/registration error; login switch | Button, FormField, Card, AsyncState | None | registration/password policy and session result contract |
 | Dashboard / AppLayout | Recent training, next recommended action, supported progress summary, prominent start-training action | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList, ProgressInsights | session summaries and supported progress/focus data; compact variants of existing feature components |
@@ -82,7 +82,7 @@ The orchestrator selects implementation skills from the page requirements and de
 | Session Review / AppLayout | Summary, detected issues, supported metrics, recommendations, analyzed moments when available; incomplete/low-confidence labeling | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionSummary |
 | History / AppLayout | Prior sessions, review links, loading/empty/error states | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList | Session list contract and available paging semantics |
 | Progress / AppLayout | Supported trends, improvement areas, next recommended focus; unavailable or insufficient-history explanation | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | ProgressInsights | Progress data, measurement definitions, time range, evidence/confidence; no invented scores or projections |
-| Subscription / AppLayout | Available plans, current plan, comparison, subscription actions, protected checkout and its result states | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SubscriptionPlanCard, CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
+| Subscription / AppLayout | Available plans, current plan, comparison, subscription actions, protected checkout and its result states | Button, PaymentPlanCard, BillingDetailsCard, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
 | Profile / AppLayout | Supported personal and tennis information; view/edit, validation, saving, saved/error feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | ProfileEditor | profile schema, writable fields, update contract |
 | Settings / AppLayout | Supported application, camera, coaching, privacy and notification preferences; save/result feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | SettingsEditor | supported settings schema, persistence and browser capability handling |
 
@@ -94,7 +94,9 @@ Only patterns required by the specification and reused across pages/layouts are 
 
 | Name | Responsibility | Variants | Major states | Used by pages/layouts |
 | --- | --- | --- | --- | --- |
-| Button | Consistent actions and action-styled links | Primary, secondary, subtle, ghost, destructive; small/default/large | Default, hover, pressed, focus, disabled, pending | All pages |
+| Button | Presentation, UI state and click emission; parent owns actions | primary, secondary, ghost; small/medium | default, hover, active, focus-visible, disabled, loading | All pages |
+| PaymentPlanCard | One shared plan presentation; selected changes CSS only | selected Boolean; independent active badge | Parent-supplied selection/current-plan display | Pricing, Subscription |
+| BillingDetailsCard | Existing renewal/payment-method display and parent-handled action | Existing Subscription panel | Display only | Subscription |
 | FormField | Label, input/control, help and validation message association | Text, email, password, select, textarea, checkbox, radio as required by confirmed fields | Pristine, edited, invalid, disabled, readonly | Login, Registration, Profile, Settings |
 | Card | Shared panel structure and heading/content slots | Default, highlighted, metric | Default, selected, unavailable | Landing, auth, Dashboard, Session Review, History, Progress, Subscription, Profile, Settings |
 | Badge | Textual status and semantic emphasis | Neutral, success, warning, danger, information | Ready, active, pending, paused, connected, disconnected, incomplete as applicable | Landing preview, Dashboard, Training, Session Review, History, Progress, Subscription |
@@ -103,9 +105,17 @@ Only patterns required by the specification and reused across pages/layouts are 
 | PageHeader | Title, optional summary and relevant actions | Public section, application page | Default; actions disabled/pending through Button | Landing sections and all authenticated pages |
 | AsyncState | Consistent explanation, announcement, retry/next action | Loading, empty, error, unavailable, disconnected, success/confirmation | Initial, pending, recoverable failure, completed | All pages where asynchronous data or actions apply |
 
+### Current Button and Plan-Card Ownership
+
+Follow [Button](components.md#button) and [PaymentPlanCard](components.md#paymentplancard) as the single contract source. Start Training and View Progress are Button labels/usages, not components. Button emits `click` with the DOM event; no callback/onAction prop, business logic, store/API access or navigation policy belongs inside it. `type` supports button/submit/reset, and disabled/loading both prevent activation. There is no existing `to`/RouterLink mode; navigation stays with the owning handler or existing link component.
+
+Plan `frontend/src/components/buttons/Button.vue` with `frontend/src/composables/ButtonController.ts`, adapting the inspected `useButtonController` UI behavior. Reuse the existing PaymentPlanCard contract once for Pricing and Subscription; `selected` defaults to false and only changes presentation. BillingDetailsCard owns the separate existing billing panel, with page-handled actions. Checkout retains its distinct PerformanceCard order summary; no display-prop consolidation with that summary is required. Prototype implementations and entries are linked from components.md.
+
+For E8, map CameraPreviewModal's external UI behavior and media ownership exactly as documented in [CameraPreviewModal](components.md#camerapreviewmodal): module-local `useCameraPreviewModal.ts` owns modal UI/attachment/mute/feedback/closure; `useCameraSession.ts` owns tracks; `useVideoAnalysis.ts` owns capture and cancellation; `trainingTransport.ts` owns transport. These are future implementation placements, not completed code changes.
+
 ## Required Feature Components
 
-All eleven components come directly from the specification. Data names below are conceptual requirements, not invented API field names or implemented contracts.
+The following legacy feature list requires revalidation against the current specification; it is not authority to add components. PaymentPlanCard is shared and is defined above. Data names below are conceptual requirements, not implemented API contracts.
 
 | Name | Responsibility / used by page | Dependencies and data requirements |
 | --- | --- | --- |
@@ -116,7 +126,6 @@ All eleven components come directly from the specification. Data names below are
 | SessionSummary | Duration, issues, metrics, recommendations, optional moments, completeness / Session Review | Authorized completed or partial session result, confidence and media references |
 | SessionHistoryList | Sessions and review links / History, compact Dashboard | Session identifiers, summaries and dates, loading/empty/error state; paging only if supported |
 | ProgressInsights | Trends, improvement areas, next supported focus / Progress, compact Dashboard | Supported measurements, ranges, history sufficiency, confidence and backend focus; no local coaching generation |
-| SubscriptionPlanCard | Plan comparison/current plan / Subscription, public Landing preview | Authoritative public plan definitions, price/currency/interval/features, current subscription where authenticated |
 | CheckoutFlow | Checkout start and success/cancel/failure/recovery states / Subscription | Backend checkout request/result, provider redirect, backend verification of final state; no card data in application code |
 | ProfileEditor | View/update supported personal and tennis details / Profile | Authorized profile schema, validation, writable fields, save result |
 | SettingsEditor | View/update supported preferences / Settings | Authorized settings schema, browser capability state, validation and save result |

@@ -7,8 +7,8 @@
 - layout: `Public Layout`
 - Example Prototype: `design/pages/index.html`
 - name: `home`
-- description: `Left Section: application branding and introductory information, main headline, short introductory description, two primary action buttons, small statistic or information cards. Right Section: Animated Banner, animated visual preview of the Tennis AI Coach training and AI analysis experience.The left section of the Home page should be implemented directly from the Home Page  prototype, with only the buttons using existing shared components.`
-- required shared components: None,
+- description: `Left Section: application branding and introductory information, main headline, short introductory description, two primary action buttons, small statistic or information cards. Right Section: Animated Banner, animated visual preview of the Tennis AI Coach training and AI analysis experience.HomePageInfoSection renders the left section directly from the Home Page prototype, with CTA actions using shared Button and parent-owned handlers; do not introduce additional static-section or page-specific button components.`
+- required shared components: `Button`
 - required feature components: `HomePageInfoSection`, `HomePageVideoSlider`
 - dependencies: None
 
@@ -18,7 +18,7 @@
 - layout: `Public Layout`
 - Example Prototype: `design/pages/features.html`
 - name: `feature`
-- description: `Main Section: headline, short description, three StatCard items, two primary buttons.The Features page should follow the Public Layout and match the prototype directly for the page title, secondary description, and all other page-level content; only the Feature Cards and buttons should use reusable components.`
+- description: `Main Section: headline, short description, StatCard usage: None; two primary buttons. The Features page should follow the Public Layout and match the prototype directly for the page title, secondary description, and all other page-level content; only the Feature Cards and buttons should use reusable components.`
 - required shared components: `Button`, `FeatureCard`
 - required feature components: None
 - dependencies: None
@@ -40,7 +40,7 @@
 - Layout: `Public Layout`
 - Example Prototype: `design/pages/pricing.html`
 - name: `pricing`
-- description: `Follow the Pricing prototype directly for the complete page structure and all page-level content. Use the existing PaymentPlanCard component for the Starter, Performance, and Pro pricing plan cards. All other headings, descriptions, sections, labels, supporting content, and layout remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
+- description: `Follow the Pricing prototype directly for the complete page structure and all page-level content. Use the shared PaymentPlanCard component for the Starter, Performance, and Pro pricing plan cards. All other headings, descriptions, sections, labels, supporting content, and layout remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
 - required shared components: `PaymentPlanCard`
 - required feature components: None
 - dependencies: None
@@ -67,13 +67,43 @@
 - required feature components: None
 - dependencies: `TrainingHistoryStore`
 
+### Session Review
+
+- purpose: Review previous training-session results and coaching feedback; the existing visual example mentions key moments, movement trends, and the next recommended focus.
+- page/component: **UNRESOLVED** — no dedicated Session Review page or Vue component was found. The existing History prototype contains an inline `Example session review` panel; this does not establish that an embedded panel fulfills the complete required feature.
+- route: **UNRESOLVED** — confirm a separate route versus an embedded History surface. `/history` is the existing host route for the prototype panel, not an approved session-detail route.
+- name: **UNRESOLVED** — depends on whether a separate route is required.
+- layout: `Authenticated Application Layout` for the authenticated review surface, consistent with the existing History example.
+- access: Authenticated; backend authorization remains required for session data.
+- route parameters: **UNRESOLVED** — session selection and any identifier parameter are not defined by the current authoritative specification.
+- navigation destination: Existing visual evidence is the review panel in History. No per-session link or dedicated navigation destination is defined; confirm the entry point and destination before final routing.
+- visual references: [History](../../prototypes/design/pages/history.html) and [Training Session Card](../../prototypes/design/components/training-session-card.html). The latter explicitly documents a generic review panel and table, not a standalone session-card implementation.
+- module: `sessions`, as required by [Frontend Modules](frontend.md#frontend-modules).
+- required resolution: Confirm separate page versus embedded surface, its page/component contract, route path/name if separate, selection parameters, and navigation entry point. These missing decisions block final Session Review planning; do not create placeholder pages or infer a production data contract from sample content.
+
+### Progress
+
+- purpose: Present trends, improvement areas, and the next recommended focus, as required by the `progress` module.
+- page/component: **UNRESOLVED** — no dedicated Progress page or Vue component was found. Dashboard metrics are partial visual evidence, not a complete Progress screen definition.
+- route: **UNRESOLVED** — confirm a separate route versus an embedded surface; no current authoritative Progress path is defined.
+- name: **UNRESOLVED** — depends on the route decision.
+- layout: `Authenticated Application Layout`, consistent with the existing authenticated Dashboard and Charts & Progress examples.
+- access: Authenticated; backend authorization remains required for progress data.
+- route parameters: **UNRESOLVED** — no parameter contract is defined; do not infer filters or ranges from sample statistics.
+- navigation destination: **UNRESOLVED** — the dedicated authenticated navigation prototype has no Progress item. Confirm the required entry point and destination rather than silently adding a sidebar link.
+- visual references: [Dashboard](../../prototypes/design/pages/dashboard.html) and [Charts & Progress](../../prototypes/design/components/charts-progress.html). The latter shows existing metrics/statistics and explicitly states that charts, progress bars, and legends are missing; it is not a complete page prototype.
+- module: `progress`, as required by [Frontend Modules](frontend.md#frontend-modules).
+- required resolution: Define the page/component or embedded surface, route path/name if separate, parameter requirements, and navigation destination. These missing decisions block final Progress planning; illustrative statistics must not become fabricated production metrics.
+
+The older [frontend design plan](design-plan.md#required-routes) proposes `/app/sessions/:sessionId` and `/app/progress`, but uses a different `/app/...` route scheme and is not designated as an authoritative specification by `frontend.md`. Its proposed routes, `sessionId` parameter, component names, and navigation behavior are not adopted here. These entries are the single source for the remaining Session Review and Progress routing decisions.
+
 ### Subscription
 - purpose: `allows the user to view their current subscription plan, manage billing details, and change or upgrade their subscription.`
 - Route: `/subscription`
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/subscription.html`
-- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card.`
-- required shared components: `StatCard`
+- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentPlanCard; active represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Change plan and Manage billing actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
+- required shared components: `PaymentPlanCard`, `BillingDetailsCard`
 - required feature components: None
 - dependencies: None
 
@@ -116,11 +146,10 @@
 - Route: `/checkout`
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/checkout.html`
-- name: `settings`
-- description: `The Checkout page contains two main sections: a left section with SelectedPlanCard and PaymentInformationCard components stacked vertically, and a right section with an OrderSummaryCard component`
-- required shared components:  None
+- name: `checkout`
+- description: `The Checkout page contains two main sections: a left section with the existing Checkout PerformanceCard and PaymentInformationCard components stacked vertically, and a right section with an OrderSummaryCard component`
+- required shared components: None
 - required feature components: `PerformanceCard`, `PaymentInformationCard`, `OrderSummaryCard`
 - dependencies: `CheckoutStore`
 
 ---
-

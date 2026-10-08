@@ -11,11 +11,11 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeAuth();});
 function toggleDemo(button,first,second){button.dataset.active=button.dataset.active==='yes'?'no':'yes';button.textContent=button.dataset.active==='yes'?second:first;}
 function showDemoNote(message){const n=document.getElementById('demo-note');if(n){n.textContent=message;n.hidden=false;}else alert(message);}
 
-// Application Pricing and Checkout use the existing anchor navigation and styles.
+// Sidebar links to Pricing and Checkout use the existing anchor navigation and styles.
 const applicationLinks = document.querySelector('.app-shell .sidebar .side-links');
 if (applicationLinks) {
   const pricingLink = document.createElement('a');
-  pricingLink.href = new URL('application-pricing.html', prototypePagesURL).href;
+  pricingLink.href = new URL('pricing.html', prototypePagesURL).href;
   pricingLink.textContent = 'Pricing';
   if (location.pathname === new URL(pricingLink.href).pathname) pricingLink.setAttribute('aria-current', 'page');
   applicationLinks.append(pricingLink);

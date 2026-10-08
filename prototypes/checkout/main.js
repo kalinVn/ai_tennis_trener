@@ -15,7 +15,7 @@ if (target) {
         plan: 'Performance', description: 'Realtime coaching, richer insights and progress tools.',
         price: '€19', period: '/ month',
         billingNote: 'Billing period: monthly. Illustrative pricing from the prototype.',
-        backLabel: 'Back to plans', backHref: 'application-pricing.html',
+        backLabel: 'Back to plans', backHref: 'pricing.html',
       }
       const payment = {
         idPrefix: 'payment', title: 'Payment information',
@@ -27,7 +27,7 @@ if (target) {
         headingId: 'order-heading', title: 'Order summary', plan: 'Performance',
         billingPeriod: 'Monthly', subtotal: '€19.00', tax: 'Not calculated in demo', total: '€19.00',
         note: 'The example total covers one month. No subscription will be created and no card details will be sent or stored.',
-        actionLabel: 'Complete checkout (demo)', cancelLabel: 'Cancel', cancelHref: 'application-pricing.html',
+        actionLabel: 'Complete checkout (demo)', cancelLabel: 'Cancel', cancelHref: 'pricing.html',
       }
       function completeCheckout() {
         statusMessage.value = 'Demo checkout reviewed. No payment was processed and no subscription was created.'

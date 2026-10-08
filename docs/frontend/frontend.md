@@ -72,6 +72,8 @@ Defines the required frontend pages, routes, and page-specific requirements.
 
 The authoritative pages and routes specification is [docs/frontend/pages-and-routes.md](pages-and-routes.md).
 
+Its [Session Review](pages-and-routes.md#session-review) and [Progress](pages-and-routes.md#progress) entries distinguish confirmed requirements and existing visual evidence from unresolved page/route decisions. These features remain required; their exact destinations must not be inferred from older generated plans or workflow examples. Those plans/examples are not authoritative route definitions.
+
 ---
 
 ## Navigation Requirements
@@ -80,6 +82,7 @@ The authoritative pages and routes specification is [docs/frontend/pages-and-rou
 - Authenticated navigation exposes all required application pages.
 - Public horizontal navigation is visible when the user is not authenticated and includes Home, Training, Pricing, and Login Modal.
 - Authenticated vertical navigation is visible when the user is authenticated and includes Dashboard, Training, History, Subscription, Profile, Settings, and Checkout.
+- Session Review and Progress access is authenticated. Their destination and navigation-placement decisions remain explicitly unresolved in the authoritative pages and routes specification; the existing navigation list does not settle whether they are separate destinations or embedded surfaces.
 - Navigation remains usable with keyboard input and on mobile screens.
 
 The visual sources of truth for shared navigation layouts and states are:
@@ -94,7 +97,7 @@ These dedicated prototypes take precedence over navigation examples in older pag
 
 Shared UI components are generic, reusable UI elements used across pages and features.
 
-The current shared components are:
+The required shared components are:
 
 - Button
 - DateField
@@ -105,8 +108,10 @@ The current shared components are:
 - SidebarNav
 - TopNav
 - BaseTable
+- PaymentPlanCard
+- BillingDetailsCard
 
-Each shared visual pattern has a reusable implementation across pages.
+Each shared visual pattern uses one reusable implementation across pages. [components.md](components.md) defines the authoritative Button and PaymentPlanCard contracts, including Button props/events/ownership and the presentation-only `selected` state. Pricing and Subscription use the existing PaymentPlanCard implementation; BillingDetailsCard presents the separate billing panel. Checkout retains its distinct PerformanceCard summary.
 
 ---
 
@@ -117,10 +122,9 @@ Each shared visual pattern has a reusable implementation across pages.
 Feature components are project- or feature-specific UI components, distinct from generic shared UI elements.
 
 - `FeatureCard` — presents a numbered product feature with a title and description.
-- `PerformanceCard` — reusable Checkout card presenting the selected plan, price, billing note, and back-to-plans link from page-supplied props.
+- `PerformanceCard` — existing Checkout order summary with description, price, billing note and back link, distinct from the selectable Pricing/Subscription plan card.
 - `PaymentInformationCard` — reusable Checkout card presenting disabled sample payment fields from page-supplied display props; never collects raw card data.
 - `OrderSummaryCard` — reusable Checkout card presenting order amounts, notes, and actions from page-supplied props; emits the checkout action for the page to handle.
-- `PaymentPlanCard` — presents a subscription plan, price, features, active state, and a parent-handled plan action.
 - `CameraPreviewModal` — displays the live training camera stream, microphone and analysis controls, and backend feedback.
 - `TrainingCamera` — requests camera and microphone access, handles permission errors, and opens the camera preview modal.
 

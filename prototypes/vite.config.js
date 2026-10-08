@@ -27,6 +27,8 @@ export default defineConfig({
     rollupOptions: { input: {
       home: root + '/prototypes/design/pages/index.html',
       checkout: root + '/prototypes/design/pages/checkout.html',
+      pricing: root + '/prototypes/design/pages/pricing.html',
+      subscription: root + '/prototypes/design/pages/subscription.html',
       training: root + '/prototypes/design/pages/training.html',
       layout: root + '/prototypes/design/layouts/training.html',
       camera: root + '/prototypes/design/components/camera-preview.html',
