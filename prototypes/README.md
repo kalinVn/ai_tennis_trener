@@ -69,10 +69,10 @@ Payment inputs remain disabled. Opening the HTML directly retains the original
 static design. The build also includes this Checkout entry; there are no separate
 card page prototypes.
 
-Checkout retains its distinct PerformanceCard order summary. Pricing and Subscription share the existing [PaymentPlanCard](../docs/frontend/components.md#paymentplancard), with presentation-only selected styling. Subscription also uses [BillingDetailsCard](../docs/frontend/components.md#billingdetailscard).
+Checkout retains its distinct PerformanceCard order summary. Pricing and Subscription share the existing [PaymentCardPlan](../docs/frontend/components.md#paymentcardplan), with presentation-only selected styling. Subscription also uses [BillingDetailsCard](../docs/frontend/components.md#billingdetailscard).
 
 ## Pricing and Subscription cards
 
-Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry modules mount the shared PaymentPlanCard; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing actions open the existing registration dialog; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare public pricing remains a page-level link.
+Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry modules mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing actions open the existing registration dialog; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare public pricing remains a page-level link.
 
-Card design examples are `design/components/cards/payment-plan-card.html` (normal), `design/components/cards/payment-plan-card-selected.html` (selected state of the same component) and `design/components/cards/billing-details-card.html`. The build includes the Pricing and Subscription entries.
+Card design examples are `design/components/cards/payment-card-plan.html` (normal), `design/components/cards/payment-card-plan-selected.html` (selected state of the same component) and `design/components/cards/billing-details-card.html`. The build includes the Pricing and Subscription entries.

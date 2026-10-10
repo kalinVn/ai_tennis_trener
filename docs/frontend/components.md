@@ -163,45 +163,98 @@ The table preserves the History panel, headers, borders, spacing, and local hori
 
 The HTML defines the visual reference; `BaseTable.vue` defines the reusable rendering component. A Vue 3.5+ SFC build environment is required.
 
-### PaymentPlanCard
+### PaymentCardPlan
 
-The existing shared plan card is named `PaymentPlanCard` in this repository (the PaymentCardPlan concept). Preserve that filename. Pricing and Subscription mount this same Vue component; no separate selected-plan or subscription-plan implementation is required.
+`PaymentCardPlan` is the single shared plan card used by Pricing and Subscription. Documentation, Vue prototypes, page entries, and visual prototypes use this one authoritative identity. Do not create separate plan-card components for performance, selected, or subscription states; selected and current-plan presentation are states of this component.
 
 | Prop | Type / default | Display responsibility |
 | --- | --- | --- |
-| `plan` | Required string | Plan name |
-| `currency` | Required string | Currency prefix |
-| `value` | Required string or number | Parent-supplied price; no calculations |
-| `period` | Required string | Text after the slash, such as month |
-| `features` | String array, empty by default | Existing plan description/features |
+| `planName` | Required string | Plan name |
+| `price` | String, empty by default | Parent-formatted price such as `€19`; the component performs no calculation |
+| `billingPeriod` | String, empty by default | Text after the slash, such as `month`; hidden when absent |
+| `description` | String, empty by default | Existing short plan description; hidden when absent |
+| `features` | String array, empty by default | Optional feature list; hidden when empty |
+| `statusLabel` | String, empty by default | Current-plan status such as `Active · demo`; independent of selection |
 | `selected` | Boolean, `false` | Presentation-only selected outline, label and primary action styling |
 | `selectedLabel` | String, `Most popular` | Existing Pricing highlight label; empty hides the label |
-| `active` | Boolean, `false` | Current-subscription badge, independent of selection |
-| `activeLabel` | String, `Active` | Current-subscription badge text |
-| `actionLabel` | String, empty | Explicit button label, otherwise Change plan when active or Choose plan |
+| `actionLabel` | String, empty | Explicit button label; otherwise `Change plan` when `statusLabel` exists or `Choose plan` |
 
-```vue
-<PaymentPlanCard :selected="true" />
+The explicit TypeScript-facing contract is:
+
+```ts
+export type PaymentCardPlanProps = {
+  planName: string
+  price?: string
+  billingPeriod?: string
+  description?: string
+  features?: string[]
+  statusLabel?: string
+  selected?: boolean
+  selectedLabel?: string
+  actionLabel?: string
+}
+
+export type PaymentCardPlanEmits = {
+  (event: 'action'): void
+}
 ```
 
-This shows only selection usage; actual instances also supply the required display props. Selection does not change plan data, price, subscription state or entitlement. It reproduces Pricing's existing `2px solid #b7ff4a80` outline, Most popular eyebrow and primary Button. Non-selected Pricing cards use secondary Button; the active Subscription plan keeps its existing primary Change plan action. The existing `.pricing` container controls compact title/price/description ordering; Subscription retains its current-plan hierarchy. This is layout styling of one component, not a separate card architecture.
+```vue
+<PaymentCardPlan
+  plan-name="Performance"
+  price="€19"
+  billing-period="month"
+  description="Realtime coaching, richer insights and progress tools."
+  :selected="true"
+/>
+```
+
+Selection does not change plan data, price, subscription state or entitlement. It reproduces Pricing's existing `2px solid #b7ff4a80` outline, Most popular eyebrow and primary Button. Non-selected Pricing cards use a secondary Button. Subscription supplies `statusLabel="Active · demo"` and `actionLabel="Change plan"`; the status label is independent of `selected`. The existing `.pricing` container controls compact title/price/description ordering, while Subscription retains its current-plan hierarchy. These are presentation states of one component.
 
 Emits `action` without a payload through a shared Button `click`. The page owns actions and data. Cards contain no callback prop, store access, backend request, price calculation or billing logic.
 
-- Vue implementation: [PaymentPlanCard.vue](../../prototypes/components/cards/PaymentPlanCard.vue).
-- Normal design prototype: [payment-plan-card.html](../../prototypes/design/components/cards/payment-plan-card.html).
-- Selected design prototype: [payment-plan-card-selected.html](../../prototypes/design/components/cards/payment-plan-card-selected.html). Both files illustrate the same shared Vue component; selected is a presentation state.
+- Vue implementation: [PaymentCardPlan.vue](../../prototypes/components/cards/PaymentCardPlan.vue).
+- Normal design prototype: [payment-card-plan.html](../../prototypes/design/components/cards/payment-card-plan.html).
+- Selected design prototype: [payment-card-plan-selected.html](../../prototypes/design/components/cards/payment-card-plan-selected.html). Both files illustrate the same shared Vue component; selected is a presentation state.
 - Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/subscription/main.js). Pricing preserves the demo registration dialog; Subscription preserves the existing informational Change plan message.
 
 ### BillingDetailsCard
 
 Reusable billing-details presentation taken directly from Subscription: heading, next-renewal text, payment-method text and Manage billing action. It is distinct from a plan card and adds no billing fields or real integration.
 
-- `title`: string, default `Billing details`.
-- `renewalText`: required string, currently `Next renewal: Oct 26, 2026 (illustrative).`.
-- `paymentMethodText`: required string, currently `Payment method: Not connected.`.
-- `actionLabel`: string, default `Manage billing`.
-- Emits `action` without a payload via the shared secondary Button. The page handles it with the existing informational demo message; there is no dedicated billing button component.
+| Prop | Type / default | Display responsibility |
+| --- | --- | --- |
+| `title` | String, `Billing details` | Card heading |
+| `renewalText` | Required string | Existing renewal line, currently `Next renewal: Oct 26, 2026 (illustrative).` |
+| `paymentMethodText` | Required string | Existing payment-method line, currently `Payment method: Not connected.` |
+| `actionLabel` | String, `Manage billing` | Shared secondary Button label |
+
+The explicit TypeScript-facing contract is:
+
+```ts
+export type BillingDetailsCardProps = {
+  title?: string
+  renewalText: string
+  paymentMethodText: string
+  actionLabel?: string
+}
+
+export type BillingDetailsCardEmits = {
+  (event: 'action'): void
+}
+```
+
+Example usage keeps the two visible billing fields exactly as they appear in Subscription:
+
+```vue
+<BillingDetailsCard
+  renewal-text="Next renewal: Oct 26, 2026 (illustrative)."
+  payment-method-text="Payment method: Not connected."
+  @action="openBillingMessage"
+/>
+```
+
+Emits `action` without a payload via the shared secondary Button. The Subscription page owns the action and existing informational demo message. The component does not add billing address, invoices, card brand, last four digits, expiry, customer identifiers, or real integration because those fields are absent from the current Subscription UI.
 
 Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/cards/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. The Compare public pricing link stays in the Subscription page and points to `pricing.html`.
 
@@ -226,7 +279,7 @@ The modal accepts `stream`, `endpoint`, and optional `analysisFps` (default 5). 
 
 [useVideoAnalysis.js](../../prototypes/composables/useVideoAnalysis.js) owns a single paced capture/resize/JPEG loop (default maximum width 640px, 5 FPS; configurable up to 10 FPS), result/error state, and cancellation. [trainingTransport.js](../../prototypes/services/trainingTransport.js) owns WebSocket connection, bounded sending, message reception, and disconnect. No browser inference or fabricated coaching is performed. Stop Video Analysis stops only analysis; Return to Training, Escape, device loss, or unmount stop analysis and all camera/microphone tracks.
 
-No real backend transport contract exists yet. The explicit prototype contract is binary JPEG frames sent to a configured WebSocket endpoint and JSON `{ type, payload }` messages returned. It accepts events including `stroke_analysis`, `player_feedback`, `ball_position`, `player_position`, `pose_analysis`, `training_instruction`, and `analysis_error`. Feedback text uses `payload.text` or `payload.message`; explicitly low-confidence text is withheld. The host/backend must provide authentication and validate this prototype contract before real integration. No endpoint is hardcoded; without one, only camera/microphone preview is available.
+No backend-approved production transport contract exists yet. The proposed frontend-facing example is binary JPEG frames sent to a configured WebSocket endpoint and versioned JSON messages returned; see [integration contract examples](integration-contracts.md#training-session-and-analysis-transport). The inspected prototype currently uses binary JPEG frames and JSON `{ type, payload }` messages as visual/behavioral guidance only. It accepts events including `stroke_analysis`, `player_feedback`, `ball_position`, `player_position`, `pose_analysis`, `training_instruction`, and `analysis_error`. Feedback text uses `payload.text` or `payload.message`; explicitly low-confidence text is withheld. The host/backend must provide authentication and validate this prototype contract before real integration. No endpoint is hardcoded; without one, only camera/microphone preview is available.
 
 For production Vue/behavior separation, place the modal view at `frontend/src/modules/training/components/CameraPreviewModal.vue` and its existing inline UI behavior in `frontend/src/modules/training/composables/useCameraPreviewModal.ts`: dialog lifecycle, media attachment/detachment, microphone mute, feedback derivation, scroll restoration and closure. This is a planned extraction of inspected behavior, not an existing file or new feature. Keep capture/cancellation in the module's `useVideoAnalysis.ts`, transport in `services/trainingTransport.ts`, and camera acquisition/track ownership in `useCameraSession.ts`. The modal requests track release through that owner on close/device loss/unmount; it does not independently stop the same tracks again. The feature forwards results to session state and the existing overlay slot. These mappings define responsibility without adding business logic to any Button.
 
@@ -242,7 +295,7 @@ The existing prototype [Checkout entry](../../prototypes/checkout/main.js) mount
 
 [PerformanceCard.vue](../../prototypes/components/cards/PerformanceCard.vue) is the existing Checkout order-summary presentation, not the selectable Pricing/Subscription plan card. Checkout is outside the plan-card unification scope: it shows a selected order's description, formatted price, billing note and back link, without Choose/Change plan actions or a feature list.
 
-Its existing required string props are `headingId`, `badge`, `plan`, `description`, `price`, `period`, `billingNote`, `backLabel`, and `backHref`. The page owns formatting and navigation destinations. It performs no billing calculation or transaction. Do not merge these props into PaymentPlanCard merely to reconcile the older proposed architecture.
+Its existing required string props are `headingId`, `badge`, `plan`, `description`, `price`, `period`, `billingNote`, `backLabel`, and `backHref`. The page owns formatting and navigation destinations. It performs no billing calculation or transaction. Do not merge these props into PaymentCardPlan merely to reconcile the older proposed architecture.
 
 #### PaymentInformationCard
 

@@ -5,11 +5,9 @@
 Must include product branding, public navigation, a responsive content container, and footer links.
 Example prototype `prototypes/design/layouts/public.html`
 
-### Authentication Layout
+### Authentication UI Host
 
-Must include product branding, public navigation, a responsive content container, and footer links.
-
-Example prototype `prototypes/design/layouts/authentication.html`
+Authentication is presented in the existing accessible login/registration dialog hosted by the Public Layout, not on a separate route. `prototypes/design/layouts/authentication.html` is an interaction reference for that dialog and its public shell, not a consumer requiring a separate `AuthenticationLayout.vue`. Preserve the original protected destination as a validated internal return target, close the dialog only after a confirmed result or explicit cancellation, and expose pending, validation, error, second-factor, and expired-session states as described in [integration contract examples](integration-contracts.md#authentication-and-application-session).
 
 ### Authenticated Application Layout
 

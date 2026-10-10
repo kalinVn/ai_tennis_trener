@@ -2,15 +2,14 @@
 import Button from '../../design/components/buttons/Button.vue'
 
 defineProps({
-  plan: { type: String, required: true },
-  currency: { type: String, required: true },
-  value: { type: [String, Number], required: true },
-  period: { type: String, required: true },
+  planName: { type: String, required: true },
+  price: { type: String, default: '' },
+  billingPeriod: { type: String, default: '' },
+  description: { type: String, default: '' },
   features: { type: Array, default: () => [] },
+  statusLabel: { type: String, default: '' },
   selected: { type: Boolean, default: false },
   selectedLabel: { type: String, default: 'Most popular' },
-  active: { type: Boolean, default: false },
-  activeLabel: { type: String, default: 'Active' },
   actionLabel: { type: String, default: '' },
 })
 const emit = defineEmits(['action'])
@@ -19,13 +18,14 @@ const emit = defineEmits(['action'])
 <template>
   <article class="payment-plan-card" :class="{ 'payment-plan-card--selected': selected }">
     <div v-if="selected && selectedLabel" class="eyebrow payment-plan-card__selected-label">{{ selectedLabel }}</div>
-    <span v-if="active" class="payment-plan-card__status">{{ activeLabel }}</span>
-    <h2 class="payment-plan-card__name">{{ plan }}</h2>
-    <ul class="payment-plan-card__features">
+    <span v-if="statusLabel" class="payment-plan-card__status">{{ statusLabel }}</span>
+    <h2 class="payment-plan-card__name">{{ planName }}</h2>
+    <p v-if="description" class="payment-plan-card__description">{{ description }}</p>
+    <ul v-if="features.length" class="payment-plan-card__features">
       <li v-for="(feature, index) in features" :key="index">{{ feature }}</li>
     </ul>
-    <h2 class="payment-plan-card__price">{{ currency }}{{ value }} <span class="payment-plan-card__period">/ {{ period }}</span></h2>
-    <Button :variant="selected || active ? 'primary' : 'secondary'" @click="emit('action')">{{ actionLabel || (active ? 'Change plan' : 'Choose plan') }}</Button>
+    <h2 v-if="price" class="payment-plan-card__price">{{ price }} <span v-if="billingPeriod" class="payment-plan-card__period">/ {{ billingPeriod }}</span></h2>
+    <Button :variant="selected || statusLabel ? 'primary' : 'secondary'" @click="emit('action')">{{ actionLabel || (statusLabel ? 'Change plan' : 'Choose plan') }}</Button>
   </article>
 </template>
 
@@ -52,6 +52,7 @@ const emit = defineEmits(['action'])
 :global(.pricing) .payment-plan-card__price { order: 2; margin: 0; color: #b7ff4a; font-size: 43px; line-height: 1.55; letter-spacing: normal; }
 :global(.pricing) .payment-plan-card__period { font-size: 13.3333px; }
 :global(.pricing) .payment-plan-card__features { order: 3; margin: 0; color: #a8b5ae; }
+:global(.pricing) .payment-plan-card__description { order: 3; }
 :global(.pricing) .payment-plan-card > .button { order: 4; width: 100%; }
 .payment-plan-card__status {
   box-sizing: border-box;
@@ -71,6 +72,7 @@ const emit = defineEmits(['action'])
 }
 .payment-plan-card__name { margin-top: 16px; }
 .payment-plan-card__features { list-style: none; padding: 0; margin: 0 0 16px; color: #a8b5ae; }
+.payment-plan-card__description { margin: 0 0 16px; color: #a8b5ae; }
 .payment-plan-card__price { color: #b7ff4a; }
 .payment-plan-card__period { color: #a8b5ae; font-size: 16px; }
 </style>

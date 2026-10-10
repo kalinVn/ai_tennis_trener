@@ -15,7 +15,7 @@ function component(path, bindings = {}) {
   return new Function('Vue', ...Object.keys(bindings), code)(Vue, ...Object.values(bindings))
 }
 const Button = component('../design/components/buttons/Button.vue', { useButtonController })
-const PaymentPlanCard = component('../components/cards/PaymentPlanCard.vue', { Button })
+const PaymentCardPlan = component('../components/cards/PaymentCardPlan.vue', { Button })
 const BillingDetailsCard = component('../components/cards/BillingDetailsCard.vue', { Button })
 const node = type => ({ type, props: {}, children: [], text: '', parent: null })
 const renderer = Vue.createRenderer({
@@ -41,8 +41,8 @@ test('selected plan updates presentation without emitting or changing price; act
   const selected = Vue.ref(false)
   let actions = 0
   const root = node('root')
-  const app = renderer.createApp({ setup: () => () => Vue.h(PaymentPlanCard, {
-    plan: 'Starter', currency: '€', value: '9', period: 'month', selected: selected.value,
+  const app = renderer.createApp({ setup: () => () => Vue.h(PaymentCardPlan, {
+    planName: 'Starter', price: '€9', billingPeriod: 'month', selected: selected.value,
     onAction: () => actions++,
   }) })
   app.mount(root)
@@ -65,8 +65,8 @@ test('Pricing and Subscription entries mount shared cards and retain their demo 
     const root = node('root'), calls = []
     let app
     const code = readFileSync(new URL(`../${page}/main.js`, import.meta.url), 'utf8').replace(/^import .*$/gm, '')
-    new Function('createApp', 'PaymentPlanCard', 'BillingDetailsCard', 'document', 'window', code)(
-      options => (app = renderer.createApp(options)), PaymentPlanCard, BillingDetailsCard,
+    new Function('createApp', 'PaymentCardPlan', 'BillingDetailsCard', 'document', 'window', code)(
+      options => (app = renderer.createApp(options)), PaymentCardPlan, BillingDetailsCard,
       { getElementById: () => root },
       { openAuth: mode => calls.push(mode), showDemoNote: message => calls.push(message) },
     )

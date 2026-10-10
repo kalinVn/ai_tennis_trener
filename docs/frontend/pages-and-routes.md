@@ -18,7 +18,7 @@
 - layout: `Public Layout`
 - Example Prototype: `design/pages/features.html`
 - name: `feature`
-- description: `Main Section: headline, short description, StatCard usage: None; two primary buttons. The Features page should follow the Public Layout and match the prototype directly for the page title, secondary description, and all other page-level content; only the Feature Cards and buttons should use reusable components.`
+- description: `Main Section: headline, short description, three FeatureCard items, and two primary buttons. The Features page should follow the Public Layout and match the prototype directly for the page title, secondary description, and all other page-level content; only the Feature Cards and buttons should use reusable components.`
 - required shared components: `Button`, `FeatureCard`
 - required feature components: None
 - dependencies: None
@@ -40,8 +40,8 @@
 - Layout: `Public Layout`
 - Example Prototype: `design/pages/pricing.html`
 - name: `pricing`
-- description: `Follow the Pricing prototype directly for the complete page structure and all page-level content. Use the shared PaymentPlanCard component for the Starter, Performance, and Pro pricing plan cards. All other headings, descriptions, sections, labels, supporting content, and layout remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
-- required shared components: `PaymentPlanCard`
+- description: `Follow the Pricing prototype directly for the complete page structure and all page-level content. Use the shared PaymentCardPlan component for the Starter, Performance, and Pro pricing plan cards. All other headings, descriptions, sections, labels, supporting content, and layout remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
+- required shared components: `PaymentCardPlan`
 - required feature components: None
 - dependencies: None
 
@@ -51,9 +51,11 @@
 - layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/dashboard.html`
 - name: `dashboard`
-- description: `Follow the Dashboard prototype directly for all page content, sections, containers, text, and visual structure, implemented as page-level DOM/layout. Do not introduce page-specific shared components or extract static sections into reusable components. Keep Session History available as defined in the prototype. Sidebar and top header remain provided by the Authenticated Application Layout and are not part of the page sections.`
+- description: `Follow the Dashboard prototype directly for all page content, sections, containers, text, and visual structure, implemented as page-level DOM/layout. Do not introduce page-specific shared components or extract static sections into reusable components. Keep Session History available as defined in the prototype. Each returned session row opens Session Review using its server-supplied session id. Sidebar and top header remain provided by the Authenticated Application Layout and are not part of the page sections.`
 - required shared components: None
 - required feature components: None
+- data contract: `GET /api/v1/dashboard`; example response shape is in [integration contract examples](integration-contracts.md#dashboard-profile-and-settings-data).
+- states: loading, empty, success, recoverable error, unavailable.
 - dependencies: None
 
 
@@ -65,46 +67,65 @@
 - description: `Follow the History HTML/design prototype for all sections and page-level elements. Use the existing shared BaseTable component for the session/history table. All other headings, descriptions, controls, containers, filters, surrounding layout, and visual elements remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
 - required shared components: `BaseTable`
 - required feature components: None
+- data contract: `GET /api/v1/training/sessions`; example pagination and response shape are in [integration contract examples](integration-contracts.md#session-history-session-review-and-progress-data).
+- states: loading, empty, success, recoverable error, unavailable.
 - dependencies: `TrainingHistoryStore`
 
 ### Session Review
 
-- purpose: Review previous training-session results and coaching feedback; the existing visual example mentions key moments, movement trends, and the next recommended focus.
-- page/component: **UNRESOLVED** — no dedicated Session Review page or Vue component was found. The existing History prototype contains an inline `Example session review` panel; this does not establish that an embedded panel fulfills the complete required feature.
-- route: **UNRESOLVED** — confirm a separate route versus an embedded History surface. `/history` is the existing host route for the prototype panel, not an approved session-detail route.
-- name: **UNRESOLVED** — depends on whether a separate route is required.
-- layout: `Authenticated Application Layout` for the authenticated review surface, consistent with the existing History example.
-- access: Authenticated; backend authorization remains required for session data.
-- route parameters: **UNRESOLVED** — session selection and any identifier parameter are not defined by the current authoritative specification.
-- navigation destination: Existing visual evidence is the review panel in History. No per-session link or dedicated navigation destination is defined; confirm the entry point and destination before final routing.
-- visual references: [History](../../prototypes/design/pages/history.html) and [Training Session Card](../../prototypes/design/components/training-session-card.html). The latter explicitly documents a generic review panel and table, not a standalone session-card implementation.
-- module: `sessions`, as required by [Frontend Modules](frontend.md#frontend-modules).
-- required resolution: Confirm separate page versus embedded surface, its page/component contract, route path/name if separate, selection parameters, and navigation entry point. These missing decisions block final Session Review planning; do not create placeholder pages or infer a production data contract from sample content.
+- purpose: Review a previous training session's supported results and coaching feedback, including available key moments, movement trends, and next recommended focus.
+- page/component: `SessionReviewPage` in the `sessions` module.
+- route: `/sessions/:sessionId`
+- name: `session-review`
+- layout: `Authenticated Application Layout`
+- access: Authenticated; the backend authorizes access to the requested session.
+- route parameters: required `sessionId` opaque identifier. Reject malformed identifiers and show not-found/unauthorized states without leaking whether another user's session exists.
+- navigation destination: Session rows on History and Dashboard link to this route using their returned session ids. Session Review is not a top-level sidebar item; History remains the active navigation section.
+- data contract: `GET /api/v1/training/sessions/{sessionId}/review`; see [frontend integration contract examples](integration-contracts.md#session-history-session-review-and-progress-data).
+- visual references: [History](../../prototypes/design/pages/history.html) and [Training Session Card](../../prototypes/design/components/training-session-card.html). These provide visual cues only; they do not establish data or behavior beyond this entry.
+- module: `sessions`.
+- states: loading, not found/unauthorized, success, partial/insufficient data, recoverable error, unavailable.
 
 ### Progress
 
-- purpose: Present trends, improvement areas, and the next recommended focus, as required by the `progress` module.
-- page/component: **UNRESOLVED** — no dedicated Progress page or Vue component was found. Dashboard metrics are partial visual evidence, not a complete Progress screen definition.
-- route: **UNRESOLVED** — confirm a separate route versus an embedded surface; no current authoritative Progress path is defined.
-- name: **UNRESOLVED** — depends on the route decision.
-- layout: `Authenticated Application Layout`, consistent with the existing authenticated Dashboard and Charts & Progress examples.
-- access: Authenticated; backend authorization remains required for progress data.
-- route parameters: **UNRESOLVED** — no parameter contract is defined; do not infer filters or ranges from sample statistics.
-- navigation destination: **UNRESOLVED** — the dedicated authenticated navigation prototype has no Progress item. Confirm the required entry point and destination rather than silently adding a sidebar link.
-- visual references: [Dashboard](../../prototypes/design/pages/dashboard.html) and [Charts & Progress](../../prototypes/design/components/charts-progress.html). The latter shows existing metrics/statistics and explicitly states that charts, progress bars, and legends are missing; it is not a complete page prototype.
-- module: `progress`, as required by [Frontend Modules](frontend.md#frontend-modules).
-- required resolution: Define the page/component or embedded surface, route path/name if separate, parameter requirements, and navigation destination. These missing decisions block final Progress planning; illustrative statistics must not become fabricated production metrics.
+- purpose: Present supported trends, improvement areas, and the next recommended focus.
+- page/component: `ProgressPage` in the `progress` module.
+- route: `/progress`
+- name: `progress`
+- layout: `Authenticated Application Layout`
+- access: Authenticated; the backend authorizes progress data.
+- route parameters: None. Load the backend-provided default range. Do not add date-range controls until a product requirement calls for them.
+- navigation destination: Authenticated sidebar item `Progress`, placed after History. Compact Dashboard progress summaries may link here.
+- data contract: `GET /api/v1/progress` using its backend default range; see [frontend integration contract examples](integration-contracts.md#session-history-session-review-and-progress-data).
+- visual references: [Dashboard](../../prototypes/design/pages/dashboard.html) and [Charts & Progress](../../prototypes/design/components/charts-progress.html). These are partial visual references; they do not authorize fabricated metrics or charts.
+- module: `progress`.
+- states: loading, empty/insufficient data, success, recoverable error, unavailable.
 
-The older [frontend design plan](design-plan.md#required-routes) proposes `/app/sessions/:sessionId` and `/app/progress`, but uses a different `/app/...` route scheme and is not designated as an authoritative specification by `frontend.md`. Its proposed routes, `sessionId` parameter, component names, and navigation behavior are not adopted here. These entries are the single source for the remaining Session Review and Progress routing decisions.
+### Application State Matrix
+
+| Surface | Loading | Empty / partial | Error / unavailable | Success owner |
+| --- | --- | --- | --- | --- |
+| Dashboard | Dashboard request pending | No sessions/focus is an honest empty state | Retry dashboard request; preserve shell | Server response |
+| History | Session list pending | Empty list is successful | Retry current cursor; preserve filters | Server response |
+| Session Review | Review request pending | Insufficient supported result is labeled | Safe not-found/unauthorized; retry recoverable failures | Server-authorized review response |
+| Progress | Progress request pending | `insufficient_data` or no measurements | Retry same range | Server response; focus is never generated in browser |
+| Training | Camera/transport/analysis transitions shown separately | Waiting for first supported result | Camera and transport failures remain distinct | Backend analysis/session events |
+| Subscription / Checkout | Subscription or checkout verification pending | No active plan is distinct from unknown state | Retry server/provider state | Backend-verified billing response |
+| Profile / Settings | Load/save pending | Optional values can be empty | Retain last confirmed values and user edits | Successful server save |
+| Authentication | Session lookup/request pending | Signed out is distinct from lookup failure | Field/challenge/session errors shown | Backend session/auth response |
+
+Recovery behavior and shared error semantics are detailed in [integration contract examples](integration-contracts.md#page-state-and-recovery-matrix).
 
 ### Subscription
 - purpose: `allows the user to view their current subscription plan, manage billing details, and change or upgrade their subscription.`
 - Route: `/subscription`
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/subscription.html`
-- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentPlanCard; active represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Change plan and Manage billing actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
-- required shared components: `PaymentPlanCard`, `BillingDetailsCard`
+- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Change plan and Manage billing actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
+- required shared components: `PaymentCardPlan`, `BillingDetailsCard`
 - required feature components: None
+- data contract: `GET /api/v1/billing/subscription` and provider-hosted customer portal; see [integration contract examples](integration-contracts.md#checkout-and-billing).
+- states: loading, no active subscription, active, pending change, recoverable error, unavailable.
 - dependencies: None
 
 ### Profile
@@ -116,6 +137,8 @@ The older [frontend design plan](design-plan.md#required-routes) proposes `/app/
 - description: `Follow the referenced Profile HTML prototype for the page title, secondary text, section titles, secondary descriptions, fields, labels, buttons/actions, and all other page-level content. The four collapsible sections are Personal Information, Tennis Profile (including Training Goals), Physical Information, and Account Overview; each uses the existing CollapseForm component. The Profile page component owns and creates the data/configuration for each section, deriving its title, secondary description, all fields and their labels and relevant configuration (including types, options, validation constraints, and read-only attributes), buttons/actions, and any additional content directly from the prototype. Supply each CollapseForm instance from this page-owned configuration through its existing title/description props and page-rendered default/footer slots for fields, actions, and other content. Profile-specific values, configuration, form handling, and actions remain in the Profile page; CollapseForm stays generic and reusable. Do not create separate components for individual Profile sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the prototype. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
 - required shared components: `CollapseForm`
 - required feature components: None
+- data contract: `GET/PATCH /api/v1/users/me`; example ownership and response handling are in [integration contract examples](integration-contracts.md#dashboard-profile-and-settings-data).
+- states: loading, loaded, validation error, save pending, recoverable error, unavailable.
 - dependencies: `UserStore`
 
 ### Settings
@@ -127,6 +150,8 @@ The older [frontend design plan](design-plan.md#required-routes) proposes `/app/
 - description: `Follow the referenced Settings HTML prototype as the source of truth for the page title, secondary text, all collapsible sections, and all other page-level content. Each collapsible section uses the existing shared CollapseForm component. The Settings page owns and creates each section's data/configuration directly from the prototype. Pass only the section title/header and secondary title/description through the existing title and description props. Define and render all section-specific fields, labels, selects, controls, buttons, actions, and other body content in the Settings page, supplying that content through CollapseForm's default slot and its footer slot where appropriate. Field configuration, values, validation, form handling, and action behavior remain owned by the Settings page; do not pass a field schema to CollapseForm or move Settings-specific content or behavior into it. Keep CollapseForm generic and reusable. Do not create separate components for individual Settings sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the Settings prototype. Do not invent fields, controls, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
 - required shared components: `CollapseForm`
 - required feature components: None
+- data contract: `GET/PATCH /api/v1/users/me/preferences`; example ownership and response handling are in [integration contract examples](integration-contracts.md#dashboard-profile-and-settings-data).
+- states: loading, loaded, validation error, save pending, recoverable error, unavailable.
 - dependencies: `UserStore`
 
 ### Not Found
@@ -147,9 +172,11 @@ The older [frontend design plan](design-plan.md#required-routes) proposes `/app/
 - Layout: `Authenticated Application Layout`
 - Example Prototype: `design/pages/checkout.html`
 - name: `checkout`
-- description: `The Checkout page contains two main sections: a left section with the existing Checkout PerformanceCard and PaymentInformationCard components stacked vertically, and a right section with an OrderSummaryCard component`
+- description: `The Checkout page contains two main sections: a left section with the existing Checkout PerformanceCard and PaymentInformationCard components stacked vertically, and a right section with an OrderSummaryCard component. Start through the provider-hosted checkout contract, verify every return state with the backend, and retain pending/cancelled/failed/expired/recoverable-error states.`
 - required shared components: None
 - required feature components: `PerformanceCard`, `PaymentInformationCard`, `OrderSummaryCard`
+- data contract: provider-hosted checkout start and server-verified return; see [integration contract examples](integration-contracts.md#checkout-and-billing).
+- states: pending, succeeded only after backend verification, cancelled, failed, expired, recoverable error, unavailable.
 - dependencies: `CheckoutStore`
 
 ---

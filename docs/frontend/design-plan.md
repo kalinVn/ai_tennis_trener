@@ -82,7 +82,7 @@ The orchestrator selects implementation skills from the page requirements and de
 | Session Review / AppLayout | Summary, detected issues, supported metrics, recommendations, analyzed moments when available; incomplete/low-confidence labeling | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionSummary |
 | History / AppLayout | Prior sessions, review links, loading/empty/error states | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList | Session list contract and available paging semantics |
 | Progress / AppLayout | Supported trends, improvement areas, next recommended focus; unavailable or insufficient-history explanation | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | ProgressInsights | Progress data, measurement definitions, time range, evidence/confidence; no invented scores or projections |
-| Subscription / AppLayout | Available plans, current plan, comparison, subscription actions, protected checkout and its result states | Button, PaymentPlanCard, BillingDetailsCard, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
+| Subscription / AppLayout | Available plans, current plan, comparison, subscription actions, protected checkout and its result states | Button, PaymentCardPlan, BillingDetailsCard, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
 | Profile / AppLayout | Supported personal and tennis information; view/edit, validation, saving, saved/error feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | ProfileEditor | profile schema, writable fields, update contract |
 | Settings / AppLayout | Supported application, camera, coaching, privacy and notification preferences; save/result feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | SettingsEditor | supported settings schema, persistence and browser capability handling |
 
@@ -95,7 +95,7 @@ Only patterns required by the specification and reused across pages/layouts are 
 | Name | Responsibility | Variants | Major states | Used by pages/layouts |
 | --- | --- | --- | --- | --- |
 | Button | Presentation, UI state and click emission; parent owns actions | primary, secondary, ghost; small/medium | default, hover, active, focus-visible, disabled, loading | All pages |
-| PaymentPlanCard | One shared plan presentation; selected changes CSS only | selected Boolean; independent active badge | Parent-supplied selection/current-plan display | Pricing, Subscription |
+| PaymentCardPlan | One shared plan presentation; selected changes CSS only | selected Boolean; independent status label | Parent-supplied selection/current-plan display | Pricing, Subscription |
 | BillingDetailsCard | Existing renewal/payment-method display and parent-handled action | Existing Subscription panel | Display only | Subscription |
 | FormField | Label, input/control, help and validation message association | Text, email, password, select, textarea, checkbox, radio as required by confirmed fields | Pristine, edited, invalid, disabled, readonly | Login, Registration, Profile, Settings |
 | Card | Shared panel structure and heading/content slots | Default, highlighted, metric | Default, selected, unavailable | Landing, auth, Dashboard, Session Review, History, Progress, Subscription, Profile, Settings |
@@ -107,15 +107,15 @@ Only patterns required by the specification and reused across pages/layouts are 
 
 ### Current Button and Plan-Card Ownership
 
-Follow [Button](components.md#button) and [PaymentPlanCard](components.md#paymentplancard) as the single contract source. Start Training and View Progress are Button labels/usages, not components. Button emits `click` with the DOM event; no callback/onAction prop, business logic, store/API access or navigation policy belongs inside it. `type` supports button/submit/reset, and disabled/loading both prevent activation. There is no existing `to`/RouterLink mode; navigation stays with the owning handler or existing link component.
+Follow [Button](components.md#button) and [PaymentCardPlan](components.md#paymentcardplan) as the single contract source. Start Training and View Progress are Button labels/usages, not components. Button emits `click` with the DOM event; no callback/onAction prop, business logic, store/API access or navigation policy belongs inside it. `type` supports button/submit/reset, and disabled/loading both prevent activation. There is no existing `to`/RouterLink mode; navigation stays with the owning handler or existing link component.
 
-Plan `frontend/src/components/buttons/Button.vue` with `frontend/src/composables/ButtonController.ts`, adapting the inspected `useButtonController` UI behavior. Reuse the existing PaymentPlanCard contract once for Pricing and Subscription; `selected` defaults to false and only changes presentation. BillingDetailsCard owns the separate existing billing panel, with page-handled actions. Checkout retains its distinct PerformanceCard order summary; no display-prop consolidation with that summary is required. Prototype implementations and entries are linked from components.md.
+Plan `frontend/src/components/buttons/Button.vue` with `frontend/src/composables/ButtonController.ts`, adapting the inspected `useButtonController` UI behavior. Reuse the existing PaymentCardPlan contract once for Pricing and Subscription; `selected` defaults to false and only changes presentation. BillingDetailsCard owns the separate existing billing panel, with page-handled actions. Checkout retains its distinct PerformanceCard order summary; no display-prop consolidation with that summary is required. Prototype implementations and entries are linked from components.md.
 
 For E8, map CameraPreviewModal's external UI behavior and media ownership exactly as documented in [CameraPreviewModal](components.md#camerapreviewmodal): module-local `useCameraPreviewModal.ts` owns modal UI/attachment/mute/feedback/closure; `useCameraSession.ts` owns tracks; `useVideoAnalysis.ts` owns capture and cancellation; `trainingTransport.ts` owns transport. These are future implementation placements, not completed code changes.
 
 ## Required Feature Components
 
-The following legacy feature list requires revalidation against the current specification; it is not authority to add components. PaymentPlanCard is shared and is defined above. Data names below are conceptual requirements, not implemented API contracts.
+The following legacy feature list requires revalidation against the current specification; it is not authority to add components. PaymentCardPlan is shared and is defined above. Data names below are conceptual requirements, not implemented API contracts.
 
 | Name | Responsibility / used by page | Dependencies and data requirements |
 | --- | --- | --- |

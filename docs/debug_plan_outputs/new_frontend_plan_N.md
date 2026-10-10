@@ -5,133 +5,155 @@
 - Command: `debug_frontend_plan`.
 - Specification: `docs/frontend/frontend.md`.
 - Run date: `2026-10-08`.
-- Outcome: `blocked`; independent plan validation: `invalid`; `validated_plan: null`.
-- Validator invocations: 1. Completed source-based plan reviews: 1. Plan correction attempts: 0.
-- The structured result contains 6 errors and 2 warnings. Required product and contract decisions stop further correction attempts under `.codex/workflows/frontend-planning.md`. This is a rejected partial plan, not implementation approval.
-- Existing documentation edits were present at entry and are preserved. This execution writes only the English/Bulgarian report pair.
+- Outcome: `blocked`; independent validation status: `invalid`; `validated_plan: null`.
+- Validator invocations: 1. Plan correction attempts: 0.
+- The validator found 2 errors and 2 warnings. The missing authoritative feedback ordering/replay decision stops the correction loop immediately under `.codex/workflows/frontend-planning.md`; the card-contract omission is also retained in this rejected draft rather than corrected after the stop condition.
+- This run began after the documentation updates in the working tree. Only this report pair is written by the planning run; the earlier documentation edits are pre-existing at run entry.
+- Implementation, application source changes, dependency installation, build, and deployment are outside this run and have not been performed.
 
 ### Sources and Precedence
 
-Inspected planning context: `AGENTS.md`, `.codex/skills/debug-frontend-plan/SKILL.md`, `.codex/commands/debug_frontend_plan.md`, `.codex/workflows/frontend-planning.md`, `.codex/rules/frontend-planning.md`, `.codex/skills/plan-new-frontend-design.md`, `.codex/skills/frontend-plan-validator.md`, `.codex/skills/frontend-project-structure.md`, `.codex/references/frontend-architecture.md` and its relevant references under `claude/skills/frontend-code-architect/`.
+Read `AGENTS.md`, `.codex/commands/debug_frontend_plan.md`, `.codex/workflows/frontend-planning.md`, `.codex/rules/frontend-planning.md`, `.codex/skills/plan-new-frontend-design.md`, `.codex/skills/frontend-plan-validator.md`, `.codex/skills/frontend-project-structure.md`, and `.codex/references/frontend-architecture.md` with the relevant architecture references under `claude/skills/frontend-code-architect/`.
 
-Product sources: `docs/frontend/frontend.md`, `docs/frontend/pages-and-routes.md`, `docs/frontend/components.md`, `docs/frontend/layouts.md`. The old `docs/frontend/design-plan.md` and earlier debug reports are not authoritative replacements for these sources.
+Read the authoritative product sources `docs/frontend/frontend.md`, `docs/frontend/pages-and-routes.md`, `docs/frontend/components.md`, `docs/frontend/layouts.md`, and `docs/frontend/integration-contracts.md`. Visual and behavior references include the prototype catalog and cited page/component/layout/navigation prototypes under `prototypes/design/`, plus relevant Vue and composable examples under `prototypes/components/` and `prototypes/composables/`. The actual `frontend/` directory was checked and contains placeholder content rather than an established application implementation.
 
-Evidence includes the catalog, page/layout/component HTML and shared styles under `prototypes/design/`, dedicated navigation prototypes, field/form/navigation/card/Button/camera samples, the slider Vue entry and controller, `prototypes/home/main.js`, and the organizational auth example under `prototypes/modules/user/`. Prototype code informs reuse and resource ownership, not production backend contracts. The actual `frontend/` directory and referenced paths were checked. The validator independently read current specifications and relevant raw prototypes/code. No browser rendering or implementation tests were performed.
+Root requirements and their explicitly authoritative supporting documents take precedence over prototypes; dedicated navigation prototypes take precedence over embedded navigation examples. Prototype source indicates visual intent and sample behavior, not a production backend contract. Proposed integration examples are a planning target for frontend fixtures, not evidence of implemented endpoints or backend approval. No rendered-browser alignment or implementation checks were performed.
 
-Active instructions preserve TypeScript and backend authority. Current specifications take precedence over prototypes; dedicated navigation takes precedence over embedded navigation; actual visual references take precedence over generic design defaults. The current slider reference is the existing Vue component, Checkout is named `checkout`, and Application Layout points to `prototypes/design/layouts/application.html`. These formerly broken definitions no longer block this candidate.
-
-## 2. Frontend Implementation Plan — Rejected Partial Draft
+## 2. Frontend Implementation Plan
 
 ### Frontend Type
 
-`new`. Application root `frontend/` contains placeholder content; proposed files below are future work. This is a partial plan pending mandatory source decisions.
+`new` — create the Vue application under `frontend/`; preserve the existing placeholder until implementation is separately authorized. This plan does not create files.
 
 ### Project Structure
 
-Preserve Vue 3, TypeScript, Vite, Vue Router and Pinia. All paths below are relative to `frontend/src/`. Initialize Pinia once. Keep templates/minimal wiring in Vue, behavior in external TypeScript, API access in services, shared state/actions in stores, and local UI state in composables. Never persist secrets. Shared `components/`, `composables/`, `services/`, `stores/`, `router/`, `styles/`, `assets/` remain outside modules. Feature assets and helpers remain with their owner; no empty behavior files for passive views.
+Preserve Vue 3, TypeScript, Vite, Vue Router, and Pinia. Keep the structure shallow. Paths below are planned beneath `frontend/src/`.
 
-| Module | Views under module pages/ | Behavior, services and state under the same module |
+```text
+src/
+  app/                 # application bootstrap and root composition, only if needed
+  layouts/             # shared PublicLayout, ApplicationLayout, TrainingLayout
+  modules/
+    public/
+    auth/
+    dashboard/
+    training/
+    sessions/
+    progress/
+    subscription/
+    account/
+  components/          # shared UI components and their families
+  composables/         # genuinely cross-module behavior only
+  services/            # shared external/API communication only
+  stores/              # application-wide state only
+  router/
+  assets/
+  styles/
+```
+
+Each feature module owns its `pages/`, `components/`, `composables/`, `services/`, and `stores/` only where those files are feature-specific. Pages compose components; components use props/events and do not own page business actions. Services perform API communication; Pinia stores call services and own shared feature state. Module pages/components access their stores directly rather than forwarding shared state through prop chains. Initialize Pinia once. Keep local UI state local and never persist passwords, tokens, or provider secrets.
+
+| Module | Planned Vue views/components | Behavior, service, and state placement |
 | --- | --- | --- |
-| `public` | `HomePage.vue`, `FeaturesPage.vue`, `PricingPage.vue`, `NotFoundPage.vue` | `composables/usePricingPage.ts` delegates plan actions to subscription; Home behavior belongs to its features |
-| `auth` | Login/registration uses `components/AuthModal.vue`; provider/challenge surfaces await contracts | `composables/useAuthForm.ts`, `services/authService.ts`; shared session owner is application-wide `stores/AuthStore.ts` |
-| `dashboard` | `DashboardPage.vue` | `composables/useDashboardPage.ts`, `stores/DashboardStore.ts`, `services/dashboardService.ts` own loading and overview data |
-| `training` | `TrainingPage.vue` | `composables/useTrainingPage.ts`, `stores/TrainingSessionStore.ts`; camera/analysis/audio collaborators listed below |
-| `sessions` | `HistoryPage.vue`; Session Review surface unresolved | `composables/useHistoryPage.ts`, `stores/TrainingHistoryStore.ts`, `services/sessionService.ts` |
-| `progress` | Surface unresolved | Module owns trends and next-focus presentation; concrete files await screen/data decisions |
-| `subscription` | `SubscriptionPage.vue`, `CheckoutPage.vue` | `composables/useSubscriptionPage.ts`, `composables/useCheckoutPage.ts`, `stores/SubscriptionStore.ts`, `stores/CheckoutStore.ts`, `services/subscriptionService.ts` |
-| `account` | `ProfilePage.vue`, `SettingsPage.vue` | `composables/useProfilePage.ts`, `composables/useSettingsPage.ts`, `stores/UserStore.ts`, `services/accountService.ts` |
+| `public` | `modules/public/pages/HomePage.vue`, `FeaturesPage.vue`, `PricingPage.vue`, `NotFoundPage.vue`; `components/HomePageInfoSection.vue`; adapt the existing `components/home-page-video-slider/HomePageVideoSlider.vue` | `composables/useHomePageInfoSection.ts`, `composables/usePricingPage.ts`; Pricing delegates plan selection to subscription. No service/store for static presentation. |
+| `auth` | `modules/auth/components/AuthModal.vue`, `LoginForm.vue`, `RegistrationForm.vue`, `SecondFactorForm.vue`; hosted by `PublicLayout` | `composables/useAuthModal.ts`, `composables/useAuthForm.ts`, `services/authService.ts`; `src/stores/AuthStore.ts` owns application-wide session state and actions. |
+| `dashboard` | `modules/dashboard/pages/DashboardPage.vue` | `composables/useDashboardPage.ts`, `services/dashboardService.ts`, `stores/DashboardStore.ts`; service performs overview request, store owns shared dashboard result/loading/error. |
+| `training` | `modules/training/pages/TrainingPage.vue`; `components/TrainingCamera.vue`, `CameraPreviewModal.vue`; render overlay content in the existing modal slot | `composables/useTrainingPage.ts`, `useCameraSession.ts`, `useCameraPreviewModal.ts`, `useVideoAnalysis.ts`, `useAudioOutput.ts`; `services/trainingSessionService.ts`, `trainingTransport.ts`; `stores/TrainingSessionStore.ts` owns session and feedback state. |
+| `sessions` | `modules/sessions/pages/HistoryPage.vue`, `SessionReviewPage.vue` | `composables/useHistoryPage.ts`, `useSessionReviewPage.ts`, `services/sessionService.ts`, `stores/TrainingHistoryStore.ts`; store owns session-list state, review page loads its authorized session by route id. |
+| `progress` | `modules/progress/pages/ProgressPage.vue` | `composables/useProgressPage.ts`, `services/progressService.ts`, `stores/ProgressStore.ts`; server owns supported measurements and focus. |
+| `subscription` | `modules/subscription/pages/SubscriptionPage.vue`, `CheckoutPage.vue`; `components/PerformanceCard.vue`, `PaymentInformationCard.vue`, `OrderSummaryCard.vue`; reuse `src/components/cards/PaymentCardPlan.vue` and `BillingDetailsCard.vue` | `composables/useSubscriptionPage.ts`, `useCheckoutPage.ts`, `services/subscriptionService.ts`, `checkoutService.ts`, `stores/SubscriptionStore.ts`, `CheckoutStore.ts`; stores own confirmed billing/checkout state and actions. |
+| `account` | `modules/account/pages/ProfilePage.vue`, `SettingsPage.vue` | `composables/useProfilePage.ts`, `useSettingsPage.ts`, `services/accountService.ts`, `stores/UserStore.ts`; store owns confirmed profile/preferences and save actions. |
 
-Module roots are `modules/<module>/`. Stores call services and own shared actions; pages/features read their store directly. Generic components retain props/events. Do not turn local menus, field drafts or collapse state into application stores.
+Shared layouts live under `src/layouts/{PublicLayout,ApplicationLayout,TrainingLayout}.vue` and are consumed by the routes listed below. Shared Vue views live under `src/components/`: `buttons/Button.vue`, `fields/{TextField,NumberField,SelectField,DateField}.vue`, `forms/CollapseForm.vue`, `navs/{TopNav,SidebarNav}.vue`, `tables/BaseTable.vue`, and `cards/{FeatureCard,PaymentCardPlan,BillingDetailsCard}.vue`. Checkout-only `PerformanceCard.vue` remains at `modules/subscription/components/PerformanceCard.vue`. Shared behavior lives in `src/composables/`: `ButtonController.ts`, `useField.ts`, the field-specific composables, and navigation composables only where reused. `CollapseForm` needs no behavior module. Shared assets and styles live in `src/assets/` and `src/styles/`; route definitions/guards live in `src/router/`. API calls remain in service modules, invoked through owning store actions or local composables. Do not create empty logic files for static views.
 
-### Layouts, Routes and Navigation
+Module roots are `modules/<module>/`. Stores call services and own shared actions; pages/features access their store directly. Generic components retain props/events. Initialize Pinia once. Keep local menus, field drafts, and collapse state local; do not persist passwords, tokens, or provider secrets.
+### Layouts, Routes, Access, and Navigation
 
-Use `layouts/PublicLayout.vue`, `AuthenticationLayout.vue`, `ApplicationLayout.vue`, `TrainingLayout.vue`. Public/auth layouts own branding, public navigation, responsive content/footer. Application/training own sidebar and main content; application owns its header. Shared session-aware wiring belongs in `composables/useLayoutNavigation.ts`. Application visual reference is `prototypes/design/layouts/application.html`; dedicated navigation overrides embedded examples.
+Implement `PublicLayout`, `ApplicationLayout`, and `TrainingLayout` from `docs/frontend/layouts.md`. Authentication remains a dialog hosted by the Public Layout; do not create an unused standalone Authentication Layout or login/register route. Application layout owns the authenticated header/sidebar. Use the dedicated authenticated navigation prototype for appearance and responsive behavior.
 
-| Path | Page | Layout | Access / route name |
-| --- | --- | --- | --- |
-| `/` | HomePage | PublicLayout | Public / `home` |
-| `/features` | FeaturesPage | PublicLayout | Public / `feature` |
-| `/pricing` | PricingPage | PublicLayout | Public / `pricing` |
-| `/training` | TrainingPage | TrainingLayout | Authenticated / `training` |
-| `/dashboard` | DashboardPage | ApplicationLayout | Authenticated / `dashboard` |
-| `/history` | HistoryPage | ApplicationLayout | Authenticated / no required name supplied |
-| `/subscription` | SubscriptionPage | ApplicationLayout | Authenticated / no required name supplied |
-| `/profile` | ProfilePage | ApplicationLayout | Authenticated / `profile` |
-| `/settings` | SettingsPage | ApplicationLayout | Authenticated / `settings` |
-| `/checkout` | CheckoutPage | ApplicationLayout | Authenticated / `checkout` |
-| `/not-found` | NotFoundPage | PublicLayout | Public / `not-found` |
+| Path | Name | Page | Layout | Access and parameters |
+| --- | --- | --- | --- | --- |
+| `/` | `home` | Home | Public Layout | Public |
+| `/features` | `feature` | Features | Public Layout | Public |
+| `/training` | `training` | Training | Training Layout | Authenticated |
+| `/pricing` | `pricing` | Pricing | Public Layout | Public |
+| `/dashboard` | `dashboard` | Dashboard | Authenticated Application Layout | Authenticated |
+| `/history` | `history` | History | Authenticated Application Layout | Authenticated |
+| `/sessions/:sessionId` | `session-review` | Session Review | Authenticated Application Layout | Authenticated; required opaque `sessionId`; server authorizes access |
+| `/progress` | `progress` | Progress | Authenticated Application Layout | Authenticated; no path parameter |
+| `/subscription` | `subscription` | Subscription | Authenticated Application Layout | Authenticated |
+| `/profile` | `profile` | Profile | Authenticated Application Layout | Authenticated |
+| `/settings` | `settings` | Settings | Authenticated Application Layout | Authenticated |
+| `/checkout` | `checkout` | Checkout | Authenticated Application Layout | Authenticated |
+| `/not-found` | `not-found` | Not Found | Public Layout | Public; unknown paths resolve here |
 
-Implement registration in `router/index.ts`, access/return handling in `router/guards.ts`; unknown URLs use Not Found. No invented Session Review/Progress/auth routes. Public navigation is Home, Training, Pricing, Login Modal; authenticated navigation is Dashboard, Training, History, Subscription, Profile, Settings, Checkout. Preserve requested destinations through sign-in, update navigation immediately on session changes and redirect authenticated users away from auth when applicable. Backend remains authorization authority. Session Review and Progress are authenticated Application Layout surfaces whose exact page/embedded placement, paths/names, parameters and entry points remain explicitly unresolved in the route specification.
+Authenticated navigation items are Dashboard, Training, History, Progress, Subscription, Profile, Settings, and Checkout. History and Dashboard session rows link to Session Review with the server-supplied session ID; Session Review is nested under History and is not a top-level navigation item. The authenticated sidebar includes Progress after History. Public navigation exposes Home, Training, Pricing, and the login dialog. Preserve a validated internal return destination through authentication. Router guards improve navigation only; backend authorization protects all data and actions. Session lookup failure is unavailable, not signed out; `401` and `403` remain distinct.
 
-### Components and Page Composition
+### Shared Components and Page Composition
 
-- `components/buttons/Button.vue` uses `composables/ButtonController.ts`, adapting inspected `useButtonController`. Props: variant primary/secondary/ghost, size small/medium, type button/submit/reset, disabled/loading. States: default, hover, active, focus-visible, disabled, loading. Disabled/loading prevent activation; loading exposes busy/spinner state. Emit `click` with the DOM event; no callback props or business logic. Start Training and View Progress are usages, not components. No existing `to`/RouterLink mode; navigation remains in parent handlers or link components.
-- `components/fields/` owns TextField, NumberField, SelectField, DateField Vue views. Shared `composables/useField.ts` plus `useTextField.ts`, `useNumberField.ts`, `useSelectField.ts`, `useDateField.ts` own UI value handling. Preserve parent models, IDs, native attributes, numeric empty null, multiple selection, timezone-free date strings and accessible labels.
-- `components/forms/CollapseForm.vue` owns only native expanded/collapsed state, title/description and default/footer slots; no behavior file or schema renderer. Profile owns its four section configurations and fields; Settings owns its actual prototype sections, validation/save/reset and slots. Do not extract section components.
-- `components/navs/TopNav.vue`, `SidebarNav.vue` use shared `composables/useTopNav.ts`, `useSidebarNav.ts`. Preserve parent destinations/current state, keyboard/Escape, responsive drawer focus containment, scroll locking and cleanup. Dedicated public navigation controls visible actions; legacy register event does not require another visible button.
-- `components/tables/BaseTable.vue` owns presentational title/columns/rows/rowKey/cell slots. `components/cards/FeatureCard.vue` owns number/title/description. Neither accesses services/stores or needs placeholder behavior files.
-- `components/cards/PaymentPlanCard.vue` is the single shared plan card for Pricing and Subscription. `selected` Boolean defaults false and changes CSS only; `active` represents current subscription independently. Parent supplies plan/price/features and handles emitted action through shared Button. The later implementation retains PaymentPlanCard for plan selection and the distinct PerformanceCard for Checkout summaries; BillingDetailsCard owns the separate billing panel. The old cross-concept prop-consolidation requirement is superseded.
-- `modules/subscription/components/PaymentInformationCard.vue` and `OrderSummaryCard.vue` retain page-supplied display props, unique IDs, disabled masked/sample payment fields and parent-owned completion; no placeholder composables. Checkout retains PerformanceCard on the left above payment information, summary on the right.
-- Home uses `modules/public/components/HomePageInfoSection.vue` and `modules/public/composables/useHomePageInfoSection.ts` for existing alignment/cleanup and parent-owned CTA actions through Button. `modules/public/components/home-page-video-slider/HomePageVideoSlider.vue` adapts the real Vue entry. Keep its local `SliderController.ts`, `PixiRenderer.ts`, `VideoTimelineController.ts`, `PlayerAnalysisTimeline.ts`, `AnimationTimeline.ts`, `AudioTimeline.ts`, `AIMotionTrackingPanel.ts`, `SliderLifecycle.ts`, configuration, styles and media together. Controller composes, renderer owns geometry/GPU resources, timelines own timing, each owner cleans up once. Preserve intended playback and illustrative status behavior; source inspection is not proof that prototype lifecycle is production-ready.
-- Pricing uses Starter/Performance/Pro instances of the shared card; surrounding DOM remains in-page. Features reuses FeatureCard/Button, with other content inline; StatCard usage is None. Dashboard keeps static sections and Session History in-page; layout supplies header/sidebar. History uses BaseTable. Subscription uses the shared plan card and BillingDetailsCard. Training keeps camera entry plus Coaching Cue, Connection and Session panels inline, with one existing camera/modal flow and no invented collapsible sections.
+- `Button` is presentation, UI state, and `click` event emission. Preserve documented variants `primary`, `secondary`, `ghost`; sizes `small`, `medium`; types `button`, `submit`, `reset`; Boolean `disabled` and `loading`. Loading/disabled prevent activation. No callback prop, business logic, or `to`/RouterLink behavior. The parent owns actions and navigation.
+- Shared field family: `TextField`, `NumberField`, `SelectField`, `DateField`, based on the existing field and composable conventions. Preserve parent-owned model values, native attributes, accessible labels, numeric empty value `null`, multiple selection, and timezone-free `YYYY-MM-DD` date strings.
+- `CollapseForm` is a generic title/description and default/footer-slot container with native expanded/collapsed UI state; no form-schema renderer. Profile and Settings own section configuration, values, validation, and actions.
+- `TopNav` and `SidebarNav` preserve parent-owned links/current route and accessible keyboard, focus, responsive drawer, Escape, and cleanup behavior from existing examples.
+- `BaseTable` renders supplied title, columns, rows, row key, and cell slots. `FeatureCard` renders the numbered feature content. Neither accesses stores or services.
+- One `PaymentCardPlan` serves Pricing and Subscription. Its `selected` prop changes presentation only; `statusLabel` independently represents the current subscription. Parent supplies `planName`, formatted `price`, optional `billingPeriod`, `description`/`features`, labels and handles emitted actions. `BillingDetailsCard` remains a separate billing panel with only the existing renewal and payment-method display fields. Checkout retains its distinct `PerformanceCard`, `PaymentInformationCard`, and `OrderSummaryCard` contracts; disabled payment fields accept only sample/masked display text and never collect card data.
+- Home reuses the verified `HomePageInfoSection` and Vue slider entry. Keep slider controller, renderer, timeline, configuration, styles, and media in its owning feature. Controller coordinates; renderer owns graphics resources; each timeline owns its timing; each resource owner performs cleanup once. Source review does not establish production lifecycle readiness.
+- Features reuses `FeatureCard` and `Button`; other page content remains page-level DOM. Dashboard, History, Subscription, Profile, Settings, and Checkout follow their page prototypes and the specific composition rules in `pages-and-routes.md` and `components.md`.
 
-### Training, Auth and Integration Ownership
+### Integration Contracts and Ownership
 
-Under `modules/training/`, `components/TrainingCamera.vue` uses `composables/useCameraSession.ts` for permission, selected-device persistence/switching, tracks, initialization cancellation and device errors. `components/CameraPreviewModal.vue` uses `composables/useCameraPreviewModal.ts` for dialog/scroll lifecycle, media attachment, local microphone mute, feedback derivation and close. Preview is muted; do not invent microphone upload. The modal requests track release through the camera owner. Closing/Escape/device loss/unmount releases all resources; stopping analysis alone preserves preview.
+Use `docs/frontend/integration-contracts.md` as the proposed fixture/API example for authentication/session, training session lifecycle and versioned WebSocket analysis events, history/review/progress, dashboard/profile/settings, provider-hosted checkout, and shared errors. These shapes are proposals, not approved live backend interfaces. Frontend views and tests can be planned against fixtures; live service integration requires backend confirmation/adaptation.
 
-`composables/useVideoAnalysis.ts` owns paced capture/resize/formatting/cancellation; `services/trainingTransport.ts` owns bounded transmission and connection/message lifecycle. Prototype JPEG/WebSocket and JSON events are not an approved production contract. Feed backend results through the existing overlay slot and session feedback state. `composables/useAudioOutput.ts` owns play/stop/pause/resume/interrupt, latest relevant cue, no overlap, errors and release separately from transport. TrainingSessionStore accumulates stroke successes, mistakes, recommendations and summary; coordinator owns global failure, children clean their own resources. No browser inference, per-frame LLM, fabricated results or low-confidence advice.
+- Authentication service handles cookie-backed login/registration/session/logout, provider redirects, second-factor challenges, expiry and safe internal return navigation. Backend owns authentication authority, authorization, OAuth secret handling, and session validity.
+- Training camera logic owns acquired media tracks and the selected device. `useCameraSession.ts` enumerates available `videoinput` devices after permission, retains the selected device for the active training flow, and exposes a switch action. Switching acquires the replacement stream first, atomically makes it authoritative for preview/capture, then releases the previous stream through this sole track owner; failure keeps the usable current stream or reports unavailable when none remains. Device-change handling detects removal of the selected camera and offers an explicit fallback/retry without silently changing an active stream. Capture/resize/cancellation belongs to the analysis composable; bounded WebSocket sending/reception belongs to the training transport service. The camera modal owns dialog lifecycle, media attachment, local mute, and presentation of feedback in its existing overlay slot, while requesting track release from the camera owner. `TrainingSessionStore.ts` stores server-issued `player_feedback` events by `eventId`, ignores duplicates, associates them with the current session and tracks only the supported successful-stroke, mistake and recommendation classifications. Completion sends the collected feedback event IDs; the backend validates ownership and returns the canonical summary, which replaces any provisional client aggregation. The current prototype calls track stopping from both `CameraPreviewModal.cleanup()` and `useCameraSession.stopCamera()`; implementation must remove duplicate stopping and retain only the camera session owner as the track-release authority. Stopping analysis stops capture/sending but preserves preview; leaving or closing stops analysis and releases tracks. No browser inference, LLM in the per-frame path, microphone upload, or fabricated/low-confidence advice.
+- Audio playback is a separate training owner in `useAudioOutput.ts`. It exposes start, stop, pause, resume, and interrupt operations plus authoritative idle/loading/playing/paused/error state. It consumes backend `coaching_audio` commands, prevents overlap, replaces or interrupts playback deterministically for the latest relevant higher-priority instruction, reports unavailable resources/playback failure without changing analysis truth, and revokes/releases owned media resources independently from transport.
+- Session review and progress display only server-supported values with their units, time ranges, availability and confidence/provenance. Do not calculate coaching conclusions in the browser.
+- Subscription starts provider-hosted checkout from a plan identifier. The backend/provider handles sensitive payment data and transactions; backend webhooks are verified/idempotent. Checkout success is shown only after backend verification, never from a redirect query alone. The frontend never stores/processes raw card values.
 
-Auth covers email/password, Google, Apple, 2FA, required-field validation, requests, restoration while valid, session expiry/logout cleanup, errors and routing. Protocol/provider/challenge details remain external dependencies. Never persist credentials. Checkout uses backend-created provider-hosted checkout or protected provider fields, with success/cancellation/failure/recovery states; no raw card data or frontend billing authority. Data/transport contracts must be approved before integration; unavailable backend implementation alone does not block independently testable frontend work.
+### Design, Application States, Accessibility, and Verification Plan
 
-### Design, States and Verification
+Apply visual tokens and page structure from the referenced prototypes and shared design rules: dark green `#07100c`, panel `#0d1913`, text `#f4f7f5`, muted `#a8b5ae`, lime `#b7ff4a`, cyan `#65e8ff`, radius `22px`, Inter/system typography, public container `1160px`, sidebar `244px`. These values are source-derived examples; preserve each page prototype hierarchy and responsive behavior. No rendered alignment has been verified.
 
-Use source-derived dark green `#07100c`, panels `#0d1913`, text `#f4f7f5`, muted `#a8b5ae`, lime `#b7ff4a`, cyan `#65e8ff`, radius `22px`, Inter/system typography, public container `1160px`, sidebar `244px`. Preserve prototype spacing/hierarchy, responsive stacking and dedicated navigation breakpoints. No rendered alignment has been verified.
+Implement the state/recovery matrix in `pages-and-routes.md`: loading, empty/insufficient data, success, validation, recoverable error, unavailable, disconnected, pending and verified completion as applicable. Keep camera, transport, session, analysis, auth and billing statuses distinct. Do not render fabricated metrics, sessions, analysis, or payment state.
 
-Cover desktop/tablet/mobile, safe mobile Training, no unintended overflow, semantic labels, keyboard/focus, accessible icons, sufficient contrast, async announcements and reduced motion. Applicable states: initial/loading/empty/success/validation/recoverable error/unavailable/disconnected. Prototype metrics/prices remain illustrative.
+Support desktop/tablet/mobile, usable narrow-screen navigation and training layout, no unintended horizontal overflow, semantic controls, associated labels, keyboard access, visible focus, adequate contrast, accessible icon names, asynchronous announcements, and reduced motion.
 
-Schedule Vitest route/access, component contracts and lifecycle tests; Playwright page/navigation/login-return checks, camera start/switch/permission/stop/exit, transport payload mocks, no transmission after stop, overlay/audio cleanup, checkout states, responsive screenshots and visual review. Include applicable ESLint/static checks and production build. Use mocks against approved contracts, report unresolved backend work separately, and do not claim simulated functionality complete. No implementation checks run during planning.
+Future verification sequence: unit tests for routes/access guards, field/Button and component contracts, session state, analysis cancellation and cleanup; service tests against the example fixtures; integration tests for authentication return/error states, camera permission, device enumeration, successful atomic switching, selected-device retention, removed-device failure/fallback, sole-owner stream cleanup and stop/unmount; tests for audio start/stop/pause/resume/interrupt, overlap prevention, priority replacement, failure state and resource release; per-stroke feedback accumulation and completed-session summary, transport disconnect/reconnect and no frame sends after stop, overlay cleanup, server-verified checkout return; responsive Playwright navigation and screenshots; lint/static checks and production build. These checks were not run during planning. Do not represent fixture-backed functionality as live backend integration.
 
 ### Open Questions and Blockers
 
-| ID | Missing decision / source | Impact and blocking | Required resolution |
-| --- | --- | --- | --- |
-| R1 | Session Review and Progress entries in `docs/frontend/pages-and-routes.md` explicitly unresolved | Blocks complete screen/route/navigation coverage | Define separate versus embedded surfaces, component contract, paths/names when needed, parameters and entry points |
-| R2 | CameraPreviewModal in `docs/frontend/components.md` lacks production transport; root auth/audio/data/checkout need contracts | Blocks affected integrations and definitive contract tests | Supply or identify approved transport/auth/session/audio/data/payment contracts; do not confuse missing backend runtime with missing contract |
-| R3 | Historical plan-card consolidation finding | Superseded by the later Pricing/Subscription scope | Use the current PaymentPlanCard and BillingDetailsCard contracts; retain the distinct Checkout PerformanceCard |
-
-The old slider HTML, duplicate Checkout name, wrong Application layout reference, Subscription StatCard requirement, conflicting Button variants/ownership and missing Button/modal behavior mapping are not carried forward as current blockers. Features specifies StatCard usage as None and reuses only FeatureCard/Button; the previous wording warning is resolved.
+| Question or missing information | Affected plan items | Implementation impact | Blocking | Required resolution |
+| --- | --- | --- | --- | --- |
+| Backend/product owners have not confirmed the proposed endpoint names, schemas, transport semantics, authentication details, units, limits, and provider mappings in `docs/frontend/integration-contracts.md`. | Live auth, training analysis/audio, session data, progress, account data, billing integration. | Frontend can implement UI and fixtures against the examples, but live service integration must wait for backend agreement. | No for frontend structure/UI/fixture-backed work; yes for connecting live services. | Backend owners confirm or adapt each example contract before its live integration; record the agreed contract at the integration boundary. |
 
 ### Build Order
 
-1. Resolve required source decisions/contracts and independently validate the complete plan.
-2. Establish required application structure, tooling, Pinia/router and design foundation/layouts.
-3. Adapt shared components and their explicit UI behavior contracts.
-4. Build module stores/services and feature components against approved contracts.
-5. Compose pages/routes and session-aware navigation/access.
-6. Integrate auth, camera/analysis/audio, data and secure checkout.
-7. Validate responsive/accessibility/application states and resource lifecycle.
-8. Run required tests, static checks, production build and source-alignment review; distinguish completed frontend work from pending backend work.
+1. Inspect and preserve the existing frontend placeholder; establish the shallow Vue/TypeScript/Vite structure and initialize router/Pinia once.
+2. Define design tokens, accessibility foundation, shared components, Public/Application/Training layouts, and auth dialog host.
+3. Implement public pages and authentication/session state against the example contracts and honest pending/error states.
+4. Implement Dashboard, History, Session Review, and Progress pages/routes with server-owned data and state handling.
+5. Implement Training camera lifecycle, bounded analysis transport, feedback overlay, audio playback and cleanup boundaries.
+6. Implement Profile and Settings against their account service contracts.
+7. Implement Subscription and provider-hosted Checkout with backend-verified return states.
+8. Validate responsive/accessibility and resource lifecycle behavior; run tests, lint/static checks, production build and source-alignment review.
+9. Report every unavailable backend integration separately; do not deploy or claim simulated functionality as complete.
 
 ## 3. Validation Findings
 
-The independent validator read the current specifications and raw references and returned `status: invalid`, `validated_plan: null`. The workflow stopped before correction because the route/surface and integration-contract errors require authoritative user or product decisions.
+Independent validation result: `status: invalid`, `validated_plan: null` after 1 invocation and 0 correction attempts.
 
-| ID | Affected section and source | Problem / blocking impact | Required resolution |
+| Section and source | Blocking problem | Required resolution |
+| --- | --- | --- |
+| Training feedback — `docs/frontend/frontend.md`, Coaching Feedback and Analysis Client; `docs/frontend/integration-contracts.md`, training transport/reconnect | `player_feedback` now defines identity, deduplication and canonical completion, but no ordering guarantee or replay/resume/catch-up rule after reconnect. The client cannot know whether events were missed or whether submitted `feedbackEventIds` are complete. | Define an authoritative monotonic sequence and resume cursor/replay behavior, or an explicit snapshot/review reconciliation contract, including completion behavior while delivery gaps remain. Then update ownership and deterministic reconnect/completion tests. |
+| Shared cards — `docs/frontend/components.md`, PaymentCardPlan and BillingDetailsCard | The plan names the shared cards but omits part of their newly authoritative props/events, so downstream builders would need to reopen sources or guess. | Record `PaymentCardPlan` props `planName`, `price`, `billingPeriod`, `description`, `features`, `statusLabel`, `selected`, `selectedLabel`, `actionLabel` and payload-free `action`; record `BillingDetailsCard` props `title`, `renewalText`, `paymentMethodText`, `actionLabel` and payload-free `action`, with page-owned behavior. |
+
+| ID | Source | Non-blocking warning | Required follow-up |
 | --- | --- | --- | --- |
-| R1 | Layouts/routes — `docs/frontend/pages-and-routes.md`, Session Review | Final surface, route/name, session-selection parameters and entry point are unresolved | Decide separate versus embedded presentation, component/page contract, route path/name if separate, session identifier/selection and navigation entry point |
-| R2 | Layouts/routes — `docs/frontend/pages-and-routes.md`, Progress | Required surface, route/name, parameters and navigation destination are unresolved; Dashboard/prototype evidence is explicitly insufficient | Define the Progress page or embedded contract, path/name if separate, parameters and authenticated entry point |
-| R3 | Training integration — `docs/frontend/components.md`, CameraPreviewModal; root Analysis Client and Acceptance Criterion 4 | The prototype JPEG/WebSocket flow is not an approved production contract; endpoint, authentication, schemas, confidence/error, cancellation and reconnection rules are missing | Designate an authoritative analysis transport contract covering all of those behaviors |
-| R4 | Auth/session/data/audio/checkout — root Authentication, Audio Output, Coaching Feedback, Subscription and backend boundary | Google/Apple/2FA, session lifecycle, application data, audio commands and secure checkout/customer-portal contracts are unidentified | Supply authoritative backend/provider contracts and map request/response/error/cancellation states without raw card handling |
-| R5 | Project Structure and Layouts — `docs/frontend/layouts.md`, Authentication Layout | `AuthenticationLayout.vue` is planned, but no page, route, modal host or other consumer is defined | Define how it participates in modal auth, including owner and composition, or authoritatively replace it without adding an unsupported auth route |
-| R6 | Design, States and Verification — root Required Application States and Acceptance Criterion 6 | The global state list is not mapped to each data-bearing page/integration, its owner, recovery action or non-fabrication behavior | Add a state matrix or equivalent detail for Dashboard, History, Session Review, Progress, Subscription, Profile, Settings, auth and checkout |
+| W1 | `docs/frontend/integration-contracts.md` — Contract adoption; `docs/frontend/frontend.md` — Acceptance Criterion 9 | Endpoint names, schemas, limits, authentication details, transport semantics, units and provider mappings remain unconfirmed. Fixture-backed frontend work may proceed; live service connection remains blocked. | Obtain backend/product confirmation or adaptation before enabling or claiming live integration. |
+| W2 | `docs/frontend/frontend.md` — Acceptance Criterion 3; `.codex/skills/frontend-plan-validator.md` — Design and prototypes | Source markup/styles were inspectable, but no rendered-browser comparison exists at planning time. | Perform the planned Playwright screenshots and visual review after implementation; do not claim rendered alignment before that check. |
 
-| ID | Source | Non-blocking warning | Action |
-| --- | --- | --- | --- |
-| W1 | Root visual acceptance criteria and `.codex/rules/frontend-planning.md` | Source inspection does not establish rendered desktop/tablet/mobile or interaction alignment | Run the planned Playwright screenshots and semantic visual review during implementation |
-| W2 | Open Questions and Blockers; `docs/frontend/pages-and-routes.md`, Features | Resolved: Features now specifies StatCard usage as None | Keep the current PaymentPlanCard/BillingDetailsCard/PerformanceCard contracts; no StatCard component is required |
-
-The corrected slider reference, unique Checkout route name, Application Layout reference, shared Button contract and Button/modal behavior placement are supported by current sources. The old Subscription StatCard requirement is gone. No new self-validation verdict replaces the independent result, and no future test is reported as passed.
+No implementation tests, build, dependency installation, browser rendering, or live integration checks ran during this planning command.
 
 ## 4. Stop Status
 
-`STOP`: planning only. English output: `docs/debug_plan_outputs/new_frontend_plan_N.md`. Bulgarian output: `docs/debug_plan_outputs/new_frontend_plan_BG.md`, translated from the exact saved English report. No source/specification/configuration changes, implementation, builds, dependency installations or deployment were performed during this execution.
+`STOP`: planning only. English output: `docs/debug_plan_outputs/new_frontend_plan_N.md`. Bulgarian output: `docs/debug_plan_outputs/new_frontend_plan_BG.md`, translated from this saved English report. No implementation, source scaffolding, dependency installation, build, or deployment is part of this run.

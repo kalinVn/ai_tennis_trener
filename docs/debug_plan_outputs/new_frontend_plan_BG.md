@@ -6,132 +6,154 @@
 - Спецификация: `docs/frontend/frontend.md`.
 - Дата на изпълнение: `2026-10-08`.
 - Резултат: `blocked`; независима валидация на плана: `invalid`; `validated_plan: null`.
-- Извиквания на валидатора: 1. Завършени прегледи на плана спрямо източниците: 1. Опити за корекция на плана: 0.
-- Структурираният резултат съдържа 6 грешки и 2 предупреждения. Необходимите продуктови решения и договори спират следващите опити за корекция според `.codex/workflows/frontend-planning.md`. Това е отхвърлен частичен план, а не одобрение за имплементация.
-- При старта имаше съществуващи промени в документацията и те са запазени. Това изпълнение записва само двойката английски/български доклади.
+- Извиквания на валидатора: 1. Опити за корекция на плана: 0.
+- Валидаторът откри 2 грешки и 2 предупреждения. Липсващото авторитетно решение за feedback ordering/replay спира correction loop-а незабавно според `.codex/workflows/frontend-planning.md`; пропускът в card contract-а също остава в този отхвърлен draft.
+- Това изпълнение започна след промените по документацията в работното дърво. При планирането се записва само тази двойка доклади; промените в документацията бяха налични при старта.
+- Имплементация, промени по приложния код, инсталиране на зависимости, build и deployment са извън обхвата на това изпълнение и не са извършвани.
 
 ### Източници и приоритет
 
-Прегледан контекст за планиране: `AGENTS.md`, `.codex/skills/debug-frontend-plan/SKILL.md`, `.codex/commands/debug_frontend_plan.md`, `.codex/workflows/frontend-planning.md`, `.codex/rules/frontend-planning.md`, `.codex/skills/plan-new-frontend-design.md`, `.codex/skills/frontend-plan-validator.md`, `.codex/skills/frontend-project-structure.md`, `.codex/references/frontend-architecture.md` и приложимите му референции в `claude/skills/frontend-code-architect/`.
+Прочетени са `AGENTS.md`, `.codex/commands/debug_frontend_plan.md`, `.codex/workflows/frontend-planning.md`, `.codex/rules/frontend-planning.md`, `.codex/skills/plan-new-frontend-design.md`, `.codex/skills/frontend-plan-validator.md`, `.codex/skills/frontend-project-structure.md` и `.codex/references/frontend-architecture.md` заедно с приложимите архитектурни препратки в `claude/skills/frontend-code-architect/`.
 
-Продуктови източници: `docs/frontend/frontend.md`, `docs/frontend/pages-and-routes.md`, `docs/frontend/components.md`, `docs/frontend/layouts.md`. Старият `docs/frontend/design-plan.md` и предишните debug доклади не са авторитетни заместители на тези източници.
+Прочетени са авторитетните продуктови източници `docs/frontend/frontend.md`, `docs/frontend/pages-and-routes.md`, `docs/frontend/components.md`, `docs/frontend/layouts.md` и `docs/frontend/integration-contracts.md`. Визуалните и поведенческите източници включват каталога и посочените page/component/layout/navigation прототипи под `prototypes/design/`, както и съответните Vue и composable примери под `prototypes/components/` и `prototypes/composables/`. Проверена е директорията `frontend/`; тя съдържа placeholder съдържание, а не установена application имплементация.
 
-Доказателствата включват каталога, HTML страниците/layout-ите/компонентите и споделените стилове в `prototypes/design/`, специализираните навигационни прототипи, примерите за field/form/navigation/card/Button/camera, Vue входния компонент и controller на slider-а, `prototypes/home/main.js` и организационния auth пример в `prototypes/modules/user/`. Прототипният код подпомага решенията за преизползване и собственост на ресурсите, но не определя production backend договори. Действителната директория `frontend/` и реферираните пътища са проверени. Валидаторът независимо прочете текущите спецификации и приложимите оригинални прототипи/код. Не са извършвани рендериране в браузър или implementation тестове.
+Основните изисквания и изрично посочените авторитетни supporting документи имат предимство пред прототипите; специализираните navigation прототипи имат предимство пред вградените примери за навигация. Изходният код на прототипите показва визуално намерение и примерни поведения, а не production backend договор. Предложените integration примери са цел за планиране и frontend fixtures, а не доказателство за имплементирани endpoint-и или одобрение от backend екипа. Не е проверявано съответствие в рендериран браузър и не са изпълнявани имплементационни проверки.
 
-Активните инструкции запазват TypeScript и backend като авторитет. Текущите спецификации имат предимство пред прототипите; специализираната навигация има предимство пред вградената; действителните визуални референции имат предимство пред общите дизайн стойности по подразбиране. Текущата slider референция е съществуващият Vue компонент, Checkout е с име `checkout`, а Application Layout сочи към `prototypes/design/layouts/application.html`. Тези предишни дефектни дефиниции вече не блокират този проект.
+## 2. План за имплементация на frontend-а
 
-## 2. План за frontend имплементация — отхвърлен частичен проект
+### Тип на frontend-а
 
-### Тип на frontend
-
-`new`. Директорията на приложението `frontend/` съдържа placeholder съдържание; предложените файлове по-долу са бъдеща работа. Това е частичен план, който очаква задължителни решения по източниците.
+`new` — Vue приложението ще бъде създадено под `frontend/`; съществуващият placeholder ще се запази до отделно разрешена имплементация. Този план не създава файлове.
 
 ### Структура на проекта
 
-Запазват се Vue 3, TypeScript, Vite, Vue Router и Pinia. Всички пътища по-долу са относителни спрямо `frontend/src/`. Pinia се инициализира еднократно. Шаблоните/минималното свързване остават във Vue, поведението — във външен TypeScript, API достъпът — в services, споделеното състояние/действия — в stores, а локалното UI състояние — в composables. Никога не се съхраняват secrets. Споделените `components/`, `composables/`, `services/`, `stores/`, `router/`, `styles/`, `assets/` остават извън модулите. Feature assets и helpers остават при собственика си; няма празни файлове за поведение на пасивни изгледи.
+Запазват се Vue 3, TypeScript, Vite, Vue Router и Pinia. Структурата остава плитка. Пътищата по-долу са планирани под `frontend/src/`.
 
-| Модул | Изгледи в pages/ на модула | Поведение, services и състояние в същия модул |
+```text
+src/
+  app/                 # application bootstrap and root composition, only if needed
+  modules/
+    public/
+    auth/
+    dashboard/
+    training/
+    sessions/
+    progress/
+    subscription/
+    account/
+  components/          # shared UI components and their families
+  composables/         # genuinely cross-module behavior only
+  services/            # shared external/API communication only
+  stores/              # application-wide state only
+  router/
+  assets/
+  styles/
+```
+
+Всеки feature модул притежава свои `pages/`, `components/`, `composables/`, `services/` и `stores/` само когато файловете са специфични за него. Страниците композират компоненти; компонентите използват props/events и не притежават page business действия. Services изпълняват API комуникацията; Pinia stores извикват services и притежават споделеното състояние на feature-а. Страници и компоненти във feature модулите четат store директно, вместо да препредават споделено състояние през вериги от props. Pinia се инициализира веднъж. Локалното UI състояние остава локално; пароли, token-и и provider secrets никога не се съхраняват.
+
+| Модул | Планирани Vue изгледи/компоненти | Разположение на поведението, services и state |
 | --- | --- | --- |
-| `public` | `HomePage.vue`, `FeaturesPage.vue`, `PricingPage.vue`, `NotFoundPage.vue` | `composables/usePricingPage.ts` делегира действията за планове към subscription; Home поведението принадлежи на неговите features |
-| `auth` | Login/registration използва `components/AuthModal.vue`; provider/challenge интерфейсите очакват договори | `composables/useAuthForm.ts`, `services/authService.ts`; споделеният собственик на сесията е общият за приложението `stores/AuthStore.ts` |
-| `dashboard` | `DashboardPage.vue` | `composables/useDashboardPage.ts`, `stores/DashboardStore.ts`, `services/dashboardService.ts` притежават loading и обзорните данни |
-| `training` | `TrainingPage.vue` | `composables/useTrainingPage.ts`, `stores/TrainingSessionStore.ts`; camera/analysis/audio collaborators са изброени по-долу |
-| `sessions` | `HistoryPage.vue`; интерфейсът Session Review не е уточнен | `composables/useHistoryPage.ts`, `stores/TrainingHistoryStore.ts`, `services/sessionService.ts` |
-| `progress` | Интерфейсът не е уточнен | Модулът притежава представянето на trends и next-focus; конкретните файлове очакват решения за екран/данни |
-| `subscription` | `SubscriptionPage.vue`, `CheckoutPage.vue` | `composables/useSubscriptionPage.ts`, `composables/useCheckoutPage.ts`, `stores/SubscriptionStore.ts`, `stores/CheckoutStore.ts`, `services/subscriptionService.ts` |
-| `account` | `ProfilePage.vue`, `SettingsPage.vue` | `composables/useProfilePage.ts`, `composables/useSettingsPage.ts`, `stores/UserStore.ts`, `services/accountService.ts` |
+| `public` | `modules/public/pages/HomePage.vue`, `FeaturesPage.vue`, `PricingPage.vue`, `NotFoundPage.vue`; `components/HomePageInfoSection.vue`; адаптация на съществуващия `components/home-page-video-slider/HomePageVideoSlider.vue` | `composables/useHomePageInfoSection.ts`, `composables/usePricingPage.ts`; Pricing делегира избора на план към subscription. За статично представяне няма service/store. |
+| `auth` | `modules/auth/components/AuthModal.vue`, `LoginForm.vue`, `RegistrationForm.vue`, `SecondFactorForm.vue`; хостват се от `PublicLayout` | `composables/useAuthModal.ts`, `composables/useAuthForm.ts`, `services/authService.ts`; `src/stores/AuthStore.ts` притежава application-wide session state и действията му. |
+| `dashboard` | `modules/dashboard/pages/DashboardPage.vue` | `composables/useDashboardPage.ts`, `services/dashboardService.ts`, `stores/DashboardStore.ts`; service изпълнява заявката за overview, store притежава споделените dashboard резултат/loading/error. |
+| `training` | `modules/training/pages/TrainingPage.vue`; `components/TrainingCamera.vue`, `CameraPreviewModal.vue`; overlay съдържанието се рендерира в съществуващия modal slot | `composables/useTrainingPage.ts`, `useCameraSession.ts`, `useCameraPreviewModal.ts`, `useVideoAnalysis.ts`, `useAudioOutput.ts`; `services/trainingSessionService.ts`, `trainingTransport.ts`; `stores/TrainingSessionStore.ts` притежава session и feedback state. |
+| `sessions` | `modules/sessions/pages/HistoryPage.vue`, `SessionReviewPage.vue` | `composables/useHistoryPage.ts`, `useSessionReviewPage.ts`, `services/sessionService.ts`, `stores/TrainingHistoryStore.ts`; store притежава състоянието на session списъка, review страницата зарежда оторизираната сесия по route id. |
+| `progress` | `modules/progress/pages/ProgressPage.vue` | `composables/useProgressPage.ts`, `services/progressService.ts`, `stores/ProgressStore.ts`; server притежава поддържаните измервания и focus. |
+| `subscription` | `modules/subscription/pages/SubscriptionPage.vue`, `CheckoutPage.vue`; `components/PerformanceCard.vue`, `PaymentInformationCard.vue`, `OrderSummaryCard.vue`; използват се повторно `src/components/cards/PaymentCardPlan.vue` и `BillingDetailsCard.vue` | `composables/useSubscriptionPage.ts`, `useCheckoutPage.ts`, `services/subscriptionService.ts`, `checkoutService.ts`, `stores/SubscriptionStore.ts`, `CheckoutStore.ts`; stores притежават потвърденото billing/checkout състояние и действия. |
+| `account` | `modules/account/pages/ProfilePage.vue`, `SettingsPage.vue` | `composables/useProfilePage.ts`, `useSettingsPage.ts`, `services/accountService.ts`, `stores/UserStore.ts`; store притежава потвърдения profile/preferences и действията за запис. |
 
-Основните директории на модулите са `modules/<module>/`. Stores извикват services и притежават споделените действия; страниците/features четат своя store директно. Общите компоненти запазват props/events. Локалните менюта, временните field стойности и collapse състоянието не се превръщат в application stores.
+Споделените layout Vue изгледи са в `src/layouts/{PublicLayout,ApplicationLayout,TrainingLayout}.vue` и се използват от изброените routes. Споделените Vue изгледи са в `src/components/`: `buttons/Button.vue`, `fields/{TextField,NumberField,SelectField,DateField}.vue`, `forms/CollapseForm.vue`, `navs/{TopNav,SidebarNav}.vue`, `tables/BaseTable.vue` и `cards/{FeatureCard,PaymentCardPlan,BillingDetailsCard}.vue`. Checkout-only `PerformanceCard.vue` остава в `modules/subscription/components/PerformanceCard.vue`. Споделеното поведение е в `src/composables/`: `ButtonController.ts`, `useField.ts`, composable-ите за отделните полета и composable-и за навигация само когато се използват повторно. `CollapseForm` няма нужда от behavior модул. Споделените assets и styles са в `src/assets/` и `src/styles/`; route дефинициите и guard-овете са в `src/router/`. API извикванията остават в service модулите и се изпълняват чрез действията на owning store или локални composable-и. Не се създават празни logic файлове за статични изгледи.
 
-### Layout-и, routes и навигация
+Корените на feature модулите са `modules/<module>/`. Stores извикват services и притежават споделените действия; страниците и features достъпват store директно. Generic компонентите запазват props/events. Pinia се инициализира веднъж. Локалните менюта, черновите на полета и състоянието collapse остават локални; пароли, token-и и provider secrets не се съхраняват.
 
-Използват се `layouts/PublicLayout.vue`, `AuthenticationLayout.vue`, `ApplicationLayout.vue`, `TrainingLayout.vue`. Public/auth layout-ите притежават branding, публична навигация, responsive съдържание/footer. Application/training притежават sidebar и основно съдържание; application притежава своя header. Споделеното свързване със сесията принадлежи в `composables/useLayoutNavigation.ts`. Визуалната Application референция е `prototypes/design/layouts/application.html`; специализираната навигация има предимство пред вградените примери.
+### Layouts, routes, достъп и навигация
 
-| Път | Страница | Layout | Достъп / route име |
-| --- | --- | --- | --- |
-| `/` | HomePage | PublicLayout | Публичен / `home` |
-| `/features` | FeaturesPage | PublicLayout | Публичен / `feature` |
-| `/pricing` | PricingPage | PublicLayout | Публичен / `pricing` |
-| `/training` | TrainingPage | TrainingLayout | Authenticated / `training` |
-| `/dashboard` | DashboardPage | ApplicationLayout | Authenticated / `dashboard` |
-| `/history` | HistoryPage | ApplicationLayout | Authenticated / няма зададено задължително име |
-| `/subscription` | SubscriptionPage | ApplicationLayout | Authenticated / няма зададено задължително име |
-| `/profile` | ProfilePage | ApplicationLayout | Authenticated / `profile` |
-| `/settings` | SettingsPage | ApplicationLayout | Authenticated / `settings` |
-| `/checkout` | CheckoutPage | ApplicationLayout | Authenticated / `checkout` |
-| `/not-found` | NotFoundPage | PublicLayout | Публичен / `not-found` |
+Имплементират се `PublicLayout`, `ApplicationLayout` и `TrainingLayout` според `docs/frontend/layouts.md`. Authentication остава dialog, хостван от Public Layout; не се създава неизползван самостоятелен Authentication Layout или login/register route. Application layout притежава authenticated header/sidebar. За изгледа и responsive поведението се използва специализираният authenticated navigation прототип.
 
-Регистрацията се реализира в `router/index.ts`, обработката на достъп/връщане — в `router/guards.ts`; непознатите URL адреси използват Not Found. Не се измислят Session Review/Progress/auth routes. Публичната навигация е Home, Training, Pricing, Login Modal; authenticated навигацията е Dashboard, Training, History, Subscription, Profile, Settings, Checkout. Поискани destinations се запазват през sign-in, навигацията се обновява незабавно при промяна на сесията и authenticated потребителите се пренасочват от auth, когато е приложимо. Backend остава авторитетът за authorization. Session Review и Progress са authenticated Application Layout интерфейси, чието точно разположение като страници/вградени интерфейси, paths/names, parameters и entry points остават изрично неуточнени в route спецификацията.
+| Път | Име | Страница | Layout | Достъп и параметри |
+| --- | --- | --- | --- | --- |
+| `/` | `home` | Home | Public Layout | Public |
+| `/features` | `feature` | Features | Public Layout | Public |
+| `/training` | `training` | Training | Training Layout | Authenticated |
+| `/pricing` | `pricing` | Pricing | Public Layout | Public |
+| `/dashboard` | `dashboard` | Dashboard | Authenticated Application Layout | Authenticated |
+| `/history` | `history` | History | Authenticated Application Layout | Authenticated |
+| `/sessions/:sessionId` | `session-review` | Session Review | Authenticated Application Layout | Authenticated; изисква непрозрачен `sessionId`; server разрешава достъпа |
+| `/progress` | `progress` | Progress | Authenticated Application Layout | Authenticated; няма path параметър |
+| `/subscription` | `subscription` | Subscription | Authenticated Application Layout | Authenticated |
+| `/profile` | `profile` | Profile | Authenticated Application Layout | Authenticated |
+| `/settings` | `settings` | Settings | Authenticated Application Layout | Authenticated |
+| `/checkout` | `checkout` | Checkout | Authenticated Application Layout | Authenticated |
+| `/not-found` | `not-found` | Not Found | Public Layout | Public; непознатите пътища се насочват тук |
 
-### Компоненти и композиция на страниците
+Authenticated навигацията съдържа Dashboard, Training, History, Progress, Subscription, Profile, Settings и Checkout. Редовете за сесии в History и Dashboard водят към Session Review с върнатия от server session ID; Session Review е вложен в History и не е отделен елемент от основната навигация. В authenticated sidebar Progress е след History. Public навигацията показва Home, Training, Pricing и login dialog. По време на authentication се запазва валидирана вътрешна дестинация за връщане. Router guards подобряват само навигацията; backend authorization защитава всички данни и действия. Неуспешната проверка на сесията е unavailable, а не signed out; `401` и `403` остават различни.
 
-- `components/buttons/Button.vue` използва `composables/ButtonController.ts`, адаптирайки прегледания `useButtonController`. Props: variant primary/secondary/ghost, size small/medium, type button/submit/reset, disabled/loading. Състояния: default, hover, active, focus-visible, disabled, loading. Disabled/loading предотвратяват активация; loading показва busy/spinner състояние. Излъчва се `click` с DOM event; няма callback props или business logic. Start Training и View Progress са употреби, а не компоненти. Няма съществуващ `to`/RouterLink режим; навигацията остава в parent handlers или link компоненти.
-- `components/fields/` притежава TextField, NumberField, SelectField, DateField Vue изгледите. Споделеният `composables/useField.ts` заедно с `useTextField.ts`, `useNumberField.ts`, `useSelectField.ts`, `useDateField.ts` притежава UI обработката на стойности. Запазват се parent models, IDs, native attributes, празна числова стойност null, multiple selection, date strings без timezone conversion и достъпни labels.
-- `components/forms/CollapseForm.vue` притежава само native expanded/collapsed състоянието, title/description и default/footer slots; няма behavior файл или schema renderer. Profile притежава конфигурациите и полетата на четирите си секции; Settings притежава действителните си prototype секции, validation/save/reset и slots. Не се извличат компоненти за секции.
-- `components/navs/TopNav.vue`, `SidebarNav.vue` използват споделените `composables/useTopNav.ts`, `useSidebarNav.ts`. Запазват се parent destinations/current state, keyboard/Escape, responsive drawer focus containment, scroll locking и cleanup. Специализираната публична навигация определя видимите действия; legacy register event не изисква още един видим бутон.
-- `components/tables/BaseTable.vue` притежава presentation title/columns/rows/rowKey/cell slots. `components/cards/FeatureCard.vue` притежава number/title/description. Никой от двата не достъпва services/stores и не изисква placeholder behavior файлове.
-- `components/cards/PaymentPlanCard.vue` е единственият shared plan card за Pricing и Subscription. Boolean `selected` е false по подразбиране и променя само CSS; `active` представя текущия абонамент независимо от него. Родителят подава plan/price/features и обработва излъченото действие чрез shared Button. Последващата имплементация запазва PaymentPlanCard за избор на план и отделния PerformanceCard за Checkout summaries; BillingDetailsCard притежава отделния billing панел. Старото изискване за обединяване на props между различните концепции е отменено.
-- `modules/subscription/components/PaymentInformationCard.vue` и `OrderSummaryCard.vue` запазват подадените от страницата display props, уникалните IDs, disabled masked/sample payment полета и parent-owned completion; няма placeholder composables. Checkout запазва PerformanceCard вляво над payment information, а summary е вдясно.
-- Home използва `modules/public/components/HomePageInfoSection.vue` и `modules/public/composables/useHomePageInfoSection.ts` за съществуващото alignment/cleanup и parent-owned CTA действия чрез Button. `modules/public/components/home-page-video-slider/HomePageVideoSlider.vue` адаптира реалния Vue входен компонент. Локалните му `SliderController.ts`, `PixiRenderer.ts`, `VideoTimelineController.ts`, `PlayerAnalysisTimeline.ts`, `AnimationTimeline.ts`, `AudioTimeline.ts`, `AIMotionTrackingPanel.ts`, `SliderLifecycle.ts`, configuration, styles и media остават заедно. Controller композира, renderer притежава geometry/GPU ресурсите, timelines притежават timing, а всеки собственик почиства еднократно. Запазват се предвиденото playback и илюстративното status поведение; прегледът на кода не доказва, че prototype lifecycle е готов за production.
-- Pricing използва Starter/Performance/Pro инстанции на shared card; околният DOM остава в страницата. Features преизползва FeatureCard/Button, а останалото съдържание е inline; използването на StatCard е None. Dashboard запазва статичните секции и Session History в страницата; layout осигурява header/sidebar. History използва BaseTable. Subscription използва shared plan card и BillingDetailsCard. Training запазва camera entry и панелите Coaching Cue, Connection и Session inline, с един съществуващ camera/modal flow и без измислени collapsible секции.
+### Shared компоненти и композиция на страниците
 
-### Собственост при Training, Auth и интеграцията
+- `Button` осигурява presentation, UI state и излъчване на `click`. Запазват се документираните варианти `primary`, `secondary`, `ghost`; размери `small`, `medium`; типове `button`, `submit`, `reset`; Boolean `disabled` и `loading`. Loading/disabled спират активацията. Няма callback prop, business logic или `to`/RouterLink поведение. Родителят притежава действията и навигацията.
+- Семейството shared fields включва `TextField`, `NumberField`, `SelectField`, `DateField`, според съществуващите field/composable конвенции. Запазват се parent-owned model стойности, native attributes, достъпни labels, `null` за празно числово поле, multiple selection и date string `YYYY-MM-DD` без timezone конверсия.
+- `CollapseForm` е generic контейнер с title/description и default/footer slots, с native expanded/collapsed UI state; няма renderer за form schema. Profile и Settings притежават конфигурацията на секциите, стойностите, валидацията и действията.
+- `TopNav` и `SidebarNav` запазват parent-owned линкове/current route и достъпното keyboard, focus, responsive drawer, Escape и cleanup поведение от съществуващите примери.
+- `BaseTable` визуализира подадени title, columns, rows, row key и cell slots. `FeatureCard` показва номерираното feature съдържание. Нито един от тях няма достъп до stores или services.
+- Един `PaymentCardPlan` се използва в Pricing и Subscription. Неговият `selected` prop променя само presentation; `statusLabel` независимо представя текущия абонамент. Родителят подава `planName`, форматиран `price`, optional `billingPeriod`, `description`/`features`, labels и обработва излъчените действия. `BillingDetailsCard` остава отделен billing panel само със съществуващите renewal и payment-method display полета. Checkout запазва отделните договори на `PerformanceCard`, `PaymentInformationCard` и `OrderSummaryCard`; disabled payment полетата приемат само sample/masked display текст и никога не събират данни за карта.
+- Home използва повторно потвърдения `HomePageInfoSection` и Vue slider entry. Slider controller, renderer, timeline, configuration, styles и media остават в owning feature. Controller координира; renderer притежава графичните ресурси; всяка timeline притежава времето си; всеки resource owner извършва cleanup еднократно. Прегледът на източника не доказва готовност на lifecycle за production.
+- Features използва повторно `FeatureCard` и `Button`; останалото съдържание на страницата остава page-level DOM. Dashboard, History, Subscription, Profile, Settings и Checkout следват page прототипите и конкретните composition правила в `pages-and-routes.md` и `components.md`.
 
-В `modules/training/` компонентът `components/TrainingCamera.vue` използва `composables/useCameraSession.ts` за permission, запазване/смяна на избраното устройство, tracks, initialization cancellation и device errors. `components/CameraPreviewModal.vue` използва `composables/useCameraPreviewModal.ts` за dialog/scroll lifecycle, media attachment, local microphone mute, feedback derivation и close. Preview е muted; не се измисля microphone upload. Modal заявява освобождаване на tracks чрез camera owner. Closing/Escape/device loss/unmount освобождава всички ресурси; спирането само на analysis запазва preview.
+### Integration договори и собственост
 
-`composables/useVideoAnalysis.ts` притежава paced capture/resize/formatting/cancellation; `services/trainingTransport.ts` притежава bounded transmission и connection/message lifecycle. Прототипните JPEG/WebSocket и JSON events не са одобрен production договор. Backend results се подават през съществуващия overlay slot и session feedback state. `composables/useAudioOutput.ts` притежава play/stop/pause/resume/interrupt, latest relevant cue, no overlap, errors и release отделно от transport. TrainingSessionStore натрупва stroke successes, mistakes, recommendations и summary; coordinator притежава global failure, а children почистват собствените си ресурси. Няма browser inference, per-frame LLM, измислени results или low-confidence съвети.
+Използва се `docs/frontend/integration-contracts.md` като предложен пример за fixtures/API за authentication/session, training session lifecycle и versioned WebSocket analysis events, history/review/progress, dashboard/profile/settings, provider-hosted checkout и shared errors. Тези shapes са предложения, а не одобрени live backend interfaces. Frontend views и tests могат да бъдат планирани спрямо fixtures; live service интеграцията изисква потвърждение или адаптация от backend екипа.
 
-Auth обхваща email/password, Google, Apple, 2FA, required-field validation, requests, restoration докато сесията е валидна, session expiry/logout cleanup, errors и routing. Protocol/provider/challenge детайлите остават външни зависимости. Никога не се съхраняват credentials. Checkout използва създаден от backend provider-hosted checkout или protected provider fields със success/cancellation/failure/recovery състояния; няма raw card data или frontend billing authority. Data/transport договорите трябва да бъдат одобрени преди интеграцията; само недостъпната backend имплементация не блокира независимо тествана frontend работа.
+- Authentication service управлява cookie-backed login/registration/session/logout, provider redirects, second-factor challenges, expiry и безопасна вътрешна дестинация за връщане. Backend притежава authentication authority, authorization, OAuth secret handling и валидността на сесията.
+- Training camera логиката притежава получените media tracks и избраното устройство. `useCameraSession.ts` изброява наличните `videoinput` устройства след permission, запазва избраното устройство за активния training flow и предоставя switch действие. Смяната първо придобива replacement stream, атомарно го прави авторитетен за preview/capture и след това освобождава предишния stream чрез този единствен track owner; при неуспех се запазва използваемият текущ stream или се отчита unavailable, когато няма такъв. Device-change обработката открива премахване на избраната камера и предлага изричен fallback/retry, без мълчаливо да сменя активния stream. Capture/resize/cancellation принадлежи на analysis composable; ограниченото WebSocket изпращане/приемане принадлежи на training transport service. Camera modal притежава dialog lifecycle, media attachment, local mute и визуализацията на feedback в съществуващия overlay slot, като иска освобождаването на tracks от camera owner-а. `TrainingSessionStore.ts` съхранява server-issued `player_feedback` events по `eventId`, игнорира duplicates, свързва ги с текущата session и следи само поддържаните successful-stroke, mistake и recommendation classifications. Completion изпраща събраните feedback event IDs; backend проверява ownership и връща canonical summary, което заменя всяка provisional client aggregation. Текущият прототип спира tracks както от `CameraPreviewModal.cleanup()`, така и от `useCameraSession.stopCamera()`; имплементацията трябва да премахне двойното спиране и да запази camera session owner-а като единствен авторитет за освобождаване на tracks. Спирането на анализа спира capture/sending, но запазва preview; излизането или затварянето спира анализа и освобождава tracks. Няма browser inference, LLM в per-frame path, microphone upload или измислени/low-confidence съвети.
+- Audio playback е отделен training owner в `useAudioOutput.ts`. Той предоставя start, stop, pause, resume и interrupt операции плюс авторитетно idle/loading/playing/paused/error състояние. Обработва backend `coaching_audio` команди, предотвратява застъпване, заменя или прекъсва playback детерминистично за последната релевантна инструкция с по-висок priority, отчита unavailable ресурси/playback failure без промяна на analysis truth и освобождава притежаваните media ресурси отделно от transport.
+- Session review и progress показват само подкрепени от server стойности с техните units, времеви диапазони, availability и confidence/provenance. В browser-а не се изчисляват coaching заключения.
+- Subscription стартира provider-hosted checkout само с plan identifier. Backend/provider обработва чувствителните payment данни и транзакции; backend webhooks се проверяват и са idempotent. Checkout success се показва само след backend verification, никога само по redirect query. Frontend никога не съхранява/обработва сурови card стойности.
 
-### Дизайн, състояния и проверка
+### Дизайн, състояния на приложението, достъпност и план за проверка
 
-Използват се извлечените от източниците тъмнозелено `#07100c`, панели `#0d1913`, текст `#f4f7f5`, muted `#a8b5ae`, lime `#b7ff4a`, cyan `#65e8ff`, radius `22px`, Inter/system typography, public container `1160px`, sidebar `244px`. Запазват се prototype spacing/hierarchy, responsive stacking и специализираните navigation breakpoints. Не е проверено съответствие на рендерирания резултат.
+Прилагат се визуалните tokens и структура от посочените прототипи и shared design правилата: тъмнозелено `#07100c`, panel `#0d1913`, текст `#f4f7f5`, muted `#a8b5ae`, lime `#b7ff4a`, cyan `#65e8ff`, radius `22px`, Inter/system typography, public container `1160px`, sidebar `244px`. Това са примери, извлечени от източниците; йерархията и responsive поведението на всяка страница се запазват. Не е проверено съответствие на рендериран резултат.
 
-Обхващат се desktop/tablet/mobile, безопасно mobile Training състояние, липса на нежелан overflow, semantic labels, keyboard/focus, достъпни икони, достатъчен контраст, async announcements и reduced motion. Приложими състояния: initial/loading/empty/success/validation/recoverable error/unavailable/disconnected. Прототипните metrics/prices остават илюстративни.
+Имплементира се матрицата за състояния и възстановяване от `pages-and-routes.md`: loading, empty/insufficient data, success, validation, recoverable error, unavailable, disconnected, pending и verified completion според приложимостта. Състоянията на camera, transport, session, analysis, auth и billing остават отделни. Не се показват измислени metrics, sessions, analysis или payment state.
 
-Планират се Vitest route/access, component contracts и lifecycle тестове; Playwright page/navigation/login-return проверки, camera start/switch/permission/stop/exit, transport payload mocks, липса на transmission след stop, overlay/audio cleanup, checkout states, responsive screenshots и visual review. Включват се приложимите ESLint/static checks и production build. Използват се mocks спрямо одобрени договори, неразрешената backend работа се отчита отделно и симулирана функционалност не се представя като завършена. По време на планирането не се изпълняват implementation проверки.
+Поддържат се desktop/tablet/mobile, използваема навигация и training оформление на тесен екран, липса на нежелан хоризонтален overflow, семантични контроли, свързани labels, keyboard достъп, видим focus, достатъчен contrast, достъпни имена за икони, известяване за асинхронни промени и reduced motion.
+
+Бъдеща последователност за проверка: unit tests за routes/access guards, field/Button и component договори, session state, analysis cancellation и cleanup; service tests спрямо примерните fixtures; integration tests за authentication return/error състояния, camera permission, device enumeration, успешна atomic switching, selected-device retention, removed-device failure/fallback, sole-owner stream cleanup и stop/unmount; тестове за audio start/stop/pause/resume/interrupt, overlap prevention, priority replacement, failure state и resource release; натрупване на per-stroke feedback и completed-session summary, transport disconnect/reconnect и липса на frame изпращане след stop, overlay cleanup, server-verified checkout return; responsive Playwright навигация и screenshots; lint/static checks и production build. Тези проверки не са изпълнявани по време на планирането. Fixture-backed функционалността не се представя за live backend интеграция.
 
 ### Отворени въпроси и блокери
 
-| ID | Липсващо решение / източник | Въздействие и блокиране | Необходимо разрешаване |
-| --- | --- | --- | --- |
-| R1 | Записите Session Review и Progress в `docs/frontend/pages-and-routes.md` са изрично неуточнени | Блокира пълното покритие на екрани/routes/навигация | Определяне на отделни спрямо вградени интерфейси, component contract, paths/names при необходимост, parameters и entry points |
-| R2 | CameraPreviewModal в `docs/frontend/components.md` няма production transport; основните auth/audio/data/checkout изискват договори | Блокира засегнатите интеграции и окончателните contract tests | Предоставяне или посочване на одобрени transport/auth/session/audio/data/payment договори; липсващ backend runtime не се смесва с липсващ договор |
-| R3 | Историческа констатация за обединяване на plan cards | Отменена от последващия Pricing/Subscription обхват | Използват се текущите PaymentPlanCard и BillingDetailsCard договори; запазва се отделният Checkout PerformanceCard |
+| Въпрос или липсваща информация | Засегнати елементи на плана | Въздействие върху имплементацията | Блокиращо | Необходимо разрешаване |
+| --- | --- | --- | --- | --- |
+| Backend/product собствениците не са потвърдили предложените endpoint имена, schemas, transport semantics, authentication детайли, units, limits и provider mappings в `docs/frontend/integration-contracts.md`. | Live auth, training analysis/audio, session данни, progress, account данни, billing интеграция. | Frontend може да имплементира UI и fixtures спрямо примерите, но live service интеграцията трябва да изчака съгласуване с backend екипа. | Не за frontend структура/UI/fixture-backed работа; да за свързването на live services. | Backend собствениците потвърждават или адаптират всеки примерен договор преди live интеграцията му; договореното се записва при integration boundary. |
 
-Старият slider HTML, дублираното Checkout име, грешната Application layout референция, Subscription StatCard изискването, противоречивите Button variants/ownership и липсващото Button/modal behavior mapping не се пренасят като текущи блокери. Features определя използването на StatCard като None и преизползва само FeatureCard/Button; предишното предупреждение за формулировката е разрешено.
+### Ред на изграждане
 
-### Ред за изграждане
-
-1. Разрешаване на необходимите source decisions/contracts и независима валидация на пълния план.
-2. Създаване на необходимите application structure, tooling, Pinia/router и design foundation/layouts.
-3. Адаптиране на shared components и изричните им UI behavior договори.
-4. Изграждане на module stores/services и feature components спрямо одобрените договори.
-5. Композиране на pages/routes и session-aware navigation/access.
-6. Интегриране на auth, camera/analysis/audio, данни и защитен checkout.
-7. Проверка на responsive/accessibility/application states и resource lifecycle.
-8. Изпълнение на необходимите тестове, static checks, production build и source-alignment review; разграничаване на завършената frontend работа от чакащата backend работа.
+1. Преглед и запазване на съществуващия frontend placeholder; изграждане на плитката Vue/TypeScript/Vite структура и еднократна инициализация на router/Pinia.
+2. Дефиниране на design tokens, accessibility основа, shared компоненти, Public/Application/Training layouts и auth dialog host.
+3. Имплементиране на public страниците и authentication/session state спрямо примерните договори и честните pending/error състояния.
+4. Имплементиране на Dashboard, History, Session Review и Progress страниците/routes със server-owned данни и управление на състоянието.
+5. Имплементиране на Training camera lifecycle, ограничен analysis transport, feedback overlay, audio playback и cleanup граници.
+6. Имплементиране на Profile и Settings спрямо account service договорите.
+7. Имплементиране на Subscription и provider-hosted Checkout с backend-verified return състояния.
+8. Проверка на responsive/accessibility и resource lifecycle поведението; изпълнение на tests, lint/static checks, production build и преглед спрямо източниците.
+9. Всеки unavailable backend integration се отчита отделно; simulated функционалността не се обявява за завършена и не се прави deployment.
 
 ## 3. Констатации от валидацията
 
-Независимият валидатор прочете текущите спецификации и оригиналните референции и върна `status: invalid`, `validated_plan: null`. Workflow-ът спря преди корекция, защото грешките за routes/surfaces и integration contracts изискват авторитетни потребителски или продуктови решения.
+Независимият резултат е `status: invalid`, `validated_plan: null` след 1 извикване и 0 опита за корекция.
 
-| ID | Засегнат раздел и източник | Проблем / блокиращо въздействие | Необходимо разрешаване |
+| Раздел и източник | Блокиращ проблем | Необходимо разрешаване |
+| --- | --- | --- |
+| Training feedback — `docs/frontend/frontend.md`, Coaching Feedback и Analysis Client; `docs/frontend/integration-contracts.md`, training transport/reconnect | `player_feedback` вече дефинира identity, deduplication и canonical completion, но няма ordering guarantee или replay/resume/catch-up правило след reconnect. Client-ът не може да знае дали са пропуснати events или дали изпратените `feedbackEventIds` са пълни. | Дефиниране на авторитетна monotonic sequence и resume cursor/replay поведение или изричен snapshot/review reconciliation contract, включително completion поведение при оставащи delivery gaps. След това се обновяват ownership и deterministic reconnect/completion tests. |
+| Shared cards — `docs/frontend/components.md`, PaymentCardPlan и BillingDetailsCard | Планът именува shared cards, но пропуска част от новите им авторитетни props/events, така че downstream builders трябва да отварят източниците отново или да гадаят. | Записване на `PaymentCardPlan` props `planName`, `price`, `billingPeriod`, `description`, `features`, `statusLabel`, `selected`, `selectedLabel`, `actionLabel` и payload-free `action`; записване на `BillingDetailsCard` props `title`, `renewalText`, `paymentMethodText`, `actionLabel` и payload-free `action`, с page-owned behavior. |
+
+| ID | Източник | Неблокиращо предупреждение | Необходимо последващо действие |
 | --- | --- | --- | --- |
-| R1 | Layouts/routes — `docs/frontend/pages-and-routes.md`, Session Review | Окончателните surface, route/name, session-selection parameters и entry point са неуточнени | Решение за separate спрямо embedded presentation, component/page contract, route path/name ако е separate, session identifier/selection и navigation entry point |
-| R2 | Layouts/routes — `docs/frontend/pages-and-routes.md`, Progress | Задължителните surface, route/name, parameters и navigation destination са неуточнени; Dashboard/prototype evidence изрично е недостатъчно | Определяне на Progress page или embedded contract, path/name ако е separate, parameters и authenticated entry point |
-| R3 | Training integration — `docs/frontend/components.md`, CameraPreviewModal; основните Analysis Client и Acceptance Criterion 4 | Прототипният JPEG/WebSocket flow не е одобрен production contract; липсват endpoint, authentication, schemas, confidence/error, cancellation и reconnection правила | Определяне на авторитетен analysis transport contract, който покрива всички тези поведения |
-| R4 | Auth/session/data/audio/checkout — основните Authentication, Audio Output, Coaching Feedback, Subscription и backend boundary | Google/Apple/2FA, session lifecycle, application data, audio commands и secure checkout/customer-portal договорите не са идентифицирани | Предоставяне на авторитетни backend/provider договори и mapping на request/response/error/cancellation states без обработка на raw card данни |
-| R5 | Project Structure и Layouts — `docs/frontend/layouts.md`, Authentication Layout | `AuthenticationLayout.vue` е планиран, но няма определени page, route, modal host или друг consumer | Определяне как участва в modal auth, включително owner и composition, или авторитетната му замяна без добавяне на неподдържан auth route |
-| R6 | Design, States and Verification — основните Required Application States и Acceptance Criterion 6 | Глобалният списък със states не е съпоставен към всяка data-bearing страница/интеграция, нейния owner, recovery action или non-fabrication behavior | Добавяне на state matrix или еквивалентни детайли за Dashboard, History, Session Review, Progress, Subscription, Profile, Settings, auth и checkout |
+| W1 | `docs/frontend/integration-contracts.md` — Contract adoption; `docs/frontend/frontend.md` — Acceptance Criterion 9 | Endpoint names, schemas, limits, authentication details, transport semantics, units и provider mappings остават непотвърдени. Fixture-backed frontend работата може да продължи; live service connection остава блокиран. | Получаване на backend/product потвърждение или адаптация преди включване или заявяване на live integration. |
+| W2 | `docs/frontend/frontend.md` — Acceptance Criterion 3; `.codex/skills/frontend-plan-validator.md` — Design and prototypes | Source markup/styles са проверими, но при планирането няма rendered-browser comparison. | Изпълнение на планираните Playwright screenshots и visual review след имплементацията; rendered alignment не се заявява преди тази проверка. |
 
-| ID | Източник | Неблокиращо предупреждение | Действие |
-| --- | --- | --- | --- |
-| W1 | Основните visual acceptance criteria и `.codex/rules/frontend-planning.md` | Source inspection не установява rendered desktop/tablet/mobile или interaction alignment | Изпълнение на планираните Playwright screenshots и semantic visual review по време на имплементацията |
-| W2 | Open Questions and Blockers; `docs/frontend/pages-and-routes.md`, Features | Разрешено: Features вече определя използването на StatCard като None | Запазване на текущите PaymentPlanCard/BillingDetailsCard/PerformanceCard договори; не е необходим StatCard компонент |
-
-Коригираната slider референция, уникалното Checkout route име, Application Layout референцията, shared Button договорът и разположението на Button/modal поведението са подкрепени от текущите източници. Старото Subscription StatCard изискване е премахнато. Нова self-validation оценка не заменя независимия резултат и нито един бъдещ тест не е отчетен като преминал.
+Не са изпълнявани implementation tests, build, dependency installation, browser rendering или live integration checks по време на тази planning команда.
 
 ## 4. Статус на спиране
 
-`STOP`: само планиране. Английски изход: `docs/debug_plan_outputs/new_frontend_plan_N.md`. Български изход: `docs/debug_plan_outputs/new_frontend_plan_BG.md`, преведен от точния записан английски доклад. По време на това изпълнение не са извършвани source/specification/configuration промени, имплементация, builds, dependency installations или deployment.
+`STOP`: само планиране. Английски изход: `docs/debug_plan_outputs/new_frontend_plan_N.md`. Български изход: `docs/debug_plan_outputs/new_frontend_plan_BG.md`, преведен от този записан английски доклад. Това изпълнение не включва имплементация, създаване на source структура, инсталиране на зависимости, build или deployment.

@@ -70,9 +70,9 @@ The authoritative layout specification is [docs/frontend/layouts.md](layouts.md)
 
 Defines the required frontend pages, routes, and page-specific requirements.
 
-The authoritative pages and routes specification is [docs/frontend/pages-and-routes.md](pages-and-routes.md).
+The authoritative pages and routes specification is [docs/frontend/pages-and-routes.md](pages-and-routes.md). Example frontend/backend request and event shapes are in [docs/frontend/integration-contracts.md](integration-contracts.md); these proposals require backend confirmation before live integration.
 
-Its [Session Review](pages-and-routes.md#session-review) and [Progress](pages-and-routes.md#progress) entries distinguish confirmed requirements and existing visual evidence from unresolved page/route decisions. These features remain required; their exact destinations must not be inferred from older generated plans or workflow examples. Those plans/examples are not authoritative route definitions.
+Its [Session Review](pages-and-routes.md#session-review) and [Progress](pages-and-routes.md#progress) entries define their routes, access, parameters, navigation, and states. Proposed API examples are in [frontend integration contracts](integration-contracts.md); backend owners must confirm them before live integration.
 
 ---
 
@@ -82,7 +82,7 @@ Its [Session Review](pages-and-routes.md#session-review) and [Progress](pages-an
 - Authenticated navigation exposes all required application pages.
 - Public horizontal navigation is visible when the user is not authenticated and includes Home, Training, Pricing, and Login Modal.
 - Authenticated vertical navigation is visible when the user is authenticated and includes Dashboard, Training, History, Subscription, Profile, Settings, and Checkout.
-- Session Review and Progress access is authenticated. Their destination and navigation-placement decisions remain explicitly unresolved in the authoritative pages and routes specification; the existing navigation list does not settle whether they are separate destinations or embedded surfaces.
+- Session Review and Progress access is authenticated. History and Dashboard session rows open Session Review; the authenticated sidebar includes Progress after History.
 - Navigation remains usable with keyboard input and on mobile screens.
 
 The visual sources of truth for shared navigation layouts and states are:
@@ -108,10 +108,10 @@ The required shared components are:
 - SidebarNav
 - TopNav
 - BaseTable
-- PaymentPlanCard
+- PaymentCardPlan
 - BillingDetailsCard
 
-Each shared visual pattern uses one reusable implementation across pages. [components.md](components.md) defines the authoritative Button and PaymentPlanCard contracts, including Button props/events/ownership and the presentation-only `selected` state. Pricing and Subscription use the existing PaymentPlanCard implementation; BillingDetailsCard presents the separate billing panel. Checkout retains its distinct PerformanceCard summary.
+Each shared visual pattern uses one reusable implementation across pages. [components.md](components.md) defines the authoritative Button and PaymentCardPlan contracts, including Button props/events/ownership and the presentation-only `selected` state. Pricing and Subscription use the shared PaymentCardPlan implementation; BillingDetailsCard presents the separate billing panel. Checkout retains its distinct PerformanceCard summary.
 
 ---
 
@@ -154,9 +154,11 @@ The frontend may perform lightweight frame capture, resizing, throttling, or for
 
 ### Analysis Client
 
-The frontend sends supported input to the backend and receives structured analysis state and results through the backend transport contract.
+The frontend sends supported input to the backend and receives structured analysis state and results through the backend transport contract. The proposed versioned WebSocket envelope, frame metadata, result handling, stop, error, and reconnect behavior is specified in [integration contract examples](integration-contracts.md#training-session-and-analysis-transport). No browser inference or fabricated results are allowed.
 
 ### Audio Output
+
+The proposed `coaching_audio` event shape, instruction priority, optional authenticated audio resource, and playback failure boundary are specified in [integration contract examples](integration-contracts.md#training-session-and-analysis-transport).
 
 - Receive audio playback commands through the `Analysis Client`.
 - Play coaching audio when requested by the backend.
@@ -183,6 +185,8 @@ The frontend sends supported input to the backend and receives structured analys
 - Provide the collected feedback when the session is completed.
 
 ### Authentication
+
+The proposed cookie-backed session, login/registration, multi-factor challenge, OAuth redirect, logout, expiry, and error shapes are specified in [integration contract examples](integration-contracts.md#authentication-and-application-session). These examples keep credentials and authorization authority on the backend.
 
 - Provide login and logout functionality.
 
@@ -216,7 +220,7 @@ The frontend sends supported input to the backend and receives structured analys
 
 ### Subscription
 
-The frontend owns plan presentation, subscription interaction, and starting and completing a secure checkout flow through provider-hosted checkout or the payment provider's protected payment fields. It sends checkout requests to the backend and presents user-facing success, cancellation, payment-failure, and recoverable-error states.
+The frontend owns plan presentation, subscription interaction, and starting and completing a secure checkout flow through provider-hosted checkout or the payment provider's protected payment fields. It sends checkout requests to the backend and presents user-facing success, cancellation, payment-failure, and recoverable-error states. Proposed billing endpoint and verification shapes are in [integration contract examples](integration-contracts.md#checkout-and-billing).
 
 The frontend must never store or process raw card data. The backend and payment provider remain responsible for creating and confirming transactions and handling sensitive payment data.
 
@@ -256,7 +260,7 @@ The Training page may prioritize larger screens but must provide a safe and unde
 
 ## Required Application States
 
-Applicable pages and features must define initial, loading, empty, success, validation, recoverable error, unavailable, and disconnected states.
+Applicable pages and features must define initial, loading, empty, success, validation, recoverable error, unavailable, and disconnected states. The page-by-page matrix and recovery behavior are defined in [pages-and-routes.md](pages-and-routes.md#application-state-matrix); example data and transport distinctions are in [integration-contracts.md](integration-contracts.md). In particular, distinguish empty from unavailable, signed-out from session-check failure, and partial analysis from a complete result.
 
 Do not present fabricated analysis, session, progress, or subscription data as real.
 
