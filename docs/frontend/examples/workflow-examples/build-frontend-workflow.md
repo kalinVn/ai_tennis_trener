@@ -24,7 +24,7 @@ Example result: [Plan New Frontend Design — Example Result](./plan-new-fronten
 
 ### Validate the Frontend Plan
 
-In Step 3, the orchestrator invokes `frontend-plan-validator` with `specification_path` and the complete `frontend_plan`. The validator independently reads the original specification, applicable design rules, and referenced prototypes. It checks requirement coverage, layouts, pages, routes/access, components, module ownership, project structure, dependencies, and build order. The planning skill retains its internal checks; the orchestrator does not repeat the validator's detailed review.
+In Step 3, the orchestrator invokes `frontend-plan-validator` with `specification_path` and the complete `frontend_plan`. The validator independently reads the original specification, applicable design rules, and referenced prototypes. It checks requirement coverage, layouts, pages, routes/access, components, ownership and flat project structure, dependencies, and build order. The planning skill retains its internal checks; the orchestrator does not repeat the validator's detailed review.
 
 The validator returns `status`, actionable `errors`, non-blocking `warnings`, and the unchanged `validated_plan` only when valid. A valid result with no errors allows Step 4 to establish structure using that validated plan. Warnings remain visible to downstream work and the final report.
 

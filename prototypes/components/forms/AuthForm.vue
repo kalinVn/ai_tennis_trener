@@ -1,6 +1,6 @@
 <script setup>
 import { onUnmounted } from 'vue'
-import { useAuthStore } from '../stores/useAuthStore.js'
+import { useAuthStore } from '../../stores/useAuthStore.js'
 
 const auth = useAuthStore()
 onUnmounted(auth.$reset)

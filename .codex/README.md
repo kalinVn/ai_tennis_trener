@@ -46,9 +46,9 @@ All paths in this table are repository-relative. Originals remain unchanged.
 | `claude/PROJECT_STRUCTURE.md` | Checked as an intended inventory only | Its `.claude` layout is not the actual filesystem; avoid creating nonexistent roles from the map. |
 | `claude/commands/build-frontend.md` | `.codex/commands/debug_frontend_plan.md` | Preserve explicit specification input and new-frontend routing; replace full build with a planning-only terminal boundary. |
 | `claude/agents/new-frontend-orchestrator.md` | `.codex/workflows/frontend-planning.md` | Preserve Steps 1–3, independent validation, exact valid-plan return, and bounded corrections; exclude Steps 4–18 implementation. |
-| `claude/skills/plan-new-frontend-design.md` | `.codex/skills/plan-new-frontend-design.md` | Retain the real source-resolution/prototype-analysis process and complete Output Contract. Adapt rule paths, final handoff, and behavior-module language to active project instructions. |
+| `claude/skills/plan-new-frontend-design.md` | `.codex/skills/plan-new-frontend-design.md` | Retain the real source-resolution/prototype-analysis process and complete Output Contract. Adapt rule paths, final handoff, and behavior-file language to active project instructions. |
 | `claude/skills/frontend-plan-validator.md` | `.codex/skills/frontend-plan-validator.md` | Preserve independent source checking, errors/warnings, unchanged validated plan, and read-only validator boundaries. Adapt reference paths. |
-| `claude/skills/frontend-project-structure.md` | `.codex/skills/frontend-project-structure.md` | Planner/validator need ownership, Pinia, module/shared placement conventions; convert execution language to a read-only reference and preserve the active language policy. |
+| `claude/skills/frontend-project-structure.md` | `docs/frontend/frontend-project-structure.md` | Keep one authoritative frontend structure document; Claude and Codex compatibility files point to it. |
 | `claude/rules/frontend/frontend-design-system.md` | Read in place through `.codex/rules/frontend-planning.md` | Required authoritative visual rules; avoid copying the large maintained defaults/examples document. |
 | `claude/skills/frontend-code-architect/frontend-code-architect.md` | Routed through `.codex/references/frontend-architecture.md` | Load the existing architecture entry point in planning context. |
 | `claude/skills/frontend-code-architect/architecture-rules.md` | Read-only reference through the same adapter | Responsibilities, dependencies, contracts, reuse, and restraint. |
@@ -69,7 +69,7 @@ Supporting documentation inspected: `AGENTS.md`, `docs/frontend/frontend.md`, `d
 | `.codex/workflows/frontend-planning.md` | Real planning/validation orchestration, debug evidence envelope, translation and pair verification. |
 | `.codex/skills/plan-new-frontend-design.md` | Adapted planner instructions; a workflow role reference, not a separately registered skill. |
 | `.codex/skills/frontend-plan-validator.md` | Adapted independent validation role. |
-| `.codex/skills/frontend-project-structure.md` | Read-only structure conventions. |
+| `docs/frontend/frontend-project-structure.md` | Single source of truth for frontend structure. |
 | `.codex/rules/frontend-planning.md` | Project constraints, source precedence/resolution, read-only policy. |
 | `.codex/references/frontend-architecture.md` | Progressive routing to existing architecture context. |
 | `.codex/skills/debug-frontend-plan/SKILL.md` | Discoverable Codex entry point that executes the named command. |

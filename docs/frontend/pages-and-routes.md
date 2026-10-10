@@ -74,7 +74,7 @@
 ### Session Review
 
 - purpose: Review a previous training session's supported results and coaching feedback, including available key moments, movement trends, and next recommended focus.
-- page/component: `SessionReviewPage` in the `sessions` module.
+- page/component: `frontend/src/pages/SessionReviewPage.vue`.
 - route: `/sessions/:sessionId`
 - name: `session-review`
 - layout: `Authenticated Application Layout`
@@ -83,13 +83,13 @@
 - navigation destination: Session rows on History and Dashboard link to this route using their returned session ids. Session Review is not a top-level sidebar item; History remains the active navigation section.
 - data contract: `GET /api/v1/training/sessions/{sessionId}/review`; see [frontend integration contract examples](integration-contracts.md#session-history-session-review-and-progress-data).
 - visual references: [History](../../prototypes/design/pages/history.html) and [Training Session Card](../../prototypes/design/components/training-session-card.html). These provide visual cues only; they do not establish data or behavior beyond this entry.
-- module: `sessions`.
+- state owner: `frontend/src/stores/TrainingHistoryStore.ts`; data access: `frontend/src/services/sessionService.ts`.
 - states: loading, not found/unauthorized, success, partial/insufficient data, recoverable error, unavailable.
 
 ### Progress
 
 - purpose: Present supported trends, improvement areas, and the next recommended focus.
-- page/component: `ProgressPage` in the `progress` module.
+- page/component: `frontend/src/pages/ProgressPage.vue`.
 - route: `/progress`
 - name: `progress`
 - layout: `Authenticated Application Layout`
@@ -98,7 +98,7 @@
 - navigation destination: Authenticated sidebar item `Progress`, placed after History. Compact Dashboard progress summaries may link here.
 - data contract: `GET /api/v1/progress` using its backend default range; see [frontend integration contract examples](integration-contracts.md#session-history-session-review-and-progress-data).
 - visual references: [Dashboard](../../prototypes/design/pages/dashboard.html) and [Charts & Progress](../../prototypes/design/components/charts-progress.html). These are partial visual references; they do not authorize fabricated metrics or charts.
-- module: `progress`.
+- state owner: `frontend/src/stores/ProgressStore.ts`; data access: `frontend/src/services/progressService.ts`.
 - states: loading, empty/insufficient data, success, recoverable error, unavailable.
 
 ### Application State Matrix

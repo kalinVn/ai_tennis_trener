@@ -25,15 +25,45 @@ For this project, use the provided specification_path as the root frontend speci
 
 ### Load Referenced Planning Sources
 
-After reading the frontend specification, identify the authoritative supporting specifications and visual sources it declares. Load only the referenced sources needed for the design plan:
+After reading the frontend specification, identify the authoritative supporting specifications and visual sources it declares.
 
-Read the Visual Prototype section in the main frontend specification, open each referenced prototype, and extract the relevant requirements.
+Load the supporting specifications needed to make frontend planning decisions.
 
-Apply this selected-source scope throughout prototype resolution and analysis. Follow relevant references in supporting specifications only when needed to resolve a planning decision. Verify required sources exist; report missing sources or unresolved conflicts as blockers rather than inventing requirements.
+For visual prototypes, do not inspect or analyze the prototype implementation at this planning stage. Instead, identify and record:
 
-Use these sources to derive frontend architecture, module and page structure, layout structure, shared and feature component boundaries, dependencies, and implementation order within the existing Output Contract. Derive final folders from the specification's structure constraints. Translate prototype intent into reusable design tokens, components, pages, and responsive behavior rather than copying prototype implementation code.
+- the prototype path;
+- which page, layout, or component it belongs to;
+- whether it is a page-level, component-level, or state-specific prototype;
+- any relationship between referenced prototypes that is explicitly declared by the specification.
 
-Reference source specifications in the plan instead of copying their contents unnecessarily. Include the concrete decisions and requirements needed by the Output Contract and downstream builders; do not reproduce entire supporting specifications, prototypes, or design-system documents.
+Use the Visual Prototype section in the main frontend specification as the authoritative mapping source.
+
+Do not extract detailed UI requirements, styling, markup, behavior, or implementation details from prototype files during planning. Detailed prototype analysis belongs to the downstream skill responsible for implementing the corresponding page or component.
+
+Apply this selected-source scope throughout prototype resolution and planning.
+
+Follow references in supporting specifications only when they are needed to resolve a planning decision.
+
+Verify that all required supporting specifications and referenced prototype paths exist. Report missing sources, ambiguous mappings, or unresolved specification conflicts as blockers rather than inventing requirements.
+
+Use the main frontend specification and authoritative supporting specifications to derive:
+
+- frontend architecture;
+- module and page structure;
+- layout structure;
+- shared and feature component boundaries;
+- dependencies;
+- ownership boundaries;
+- implementation order;
+- final folder structure.
+
+For visual prototypes, include their references in the plan so downstream builders know exactly which prototype to inspect when implementing each page or component.
+
+Do not translate prototype implementation details into the design plan at this stage.
+
+Reference source specifications and prototype paths in the plan instead of copying their contents unnecessarily.
+
+Include only the concrete planning decisions and requirements needed by the Output Contract and downstream builders. Do not reproduce entire supporting specifications, prototypes, or design-system documents.
 
 ---
 
@@ -43,7 +73,8 @@ Reference source specifications in the plan instead of copying their contents un
 When requirements conflict, use:
 
 1. Project frontend specification resolved from `specification_path` and the authoritative supporting specifications it declares. The root specification defines source responsibilities and precedence; report unresolved conflicts between authoritative requirements.
-2. Visual prototypes referenced by those specifications (referenced resources, not separate inputs). Apply declared visual precedence: dedicated navigation prototypes override older embedded navigation examples.
+2. Visual prototypes referenced by those specifications (referenced resources, not separate inputs). 
+isual prototype priority determines which prototype reference is authoritative; it does not require detailed prototype inspection or analysis during the planning stage.Apply declared visual precedence: dedicated navigation prototypes override older embedded navigation examples.
 3. Shared frontend design rules (`../rules/frontend/frontend-design-system.md`).
 
 Higher-priority requirements override lower-priority defaults.
@@ -67,24 +98,13 @@ If a prototype is referenced:
 
 1. resolve the prototypes path
 2. verify that it exists
-3. inspect it before producing the design plan
+3. Resolve the prototype path, verify that the referenced source exists, and record which page, layout, component, or state it belongs to. Do not inspect or analyze the prototype implementation during the planning stage.
 
 If an explicitly required prototype is missing, stop and report the missing path.
 
 Do not silently substitute another prototype.
 
----
-
-## 3. Analyze the Prototype
-
-When a prototype exists, inspect it before producing the frontend design plan. Analyze only what is actually present in the provided prototype. Use concrete examples from that prototype and if something is missing or unclear, document that without guessing. Then look at visual structure, meaning hierarchy, major sections, composition, and layout patterns, and describe how each page or screen is arranged. Next, review all UI components and surfaces that are actually present, such as buttons, forms, cards, navigation, dialogs, shared containers, and any other visible elements, and for each of them, where applicable, note relative size, alignment, spacing, padding, typography, colors, borders, corner radii, shadows, grouping, and any shown states. Only in the prototype. Don't invent missing states or variants. After that, if your prototype includes example component implementations or sample code, analyze those too. How components are structured, composed, nested, what variants or states are demonstrated, and how that maps to the visuals. Use it as guidance. Don't treat it as final production architecture, unless the specification requires it. Also, recognize genuinely recurring visual patterns and note possible reuse without locking in architecture.Inspect any composables, hooks, or shared frontend logic used by the prototype components when they help explain component behavior, state, or reuse, without treating them as mandatory production architecture
-
-Do not copy prototype implementation code.
-
-Use the prototype to determine the intended design system.
-
----
-
+--
 
 
 # Output Contract

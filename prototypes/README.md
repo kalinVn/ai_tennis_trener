@@ -73,6 +73,6 @@ Checkout retains its distinct PerformanceCard order summary. Pricing and Subscri
 
 ## Pricing and Subscription cards
 
-Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry modules mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing actions open the existing registration dialog; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare public pricing remains a page-level link.
+Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry scripts mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing actions open the existing registration dialog; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare public pricing remains a page-level link.
 
 Card design examples are `design/components/cards/payment-card-plan.html` (normal), `design/components/cards/payment-card-plan-selected.html` (selected state of the same component) and `design/components/cards/billing-details-card.html`. The build includes the Pricing and Subscription entries.

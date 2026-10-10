@@ -27,46 +27,8 @@ Root requirements and their explicitly authoritative supporting documents take p
 
 ### Project Structure
 
-Preserve Vue 3, TypeScript, Vite, Vue Router, and Pinia. Keep the structure shallow. Paths below are planned beneath `frontend/src/`.
+Use `docs/frontend/frontend-project-structure.md` as the single source of truth for physical frontend structure. This report does not redefine it.
 
-```text
-src/
-  app/                 # application bootstrap and root composition, only if needed
-  layouts/             # shared PublicLayout, ApplicationLayout, TrainingLayout
-  modules/
-    public/
-    auth/
-    dashboard/
-    training/
-    sessions/
-    progress/
-    subscription/
-    account/
-  components/          # shared UI components and their families
-  composables/         # genuinely cross-module behavior only
-  services/            # shared external/API communication only
-  stores/              # application-wide state only
-  router/
-  assets/
-  styles/
-```
-
-Each feature module owns its `pages/`, `components/`, `composables/`, `services/`, and `stores/` only where those files are feature-specific. Pages compose components; components use props/events and do not own page business actions. Services perform API communication; Pinia stores call services and own shared feature state. Module pages/components access their stores directly rather than forwarding shared state through prop chains. Initialize Pinia once. Keep local UI state local and never persist passwords, tokens, or provider secrets.
-
-| Module | Planned Vue views/components | Behavior, service, and state placement |
-| --- | --- | --- |
-| `public` | `modules/public/pages/HomePage.vue`, `FeaturesPage.vue`, `PricingPage.vue`, `NotFoundPage.vue`; `components/HomePageInfoSection.vue`; adapt the existing `components/home-page-video-slider/HomePageVideoSlider.vue` | `composables/useHomePageInfoSection.ts`, `composables/usePricingPage.ts`; Pricing delegates plan selection to subscription. No service/store for static presentation. |
-| `auth` | `modules/auth/components/AuthModal.vue`, `LoginForm.vue`, `RegistrationForm.vue`, `SecondFactorForm.vue`; hosted by `PublicLayout` | `composables/useAuthModal.ts`, `composables/useAuthForm.ts`, `services/authService.ts`; `src/stores/AuthStore.ts` owns application-wide session state and actions. |
-| `dashboard` | `modules/dashboard/pages/DashboardPage.vue` | `composables/useDashboardPage.ts`, `services/dashboardService.ts`, `stores/DashboardStore.ts`; service performs overview request, store owns shared dashboard result/loading/error. |
-| `training` | `modules/training/pages/TrainingPage.vue`; `components/TrainingCamera.vue`, `CameraPreviewModal.vue`; render overlay content in the existing modal slot | `composables/useTrainingPage.ts`, `useCameraSession.ts`, `useCameraPreviewModal.ts`, `useVideoAnalysis.ts`, `useAudioOutput.ts`; `services/trainingSessionService.ts`, `trainingTransport.ts`; `stores/TrainingSessionStore.ts` owns session and feedback state. |
-| `sessions` | `modules/sessions/pages/HistoryPage.vue`, `SessionReviewPage.vue` | `composables/useHistoryPage.ts`, `useSessionReviewPage.ts`, `services/sessionService.ts`, `stores/TrainingHistoryStore.ts`; store owns session-list state, review page loads its authorized session by route id. |
-| `progress` | `modules/progress/pages/ProgressPage.vue` | `composables/useProgressPage.ts`, `services/progressService.ts`, `stores/ProgressStore.ts`; server owns supported measurements and focus. |
-| `subscription` | `modules/subscription/pages/SubscriptionPage.vue`, `CheckoutPage.vue`; `components/PerformanceCard.vue`, `PaymentInformationCard.vue`, `OrderSummaryCard.vue`; reuse `src/components/cards/PaymentCardPlan.vue` and `BillingDetailsCard.vue` | `composables/useSubscriptionPage.ts`, `useCheckoutPage.ts`, `services/subscriptionService.ts`, `checkoutService.ts`, `stores/SubscriptionStore.ts`, `CheckoutStore.ts`; stores own confirmed billing/checkout state and actions. |
-| `account` | `modules/account/pages/ProfilePage.vue`, `SettingsPage.vue` | `composables/useProfilePage.ts`, `useSettingsPage.ts`, `services/accountService.ts`, `stores/UserStore.ts`; store owns confirmed profile/preferences and save actions. |
-
-Shared layouts live under `src/layouts/{PublicLayout,ApplicationLayout,TrainingLayout}.vue` and are consumed by the routes listed below. Shared Vue views live under `src/components/`: `buttons/Button.vue`, `fields/{TextField,NumberField,SelectField,DateField}.vue`, `forms/CollapseForm.vue`, `navs/{TopNav,SidebarNav}.vue`, `tables/BaseTable.vue`, and `cards/{FeatureCard,PaymentCardPlan,BillingDetailsCard}.vue`. Checkout-only `PerformanceCard.vue` remains at `modules/subscription/components/PerformanceCard.vue`. Shared behavior lives in `src/composables/`: `ButtonController.ts`, `useField.ts`, the field-specific composables, and navigation composables only where reused. `CollapseForm` needs no behavior module. Shared assets and styles live in `src/assets/` and `src/styles/`; route definitions/guards live in `src/router/`. API calls remain in service modules, invoked through owning store actions or local composables. Do not create empty logic files for static views.
-
-Module roots are `modules/<module>/`. Stores call services and own shared actions; pages/features access their store directly. Generic components retain props/events. Initialize Pinia once. Keep local menus, field drafts, and collapse state local; do not persist passwords, tokens, or provider secrets.
 ### Layouts, Routes, Access, and Navigation
 
 Implement `PublicLayout`, `ApplicationLayout`, and `TrainingLayout` from `docs/frontend/layouts.md`. Authentication remains a dialog hosted by the Public Layout; do not create an unused standalone Authentication Layout or login/register route. Application layout owns the authenticated header/sidebar. Use the dedicated authenticated navigation prototype for appearance and responsive behavior.

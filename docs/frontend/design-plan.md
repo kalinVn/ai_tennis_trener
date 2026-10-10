@@ -111,7 +111,7 @@ Follow [Button](components.md#button) and [PaymentCardPlan](components.md#paymen
 
 Plan `frontend/src/components/buttons/Button.vue` with `frontend/src/composables/ButtonController.ts`, adapting the inspected `useButtonController` UI behavior. Reuse the existing PaymentCardPlan contract once for Pricing and Subscription; `selected` defaults to false and only changes presentation. BillingDetailsCard owns the separate existing billing panel, with page-handled actions. Checkout retains its distinct PerformanceCard order summary; no display-prop consolidation with that summary is required. Prototype implementations and entries are linked from components.md.
 
-For E8, map CameraPreviewModal's external UI behavior and media ownership exactly as documented in [CameraPreviewModal](components.md#camerapreviewmodal): module-local `useCameraPreviewModal.ts` owns modal UI/attachment/mute/feedback/closure; `useCameraSession.ts` owns tracks; `useVideoAnalysis.ts` owns capture and cancellation; `trainingTransport.ts` owns transport. These are future implementation placements, not completed code changes.
+For E8, map CameraPreviewModal's external UI behavior and media ownership exactly as documented in [CameraPreviewModal](components.md#camerapreviewmodal): `src/composables/useCameraPreviewModal.ts` owns modal UI/attachment/mute/feedback/closure; `useCameraSession.ts` owns tracks; `useVideoAnalysis.ts` owns capture and cancellation; `src/services/trainingTransport.ts` owns transport. These are future implementation placements, not completed code changes.
 
 ## Required Feature Components
 
@@ -162,7 +162,7 @@ Use a safe redirect to `/` for unknown routes; a separate not-found page is not 
 
 ## Build Order
 
-1. Establish the shallow Vue/JavaScript/Vite structure under `frontend/`. Preserve the existing placeholder and unrelated changes. Use shared `components/`, `layouts/`, `router/`, `services/`, `composables/`, `stores/`, `assets/`, and `styles/` only as code requires them; product code goes under the eight specified modules: public, auth, dashboard, training, sessions, progress, subscription, account.
+1. Establish only the structure defined by [Frontend Project Structure](frontend-project-structure.md). Preserve the existing placeholder and unrelated changes; create directories only when implementation requires them.
 2. Implement tokens, typography, base accessibility, shared UI, and the four layouts. This is the first visual review milestone.
 3. Compose Landing, Login and Registration with the proposed dedicated routes. Add the full route map and session-aware shell before linking protected flows. Represent missing services explicitly; never fake login success.
 4. Compose Dashboard and Training initial/empty/unavailable states. Implement real browser camera lifecycle and control transitions. This is the first usable camera milestone, independent of live analysis availability.
@@ -199,7 +199,7 @@ The only immediate optional user choice is authentication presentation. The defa
 
 ## Planning Validation
 
-- All eleven required pages and routes, four layouts, and eight modules are represented.
+- All eleven required pages and routes, four layouts, and eight feature areas are represented using the canonical [Frontend Project Structure](frontend-project-structure.md).
 - All eleven specified feature components are accounted for, without inventing a payment modal or extra feature component families.
 - Shared patterns have multiple consumers; loading/error/confirmation patterns share one component family.
 - Prototype palette, typography, hierarchy, media prominence, form styling and pricing composition are represented; omissions and simulated data are explicitly corrected by specification requirements.

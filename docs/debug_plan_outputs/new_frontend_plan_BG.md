@@ -27,45 +27,7 @@
 
 ### Структура на проекта
 
-Запазват се Vue 3, TypeScript, Vite, Vue Router и Pinia. Структурата остава плитка. Пътищата по-долу са планирани под `frontend/src/`.
-
-```text
-src/
-  app/                 # application bootstrap and root composition, only if needed
-  modules/
-    public/
-    auth/
-    dashboard/
-    training/
-    sessions/
-    progress/
-    subscription/
-    account/
-  components/          # shared UI components and their families
-  composables/         # genuinely cross-module behavior only
-  services/            # shared external/API communication only
-  stores/              # application-wide state only
-  router/
-  assets/
-  styles/
-```
-
-Всеки feature модул притежава свои `pages/`, `components/`, `composables/`, `services/` и `stores/` само когато файловете са специфични за него. Страниците композират компоненти; компонентите използват props/events и не притежават page business действия. Services изпълняват API комуникацията; Pinia stores извикват services и притежават споделеното състояние на feature-а. Страници и компоненти във feature модулите четат store директно, вместо да препредават споделено състояние през вериги от props. Pinia се инициализира веднъж. Локалното UI състояние остава локално; пароли, token-и и provider secrets никога не се съхраняват.
-
-| Модул | Планирани Vue изгледи/компоненти | Разположение на поведението, services и state |
-| --- | --- | --- |
-| `public` | `modules/public/pages/HomePage.vue`, `FeaturesPage.vue`, `PricingPage.vue`, `NotFoundPage.vue`; `components/HomePageInfoSection.vue`; адаптация на съществуващия `components/home-page-video-slider/HomePageVideoSlider.vue` | `composables/useHomePageInfoSection.ts`, `composables/usePricingPage.ts`; Pricing делегира избора на план към subscription. За статично представяне няма service/store. |
-| `auth` | `modules/auth/components/AuthModal.vue`, `LoginForm.vue`, `RegistrationForm.vue`, `SecondFactorForm.vue`; хостват се от `PublicLayout` | `composables/useAuthModal.ts`, `composables/useAuthForm.ts`, `services/authService.ts`; `src/stores/AuthStore.ts` притежава application-wide session state и действията му. |
-| `dashboard` | `modules/dashboard/pages/DashboardPage.vue` | `composables/useDashboardPage.ts`, `services/dashboardService.ts`, `stores/DashboardStore.ts`; service изпълнява заявката за overview, store притежава споделените dashboard резултат/loading/error. |
-| `training` | `modules/training/pages/TrainingPage.vue`; `components/TrainingCamera.vue`, `CameraPreviewModal.vue`; overlay съдържанието се рендерира в съществуващия modal slot | `composables/useTrainingPage.ts`, `useCameraSession.ts`, `useCameraPreviewModal.ts`, `useVideoAnalysis.ts`, `useAudioOutput.ts`; `services/trainingSessionService.ts`, `trainingTransport.ts`; `stores/TrainingSessionStore.ts` притежава session и feedback state. |
-| `sessions` | `modules/sessions/pages/HistoryPage.vue`, `SessionReviewPage.vue` | `composables/useHistoryPage.ts`, `useSessionReviewPage.ts`, `services/sessionService.ts`, `stores/TrainingHistoryStore.ts`; store притежава състоянието на session списъка, review страницата зарежда оторизираната сесия по route id. |
-| `progress` | `modules/progress/pages/ProgressPage.vue` | `composables/useProgressPage.ts`, `services/progressService.ts`, `stores/ProgressStore.ts`; server притежава поддържаните измервания и focus. |
-| `subscription` | `modules/subscription/pages/SubscriptionPage.vue`, `CheckoutPage.vue`; `components/PerformanceCard.vue`, `PaymentInformationCard.vue`, `OrderSummaryCard.vue`; използват се повторно `src/components/cards/PaymentCardPlan.vue` и `BillingDetailsCard.vue` | `composables/useSubscriptionPage.ts`, `useCheckoutPage.ts`, `services/subscriptionService.ts`, `checkoutService.ts`, `stores/SubscriptionStore.ts`, `CheckoutStore.ts`; stores притежават потвърденото billing/checkout състояние и действия. |
-| `account` | `modules/account/pages/ProfilePage.vue`, `SettingsPage.vue` | `composables/useProfilePage.ts`, `useSettingsPage.ts`, `services/accountService.ts`, `stores/UserStore.ts`; store притежава потвърдения profile/preferences и действията за запис. |
-
-Споделените layout Vue изгледи са в `src/layouts/{PublicLayout,ApplicationLayout,TrainingLayout}.vue` и се използват от изброените routes. Споделените Vue изгледи са в `src/components/`: `buttons/Button.vue`, `fields/{TextField,NumberField,SelectField,DateField}.vue`, `forms/CollapseForm.vue`, `navs/{TopNav,SidebarNav}.vue`, `tables/BaseTable.vue` и `cards/{FeatureCard,PaymentCardPlan,BillingDetailsCard}.vue`. Checkout-only `PerformanceCard.vue` остава в `modules/subscription/components/PerformanceCard.vue`. Споделеното поведение е в `src/composables/`: `ButtonController.ts`, `useField.ts`, composable-ите за отделните полета и composable-и за навигация само когато се използват повторно. `CollapseForm` няма нужда от behavior модул. Споделените assets и styles са в `src/assets/` и `src/styles/`; route дефинициите и guard-овете са в `src/router/`. API извикванията остават в service модулите и се изпълняват чрез действията на owning store или локални composable-и. Не се създават празни logic файлове за статични изгледи.
-
-Корените на feature модулите са `modules/<module>/`. Stores извикват services и притежават споделените действия; страниците и features достъпват store директно. Generic компонентите запазват props/events. Pinia се инициализира веднъж. Локалните менюта, черновите на полета и състоянието collapse остават локални; пароли, token-и и provider secrets не се съхраняват.
+Използвайте `docs/frontend/frontend-project-structure.md` като единствен източник за физическата структура на frontend-а. Този доклад не я дефинира повторно.
 
 ### Layouts, routes, достъп и навигация
 

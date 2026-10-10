@@ -266,30 +266,9 @@ Do not present fabricated analysis, session, progress, or subscription data as r
 
 ---
 
-## Frontend Modules
+## Project Structure
 
-Product-specific frontend code belongs under `frontend/src/modules/` in the following modules:
-
-- `public` — landing page, public navigation, and pricing preview
-- `auth` — login, registration, validation, and session-aware navigation
-- `dashboard` — authenticated overview and the next recommended action
-- `training` — camera or video, start and stop analysis, analysis overlay, and the focused coaching cue
-- `sessions` — session review and training history
-- `progress` — trends, improvement areas, and the next recommended focus
-- `subscription` — plans, current plan, starting and completing secure checkout, payment success, cancellation, and failure UI, and the backend and payment-provider boundary; it never stores or processes raw card data
-- `account` — profile and settings, including camera, coaching, and privacy preferences
-
-Shared UI components, the application router, assets, and global styles remain outside feature modules.
-
-Module-local pages, components, services, composables, and state may live inside a module only when they are specific to that module. Broadly reusable code belongs in the corresponding shared top-level frontend folders.
-
----
-
-## Project Structure Constraints
-
-The Vue application belongs under `frontend/` with a shallow structure appropriate to the required scope.
-
-The structure must support shared components, pages, routing, services, composables, state, assets, and shared styles without unnecessary abstraction layers.
+Read `docs/frontend/frontend-project-structure.md`. It is the single source of truth for the frontend project structure.
 
 ---
 

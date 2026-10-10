@@ -1,5 +1,5 @@
 <script setup>
-import AuthForm from '../components/AuthForm.vue'
+import AuthForm from '../components/forms/AuthForm.vue'
 import { useAuthStore } from '../stores/useAuthStore.js'
 
 useAuthStore().open('login')

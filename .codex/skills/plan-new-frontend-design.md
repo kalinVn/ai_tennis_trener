@@ -33,7 +33,7 @@ Read the Visual Prototype section in the main frontend specification, open each 
 
 Apply this selected-source scope throughout prototype resolution and analysis. Follow relevant references in supporting specifications only when needed to resolve a planning decision. Verify required sources exist; report missing sources or unresolved conflicts as blockers rather than inventing requirements.
 
-Use these sources to derive frontend architecture, module and page structure, layout structure, shared and feature component boundaries, dependencies, and implementation order within the existing Output Contract. Derive final folders from the specification's structure constraints. Translate prototype intent into reusable design tokens, components, pages, and responsive behavior rather than copying prototype implementation code.
+Use these sources to derive frontend architecture, page structure, layout structure, shared and feature component boundaries, dependencies, and implementation order within the existing Output Contract. Derive final folders from the specification's structure constraints. Translate prototype intent into reusable design tokens, components, pages, and responsive behavior rather than copying prototype implementation code.
 
 Reference source specifications in the plan instead of copying their contents unnecessarily. Include the concrete decisions and requirements needed by the Output Contract and downstream builders; do not reproduce entire supporting specifications, prototypes, or design-system documents.
 
@@ -103,22 +103,11 @@ new
 
 ## Project Structure
 
-Derive the structure requirements from the provided frontend specification and its project constraints. Include:
+Reference `docs/frontend/frontend-project-structure.md` as the single source of truth. Do not reproduce its directory tree or general placement rules in the plan.
 
-- application root directory
-- required feature modules and their responsibilities
-- placement of module-specific pages and components
-- placement of shared components, routing, styles, assets, and other required shared resources
+Record only plan-specific ownership and concrete file placement needed to make the implementation unambiguous. Separate Vue views from behavior logic, keep external communication in services, describe Pinia ownership where shared state is required, and avoid placeholder files. If a requirement conflicts with the canonical structure, report it as a blocker instead of defining an alternative structure.
 
-Within each feature module, separate Vue views from behavior logic in the frontend language required by active project instructions. Keep templates in `.vue` page and component files, and place state, event handlers, validation, and other behavior in separate `.ts` modules or composables (use `.js` only when an explicit task requirement justifies changing the project language) imported by those views. Keep the Vue script block limited to imports and minimal wiring required to connect the template to the external logic. Keep API access in separate service modules rather than embedding it in view files.
-
-For each planned page or component, describe the placement of its Vue view and any required behavior logic files within the owning module. Shared logic belongs in shared resources only when reused. Do not create placeholder logic files for views that need no JavaScript behavior.
-
-Plan Pinia stores for shared feature state: module-specific stores belong in that module's `stores/` directory; application-wide stores belong in `src/stores/`. Describe the state ownership and actions needed by pages and feature components, which access their store directly instead of forwarding shared state through props. Keep API calls in services and initialize Pinia once at application startup. Do not persist passwords or secrets. Do not force purely local UI state or generic component props into stores.
-
-Describe only the structure required by the planned frontend. Mark unspecified structural decisions explicitly for resolution rather than inventing additional modules or folders.
-
-Return these requirements as part of the plan. The orchestrator passes them to Frontend Project Structure to inspect the existing project and create missing directories; this planning skill does not create them.
+The orchestrator passes the validated plan and canonical structure reference to downstream implementation work; this planning skill does not create directories.
 
 
 
