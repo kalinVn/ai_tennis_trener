@@ -31,22 +31,22 @@
 
 ### Layouts, routes, достъп и навигация
 
-Имплементират се `PublicLayout`, `ApplicationLayout` и `TrainingLayout` според `docs/frontend/layouts.md`. Authentication остава dialog, хостван от Public Layout; не се създава неизползван самостоятелен Authentication Layout или login/register route. Application layout притежава authenticated header/sidebar. За изгледа и responsive поведението се използва специализираният authenticated navigation прототип.
+Имплементират се `PublicLayout` и `AuthenticationLayout` според `docs/frontend/layouts.md`. Login и registration остават interactions, хоствани от Public Layout, а не отделни routes. `AuthenticationLayout` притежава authenticated header/sidebar и празната page-content област. За изгледа и responsive поведението се използва специализираният authenticated navigation прототип.
 
 | Път | Име | Страница | Layout | Достъп и параметри |
 | --- | --- | --- | --- | --- |
 | `/` | `home` | Home | Public Layout | Public |
 | `/features` | `feature` | Features | Public Layout | Public |
-| `/training` | `training` | Training | Training Layout | Authenticated |
+| `/training` | `training` | Training | Authentication Layout | Authenticated |
 | `/pricing` | `pricing` | Pricing | Public Layout | Public |
-| `/dashboard` | `dashboard` | Dashboard | Authenticated Application Layout | Authenticated |
-| `/history` | `history` | History | Authenticated Application Layout | Authenticated |
-| `/sessions/:sessionId` | `session-review` | Session Review | Authenticated Application Layout | Authenticated; изисква непрозрачен `sessionId`; server разрешава достъпа |
-| `/progress` | `progress` | Progress | Authenticated Application Layout | Authenticated; няма path параметър |
-| `/subscription` | `subscription` | Subscription | Authenticated Application Layout | Authenticated |
-| `/profile` | `profile` | Profile | Authenticated Application Layout | Authenticated |
-| `/settings` | `settings` | Settings | Authenticated Application Layout | Authenticated |
-| `/checkout` | `checkout` | Checkout | Authenticated Application Layout | Authenticated |
+| `/dashboard` | `dashboard` | Dashboard | Authentication Layout | Authenticated |
+| `/history` | `history` | History | Authentication Layout | Authenticated |
+| `/sessions/:sessionId` | `session-review` | Session Review | Authentication Layout | Authenticated; изисква непрозрачен `sessionId`; server разрешава достъпа |
+| `/progress` | `progress` | Progress | Authentication Layout | Authenticated; няма path параметър |
+| `/subscription` | `subscription` | Subscription | Authentication Layout | Authenticated |
+| `/profile` | `profile` | Profile | Authentication Layout | Authenticated |
+| `/settings` | `settings` | Settings | Authentication Layout | Authenticated |
+| `/checkout` | `checkout` | Checkout | Authentication Layout | Authenticated |
 | `/not-found` | `not-found` | Not Found | Public Layout | Public; непознатите пътища се насочват тук |
 
 Authenticated навигацията съдържа Dashboard, Training, History, Progress, Subscription, Profile, Settings и Checkout. Редовете за сесии в History и Dashboard водят към Session Review с върнатия от server session ID; Session Review е вложен в History и не е отделен елемент от основната навигация. В authenticated sidebar Progress е след History. Public навигацията показва Home, Training, Pricing и login dialog. По време на authentication се запазва валидирана вътрешна дестинация за връщане. Router guards подобряват само навигацията; backend authorization защитава всички данни и действия. Неуспешната проверка на сесията е unavailable, а не signed out; `401` и `403` остават различни.
@@ -91,7 +91,7 @@ Authenticated навигацията съдържа Dashboard, Training, History
 ### Ред на изграждане
 
 1. Преглед и запазване на съществуващия frontend placeholder; изграждане на плитката Vue/TypeScript/Vite структура и еднократна инициализация на router/Pinia.
-2. Дефиниране на design tokens, accessibility основа, shared компоненти, Public/Application/Training layouts и auth dialog host.
+2. Дефиниране на design tokens, accessibility основа, shared компоненти, Public/Authentication layouts и auth dialog host.
 3. Имплементиране на public страниците и authentication/session state спрямо примерните договори и честните pending/error състояния.
 4. Имплементиране на Dashboard, History, Session Review и Progress страниците/routes със server-owned данни и управление на състоянието.
 5. Имплементиране на Training camera lifecycle, ограничен analysis transport, feedback overlay, audio playback и cleanup граници.

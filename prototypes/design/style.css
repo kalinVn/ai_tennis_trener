@@ -16,6 +16,7 @@ h3{margin:0 0 10px;font-size:21px}p{color:var(--muted);margin-top:0}
 .brand{display:flex;align-items:center;gap:10px;font-weight:850;white-space:nowrap}.logo{background:var(--accent);color:#07100c;border-radius:11px;display:grid;place-items:center;font-size:14px;width:39px;height:39px}
 .nav-links,.nav-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.nav-links a{color:var(--muted);padding:8px}.nav-links a[aria-current=page],.nav-links a:hover{color:var(--accent)}
 .public-main{padding:60px 0 80px}.page-head{margin-bottom:30px}.page-head p{max-width:710px}
+.public-layout-shell{display:flex;flex-direction:column}.public-layout-shell .public-main{flex:1;width:100%}.layout-content-slot{min-height:50vh}
 .public-footer{border-top:1px solid var(--border);padding:28px 0;color:var(--muted);font-size:14px}
 .footer-row{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .hero{display:grid;grid-template-columns:1fr 1fr;gap:45px;align-items:center;min-height:580px}

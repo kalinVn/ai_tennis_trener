@@ -15,7 +15,7 @@ npm --prefix prototypes run dev
 ```
 
 Open `http://127.0.0.1:5173/prototypes/design/pages/training.html` (use the port
-printed by Vite). The Training layout and camera component HTML specimens use the
+printed by Vite). The Authentication layout and camera component HTML specimens use the
 same Vue launcher. Opening Training directly as a local HTML file shows a Start
 Training link to `camera.html`, which opens its existing full-screen design modal.
 Return to Training takes the user back to `training.html`. This static preview
@@ -55,7 +55,7 @@ npm --prefix prototypes test
 npm --prefix prototypes run build
 ```
 
-Build compiles the three Training entry pages, not the entire application/catalog.
+Build compiles the configured page, layout, and camera entries, not the entire application/catalog.
 The HTML camera specimen is a design reference for this modal, also reachable
 from the local-file Training preview. It does not use the browser Fullscreen API.
 

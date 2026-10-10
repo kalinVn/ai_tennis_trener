@@ -2,23 +2,20 @@
 
 ### Public Layout
 
-Must include product branding, public navigation, a responsive content container, and footer links.
-Example prototype `prototypes/design/layouts/public.html`
+The Public Layout is the reusable shell for public pages. It contains only product branding and public navigation, an empty responsive page-content area, and the footer. Page-specific sections, cards, promotional content, and authentication forms belong to pages or components rather than the layout.
 
-### Authentication UI Host
+Authoritative prototype: `prototypes/design/layouts/public.html`.
 
-Authentication is presented in the existing accessible login/registration dialog hosted by the Public Layout, not on a separate route. `prototypes/design/layouts/authentication.html` is an interaction reference for that dialog and its public shell, not a consumer requiring a separate `AuthenticationLayout.vue`. Preserve the original protected destination as a validated internal return target, close the dialog only after a confirmed result or explicit cancellation, and expose pending, validation, error, second-factor, and expired-session states as described in [integration contract examples](integration-contracts.md#authentication-and-application-session).
+### Authentication Layout
 
-### Authenticated Application Layout
+The Authentication Layout is the reusable shell for authenticated pages, including Training. It contains the authenticated left-side navigation, the authenticated top/header area with identity and account actions, and an empty responsive page-content area. Dashboard, Training, History, Session Review, Progress, Subscription, Profile, Settings, and Checkout render their page-specific UI inside that content area.
 
-Application Layout: includes a vertical left sidebar with navigation links to the app's pages and a responsive main content area on the right where the selected page is displayed.
-Authoritative layout prototype: `prototypes/design/layouts/application.html`, which contains the sidebar, application header, and main content container.
+Authoritative prototype: `prototypes/design/layouts/authentication.html`.
 
 For navigation items, appearance, and responsive states, `prototypes/design/components/navigation/authenticated-navigation.html` remains authoritative over the embedded navigation in this layout, as specified in [Navigation Requirements](frontend.md#navigation-requirements).
 
-### Training Layout
+Training and every other authenticated page use this same shell; no page-specific layout is defined. Training-specific camera, coaching, status, controls, and session UI belong to the Training page and its components, not to a reusable layout.
 
-Application Layout: includes a vertical left sidebar with navigation links to the app's pages and a responsive main content area on the right where the selected page is displayed.
-Example prptprototypeotype `prototypes/design/layouts/training.html`
+Authentication forms may still be presented through the public login/registration interaction. Their session behavior must preserve a validated internal return target, close only after a confirmed result or explicit cancellation, and expose pending, validation, error, second-factor, and expired-session states as described in [integration contract examples](integration-contracts.md#authentication-and-application-session).
+
 ---
-

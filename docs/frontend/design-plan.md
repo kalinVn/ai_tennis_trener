@@ -61,10 +61,8 @@ These are proposed implementation values derived from the reference and shared r
 
 | Name | Purpose and shared structure | Used by pages |
 | --- | --- | --- |
-| PublicLayout | Branding, sticky public navigation to Features/Training/Pricing, authentication actions, content container, footer | Landing |
-| AuthLayout | Branding, centered accessible form surface, login/register switch, return-home link, loading/error region | Login, Registration |
-| AppLayout | Responsive seven-destination navigation, active item, common page heading/content alignment | Dashboard, History, Progress, Subscription, Profile, Settings, Session Review |
-| TrainingLayout | Reuses application navigation; expands camera area with cue/status region and session controls | Training |
+| PublicLayout | Branding, sticky public navigation to Features/Training/Pricing, authentication actions, empty content container, footer | Landing, Login, Registration |
+| AuthenticationLayout | Responsive authenticated navigation and header with an empty content container | Dashboard, Training, History, Progress, Subscription, Profile, Settings, Session Review |
 
 Dedicated authentication routes are the proposed default. They retain the prototype's compact card and mode-switch appearance while supporting refresh, direct links, and keyboard navigation. A route-backed modal is the optional alternative, not an additional required implementation. Shared dialogs remain needed for mobile navigation and session/account confirmation flows.
 
@@ -75,16 +73,16 @@ The orchestrator selects implementation skills from the page requirements and de
 | Page / layout | Purpose and required sections | Shared components | Feature components | Dependencies |
 | --- | --- | --- | --- | --- |
 | Landing / PublicLayout | Hero and value proposition; features; labeled training preview; pricing preview; login/register entry points; footer | Button, Card, Badge, NavigationItem, PageHeader, AsyncState, Dialog | None | public plan definitions and verified product copy; local illustrative court asset |
-| Login / AuthLayout | Email, password, validation, submit/loading/authentication error; registration switch | Button, FormField, Card, AsyncState | None | backend login/session contract; safe return destination |
-| Registration / AuthLayout | Name, email, password, validation, submit/loading/registration error; login switch | Button, FormField, Card, AsyncState | None | registration/password policy and session result contract |
-| Dashboard / AppLayout | Recent training, next recommended action, supported progress summary, prominent start-training action | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList, ProgressInsights | session summaries and supported progress/focus data; compact variants of existing feature components |
-| Training / TrainingLayout | Dominant camera/video preview; permission state; camera and analysis start/stop; focused cue; connection/analysis state; duration/session state; overlay; loading/unavailable/disconnected/error states | Button, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CameraPreview, SessionControls, TrainingOverlay, CoachingFeedback | browser media support and secure context; analysis/session contracts |
-| Session Review / AppLayout | Summary, detected issues, supported metrics, recommendations, analyzed moments when available; incomplete/low-confidence labeling | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionSummary |
-| History / AppLayout | Prior sessions, review links, loading/empty/error states | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList | Session list contract and available paging semantics |
-| Progress / AppLayout | Supported trends, improvement areas, next recommended focus; unavailable or insufficient-history explanation | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | ProgressInsights | Progress data, measurement definitions, time range, evidence/confidence; no invented scores or projections |
-| Subscription / AppLayout | Available plans, current plan, comparison, subscription actions, protected checkout and its result states | Button, PaymentCardPlan, BillingDetailsCard, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
-| Profile / AppLayout | Supported personal and tennis information; view/edit, validation, saving, saved/error feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | ProfileEditor | profile schema, writable fields, update contract |
-| Settings / AppLayout | Supported application, camera, coaching, privacy and notification preferences; save/result feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | SettingsEditor | supported settings schema, persistence and browser capability handling |
+| Login / PublicLayout | Email, password, validation, submit/loading/authentication error; registration switch | Button, FormField, Card, AsyncState | None | backend login/session contract; safe return destination |
+| Registration / PublicLayout | Name, email, password, validation, submit/loading/registration error; login switch | Button, FormField, Card, AsyncState | None | registration/password policy and session result contract |
+| Dashboard / AuthenticationLayout | Recent training, next recommended action, supported progress summary, prominent start-training action | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList, ProgressInsights | session summaries and supported progress/focus data; compact variants of existing feature components |
+| Training / AuthenticationLayout | Dominant camera/video preview; permission state; camera and analysis start/stop; focused cue; connection/analysis state; duration/session state; overlay; loading/unavailable/disconnected/error states | Button, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CameraPreview, SessionControls, TrainingOverlay, CoachingFeedback | browser media support and secure context; analysis/session contracts |
+| Session Review / AuthenticationLayout | Summary, detected issues, supported metrics, recommendations, analyzed moments when available; incomplete/low-confidence labeling | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionSummary |
+| History / AuthenticationLayout | Prior sessions, review links, loading/empty/error states | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList | Session list contract and available paging semantics |
+| Progress / AuthenticationLayout | Supported trends, improvement areas, next recommended focus; unavailable or insufficient-history explanation | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | ProgressInsights | Progress data, measurement definitions, time range, evidence/confidence; no invented scores or projections |
+| Subscription / AuthenticationLayout | Available plans, current plan, comparison, subscription actions, protected checkout and its result states | Button, PaymentCardPlan, BillingDetailsCard, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
+| Profile / AuthenticationLayout | Supported personal and tennis information; view/edit, validation, saving, saved/error feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | ProfileEditor | profile schema, writable fields, update contract |
+| Settings / AuthenticationLayout | Supported application, camera, coaching, privacy and notification preferences; save/result feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | SettingsEditor | supported settings schema, persistence and browser capability handling |
 
 Page composition must not introduce additional project-specific component names beyond the specification's list. Compact feature variants are reuse of those components, not new feature components. Authentication forms remain page composition of shared fields and buttons.
 
@@ -101,7 +99,7 @@ Only patterns required by the specification and reused across pages/layouts are 
 | Card | Shared panel structure and heading/content slots | Default, highlighted, metric | Default, selected, unavailable | Landing, auth, Dashboard, Session Review, History, Progress, Subscription, Profile, Settings |
 | Badge | Textual status and semantic emphasis | Neutral, success, warning, danger, information | Ready, active, pending, paused, connected, disconnected, incomplete as applicable | Landing preview, Dashboard, Training, Session Review, History, Progress, Subscription |
 | Dialog | Accessible navigation/confirmation surface | Navigation drawer, confirmation | Closed, open, action pending, error | Public mobile navigation and all app pages through layouts; Training stop/leave and Profile/Settings unsaved-change confirmation when applicable |
-| NavigationItem | Shared link/active/focus behavior | Public anchor, application link, compact link | Default, active, hover, focus | PublicLayout, AppLayout, TrainingLayout |
+| NavigationItem | Shared link/active/focus behavior | Public anchor, application link, compact link | Default, active, hover, focus | PublicLayout, AuthenticationLayout |
 | PageHeader | Title, optional summary and relevant actions | Public section, application page | Default; actions disabled/pending through Button | Landing sections and all authenticated pages |
 | AsyncState | Consistent explanation, announcement, retry/next action | Loading, empty, error, unavailable, disconnected, success/confirmation | Initial, pending, recoverable failure, completed | All pages where asynchronous data or actions apply |
 
@@ -137,16 +135,16 @@ Prefer provider-hosted checkout for the initial implementation; no custom paymen
 | Path | Page | Access | Layout | Parameters | Navigation visibility |
 | --- | --- | --- | --- | --- | --- |
 | `/` | Landing | Public | PublicLayout | None | Brand/home; Features, Training and Pricing anchors |
-| `/login` | Login | Public; session-aware redirect | AuthLayout | None; optional validated internal return target | Public login action; registration switch |
-| `/register` | Registration | Public; session-aware redirect | AuthLayout | None | Public registration action; login switch |
-| `/app` | Dashboard | Authenticated | AppLayout | None | App navigation |
-| `/app/training` | Training | Authenticated | TrainingLayout | None | App navigation and start-training actions |
-| `/app/sessions/:sessionId` | Session Review | Authenticated and server-authorized result | AppLayout | `sessionId` | History/Dashboard session links; History remains active |
-| `/app/history` | History | Authenticated | AppLayout | None | App navigation |
-| `/app/progress` | Progress | Authenticated | AppLayout | None | App navigation |
-| `/app/subscription` | Subscription | Authenticated | AppLayout | None | App navigation and plan actions |
-| `/app/profile` | Profile | Authenticated | AppLayout | None | App navigation |
-| `/app/settings` | Settings | Authenticated | AppLayout | None | App navigation |
+| `/login` | Login | Public; session-aware redirect | PublicLayout | None; optional validated internal return target | Public login action; registration switch |
+| `/register` | Registration | Public; session-aware redirect | PublicLayout | None | Public registration action; login switch |
+| `/app` | Dashboard | Authenticated | AuthenticationLayout | None | App navigation |
+| `/app/training` | Training | Authenticated | AuthenticationLayout | None | App navigation and start-training actions |
+| `/app/sessions/:sessionId` | Session Review | Authenticated and server-authorized result | AuthenticationLayout | `sessionId` | History/Dashboard session links; History remains active |
+| `/app/history` | History | Authenticated | AuthenticationLayout | None | App navigation |
+| `/app/progress` | Progress | Authenticated | AuthenticationLayout | None | App navigation |
+| `/app/subscription` | Subscription | Authenticated | AuthenticationLayout | None | App navigation and plan actions |
+| `/app/profile` | Profile | Authenticated | AuthenticationLayout | None | App navigation |
+| `/app/settings` | Settings | Authenticated | AuthenticationLayout | None | App navigation |
 
 Use a safe redirect to `/` for unknown routes; a separate not-found page is not required. Resolve session state before rendering protected content. Unauthenticated access redirects to login; authenticated visitors to authentication routes go to Dashboard when appropriate, or to an explicitly validated internal return destination. Browser guards improve navigation only; the server must authorize data and actions. Handle unavailable session verification distinctly from a confirmed signed-out state.
 
@@ -163,7 +161,7 @@ Use a safe redirect to `/` for unknown routes; a separate not-found page is not 
 ## Build Order
 
 1. Establish only the structure defined by [Frontend Project Structure](frontend-project-structure.md). Preserve the existing placeholder and unrelated changes; create directories only when implementation requires them.
-2. Implement tokens, typography, base accessibility, shared UI, and the four layouts. This is the first visual review milestone.
+2. Implement tokens, typography, base accessibility, shared UI, and the two layouts. This is the first visual review milestone.
 3. Compose Landing, Login and Registration with the proposed dedicated routes. Add the full route map and session-aware shell before linking protected flows. Represent missing services explicitly; never fake login success.
 4. Compose Dashboard and Training initial/empty/unavailable states. Implement real browser camera lifecycle and control transitions. This is the first usable camera milestone, independent of live analysis availability.
 5. Agree and integrate authentication/session and analysis transport contracts. Add bounded frame preparation, structured overlays/cues, stop/cleanup behavior, and real session creation/completion. Validate permission denial, disconnects, stale results, and end/leave behavior.
@@ -199,7 +197,7 @@ The only immediate optional user choice is authentication presentation. The defa
 
 ## Planning Validation
 
-- All eleven required pages and routes, four layouts, and eight feature areas are represented using the canonical [Frontend Project Structure](frontend-project-structure.md).
+- All eleven required pages and routes, two layouts, and eight feature areas are represented using the canonical [Frontend Project Structure](frontend-project-structure.md).
 - All eleven specified feature components are accounted for, without inventing a payment modal or extra feature component families.
 - Shared patterns have multiple consumers; loading/error/confirmation patterns share one component family.
 - Prototype palette, typography, hierarchy, media prominence, form styling and pricing composition are represented; omissions and simulated data are explicitly corrected by specification requirements.

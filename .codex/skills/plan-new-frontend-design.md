@@ -27,15 +27,30 @@ For this project, use the provided specification_path as the root frontend speci
 
 ### Load Referenced Planning Sources
 
-After reading the frontend specification, identify the authoritative supporting specifications and visual sources it declares. Load only the referenced sources needed for the design plan:
+After reading the frontend specification, identify the authoritative supporting specifications and visual sources it declares.
 
-Read the Visual Prototype section in the main frontend specification, open each referenced prototype, and extract the relevant requirements.
+Load the supporting specifications needed to make frontend planning decisions.
 
-Apply this selected-source scope throughout prototype resolution and analysis. Follow relevant references in supporting specifications only when needed to resolve a planning decision. Verify required sources exist; report missing sources or unresolved conflicts as blockers rather than inventing requirements.
+For visual requirements, do not inspect or analyze detailed prototype UI implementation at this planning stage. The narrow structural-inspection exception defined in the Project Structure section applies only to organization and ownership examples. Otherwise, identify and record:
 
-Use these sources to derive frontend architecture, page structure, layout structure, shared and feature component boundaries, dependencies, and implementation order within the existing Output Contract. Derive final folders from the specification's structure constraints. Translate prototype intent into reusable design tokens, components, pages, and responsive behavior rather than copying prototype implementation code.
+- the prototype path;
+- which page, layout, component, or state it belongs to;
+- whether it is a page-level, component-level, or state-specific prototype;
+- any relationship between referenced prototypes that is explicitly declared by the specification.
 
-Reference source specifications in the plan instead of copying their contents unnecessarily. Include the concrete decisions and requirements needed by the Output Contract and downstream builders; do not reproduce entire supporting specifications, prototypes, or design-system documents.
+Use the Visual Prototype section in the main frontend specification as the authoritative mapping source.
+
+Do not extract detailed UI requirements, styling, markup, behavior, or implementation details from prototype files during planning. Detailed prototype analysis belongs to the downstream skill responsible for implementing the corresponding page or component.
+
+Apply this selected-source scope throughout prototype resolution and planning. Follow references in supporting specifications only when they are needed to resolve a planning decision.
+
+Verify that all required supporting specifications and referenced prototype paths exist. Report missing sources, ambiguous mappings, or unresolved specification conflicts as blockers rather than inventing requirements.
+
+Use the main frontend specification and authoritative supporting specifications to derive frontend architecture, page and layout structure, shared and feature component boundaries, dependencies, ownership boundaries, implementation order, and plan-specific placement under the canonical frontend structure.
+
+Include visual prototype references in the plan so downstream builders know which prototype to inspect when implementing each page or component. Do not translate prototype implementation details into the design plan.
+
+Reference source specifications and prototype paths instead of copying their contents unnecessarily. Include only the concrete planning decisions and requirements needed by the Output Contract and downstream builders.
 
 ---
 
@@ -45,7 +60,7 @@ Reference source specifications in the plan instead of copying their contents un
 When requirements conflict, use:
 
 1. Project frontend specification resolved from `specification_path` and the authoritative supporting specifications it declares. The root specification defines source responsibilities and precedence; report unresolved conflicts between authoritative requirements.
-2. Visual prototypes referenced by those specifications (referenced resources, not separate inputs). Apply declared visual precedence: dedicated navigation prototypes override older embedded navigation examples.
+2. Visual prototypes referenced by those specifications. Prototype priority determines which reference is authoritative; it does not require implementation inspection or analysis during planning. Apply declared visual precedence: dedicated navigation prototypes override older embedded navigation examples.
 3. Shared frontend design rules (`../../claude/rules/frontend/frontend-design-system.md`).
 
 Higher-priority requirements override lower-priority defaults.
@@ -69,21 +84,11 @@ If a prototype is referenced:
 
 1. resolve the prototypes path
 2. verify that it exists
-3. inspect it before producing the design plan
+3. record which page, layout, component, or state it belongs to without detailed UI implementation analysis; inspect organization only when the Project Structure section explicitly selects it as structural guidance
 
 If an explicitly required prototype is missing, stop and report the missing path.
 
 Do not silently substitute another prototype.
-
----
-
-## 3. Analyze the Prototype
-
-When a prototype exists, inspect it before producing the frontend design plan. Analyze only what is actually present in the provided prototype. Use concrete examples from that prototype and if something is missing or unclear, document that without guessing. Then look at visual structure, meaning hierarchy, major sections, composition, and layout patterns, and describe how each page or screen is arranged. Next, review all UI components and surfaces that are actually present, such as buttons, forms, cards, navigation, dialogs, shared containers, and any other visible elements, and for each of them, where applicable, note relative size, alignment, spacing, padding, typography, colors, borders, corner radii, shadows, grouping, and any shown states. Only in the prototype. Don't invent missing states or variants. After that, if your prototype includes example component implementations or sample code, analyze those too. How components are structured, composed, nested, what variants or states are demonstrated, and how that maps to the visuals. Use it as guidance. Don't treat it as final production architecture, unless the specification requires it. Also, recognize genuinely recurring visual patterns and note possible reuse without locking in architecture.Inspect any composables, hooks, or shared frontend logic used by the prototype components when they help explain component behavior, state, or reuse, without treating them as mandatory production architecture
-
-Do not copy prototype implementation code.
-
-Use the prototype to determine the intended design system.
 
 ---
 
@@ -103,11 +108,15 @@ new
 
 ## Project Structure
 
-Reference `docs/frontend/frontend-project-structure.md` as the single source of truth. Do not reproduce its directory tree or general placement rules in the plan.
+Read the `Project Structure` section in `docs/frontend/frontend.md`. Collect every frontend project-structure document referenced there and use those referenced files as the authority for frontend placement and organization. Do not hardcode the authoritative structure-document list in this planning role; `frontend.md` owns that navigation and may change it.
 
-Record only plan-specific ownership and concrete file placement needed to make the implementation unambiguous. Separate Vue views from behavior logic, keep external communication in services, describe Pinia ownership where shared state is required, and avoid placeholder files. If a requirement conflicts with the canonical structure, report it as a blocker instead of defining an alternative structure.
+Use the resolved references to determine placement for pages, reusable components, simple and complex component support files, composables, Pinia stores, services, routing, layouts, styles, assets, utilities, configuration, and other shared frontend resources. Do not introduce a frontend `modules/` feature-root layer. This frontend rule does not alter backend module organization.
 
-The orchestrator passes the validated plan and canonical structure reference to downstream implementation work; this planning skill does not create directories.
+When the Project Structure section points to prototype directories or examples, inspect only their organization and ownership patterns. Complex examples may show a Vue component with supporting JavaScript files or classes, controller/lifecycle logic, rendering or animation logic, configuration, component-specific styles, tests, or documentation. Use those examples only when the planned component has comparable complexity; a simple component may remain a single `.vue` file. Do not treat prototype-local assets or global styles as authority over the referenced production structure, and do not use structural inspection to infer detailed UI requirements.
+
+Record only plan-specific ownership, supporting files, and concrete placement needed to make implementation unambiguous. Do not reproduce the referenced directory trees or general rules, copy example structures blindly, invent architectural layers, or create placeholder files. If a requirement conflicts with an authoritative structure reference, report it as a blocker instead of defining an alternative.
+
+Return the resolved project-structure requirements as part of the plan. The orchestrator passes the validated plan and resolved references to downstream implementation work; this planning role creates neither directories nor implementation files.
 
 
 
@@ -166,6 +175,14 @@ Those responsibilities belong to specialized skills coordinated by the Frontend 
 ## Validation
 
 After producing the frontend design plan, return it to the orchestrator for validation. If validation errors are provided, use them as correction context and return a complete corrected plan.
+
+---
+
+## Plan Output
+
+For the normal new-frontend planning workflow, write the completed frontend plan to `docs/frontend/plan/new-frontend-plan.md`, creating `docs/frontend/plan/` when needed. Use that as the canonical output unless the invoking workflow explicitly defines another path.
+
+When this role is invoked by `debug_frontend_plan`, its command contract intentionally overrides the normal destination: the coordinator writes the validated English report and Bulgarian translation only to the two debug output paths declared by that command. The planner role must not create the canonical plan file during a debug run.
 
 ---
 

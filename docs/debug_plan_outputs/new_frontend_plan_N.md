@@ -31,22 +31,22 @@ Use `docs/frontend/frontend-project-structure.md` as the single source of truth 
 
 ### Layouts, Routes, Access, and Navigation
 
-Implement `PublicLayout`, `ApplicationLayout`, and `TrainingLayout` from `docs/frontend/layouts.md`. Authentication remains a dialog hosted by the Public Layout; do not create an unused standalone Authentication Layout or login/register route. Application layout owns the authenticated header/sidebar. Use the dedicated authenticated navigation prototype for appearance and responsive behavior.
+Implement `PublicLayout` and `AuthenticationLayout` from `docs/frontend/layouts.md`. Login and registration remain interactions hosted by the Public Layout rather than separate routes. `AuthenticationLayout` owns the authenticated header/sidebar and the empty page-content area. Use the dedicated authenticated navigation prototype for appearance and responsive behavior.
 
 | Path | Name | Page | Layout | Access and parameters |
 | --- | --- | --- | --- | --- |
 | `/` | `home` | Home | Public Layout | Public |
 | `/features` | `feature` | Features | Public Layout | Public |
-| `/training` | `training` | Training | Training Layout | Authenticated |
+| `/training` | `training` | Training | Authentication Layout | Authenticated |
 | `/pricing` | `pricing` | Pricing | Public Layout | Public |
-| `/dashboard` | `dashboard` | Dashboard | Authenticated Application Layout | Authenticated |
-| `/history` | `history` | History | Authenticated Application Layout | Authenticated |
-| `/sessions/:sessionId` | `session-review` | Session Review | Authenticated Application Layout | Authenticated; required opaque `sessionId`; server authorizes access |
-| `/progress` | `progress` | Progress | Authenticated Application Layout | Authenticated; no path parameter |
-| `/subscription` | `subscription` | Subscription | Authenticated Application Layout | Authenticated |
-| `/profile` | `profile` | Profile | Authenticated Application Layout | Authenticated |
-| `/settings` | `settings` | Settings | Authenticated Application Layout | Authenticated |
-| `/checkout` | `checkout` | Checkout | Authenticated Application Layout | Authenticated |
+| `/dashboard` | `dashboard` | Dashboard | Authentication Layout | Authenticated |
+| `/history` | `history` | History | Authentication Layout | Authenticated |
+| `/sessions/:sessionId` | `session-review` | Session Review | Authentication Layout | Authenticated; required opaque `sessionId`; server authorizes access |
+| `/progress` | `progress` | Progress | Authentication Layout | Authenticated; no path parameter |
+| `/subscription` | `subscription` | Subscription | Authentication Layout | Authenticated |
+| `/profile` | `profile` | Profile | Authentication Layout | Authenticated |
+| `/settings` | `settings` | Settings | Authentication Layout | Authenticated |
+| `/checkout` | `checkout` | Checkout | Authentication Layout | Authenticated |
 | `/not-found` | `not-found` | Not Found | Public Layout | Public; unknown paths resolve here |
 
 Authenticated navigation items are Dashboard, Training, History, Progress, Subscription, Profile, Settings, and Checkout. History and Dashboard session rows link to Session Review with the server-supplied session ID; Session Review is nested under History and is not a top-level navigation item. The authenticated sidebar includes Progress after History. Public navigation exposes Home, Training, Pricing, and the login dialog. Preserve a validated internal return destination through authentication. Router guards improve navigation only; backend authorization protects all data and actions. Session lookup failure is unavailable, not signed out; `401` and `403` remain distinct.
@@ -78,7 +78,7 @@ Apply visual tokens and page structure from the referenced prototypes and shared
 
 Implement the state/recovery matrix in `pages-and-routes.md`: loading, empty/insufficient data, success, validation, recoverable error, unavailable, disconnected, pending and verified completion as applicable. Keep camera, transport, session, analysis, auth and billing statuses distinct. Do not render fabricated metrics, sessions, analysis, or payment state.
 
-Support desktop/tablet/mobile, usable narrow-screen navigation and training layout, no unintended horizontal overflow, semantic controls, associated labels, keyboard access, visible focus, adequate contrast, accessible icon names, asynchronous announcements, and reduced motion.
+Support desktop/tablet/mobile, usable narrow-screen navigation and training page, no unintended horizontal overflow, semantic controls, associated labels, keyboard access, visible focus, adequate contrast, accessible icon names, asynchronous announcements, and reduced motion.
 
 Future verification sequence: unit tests for routes/access guards, field/Button and component contracts, session state, analysis cancellation and cleanup; service tests against the example fixtures; integration tests for authentication return/error states, camera permission, device enumeration, successful atomic switching, selected-device retention, removed-device failure/fallback, sole-owner stream cleanup and stop/unmount; tests for audio start/stop/pause/resume/interrupt, overlap prevention, priority replacement, failure state and resource release; per-stroke feedback accumulation and completed-session summary, transport disconnect/reconnect and no frame sends after stop, overlay cleanup, server-verified checkout return; responsive Playwright navigation and screenshots; lint/static checks and production build. These checks were not run during planning. Do not represent fixture-backed functionality as live backend integration.
 
@@ -91,7 +91,7 @@ Future verification sequence: unit tests for routes/access guards, field/Button 
 ### Build Order
 
 1. Inspect and preserve the existing frontend placeholder; establish the shallow Vue/TypeScript/Vite structure and initialize router/Pinia once.
-2. Define design tokens, accessibility foundation, shared components, Public/Application/Training layouts, and auth dialog host.
+2. Define design tokens, accessibility foundation, shared components, Public/Authentication layouts, and auth dialog host.
 3. Implement public pages and authentication/session state against the example contracts and honest pending/error states.
 4. Implement Dashboard, History, Session Review, and Progress pages/routes with server-owned data and state handling.
 5. Implement Training camera lifecycle, bounded analysis transport, feedback overlay, audio playback and cleanup boundaries.

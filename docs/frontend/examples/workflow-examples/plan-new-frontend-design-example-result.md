@@ -13,8 +13,6 @@ design_foundation:
 required_layouts:
   - PublicLayout
   - AuthenticationLayout
-  - ApplicationLayout
-  - TrainingLayout
 
 required_pages:
   - LandingPage
@@ -52,7 +50,7 @@ required_routes:
   - path: /app/training
     page: TrainingPage
     access: protected
-    layout: TrainingLayout
+    layout: AuthenticationLayout
 
 build_order:
   1. design foundation

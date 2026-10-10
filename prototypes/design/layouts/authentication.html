@@ -7,20 +7,26 @@
 <link rel="stylesheet" href="../style.css">
 </head>
 <body class="prototype-library">
-<nav class="public-nav"><div class="container nav-inner">
-<a class="brand" href="../pages/index.html"><span class="logo">AI</span>Tennis AI Coach</a>
-<div class="nav-links"><a href="../pages/index.html">Home</a><a href="../pages/features.html">Features</a><a href="../pages/training.html">Training</a><a href="../pages/pricing.html">Pricing</a></div>
-<div class="nav-actions"><button class="btn small" onclick="openAuth('login')">Log in</button><button class="btn primary small" onclick="openAuth('register')">Start free</button></div>
-</div></nav><main class="container public-main"><div class="page-head"><div class="eyebrow"><a href="../index.html">← Prototype catalog</a></div><h1>Authentication Layout</h1><p>The current prototypes use login and registration dialogs rather than a separate authentication page.</p></div><div class="panel"><h2>Your tennis workspace</h2><p>Open the existing form container to inspect login, registration and native field validation.</p><div class="cta"><button class="btn primary" onclick="openAuth('login')">Log in</button><button class="btn" onclick="openAuth('register')">Start free</button></div></div></main><footer class="public-footer"><div class="container footer-row"><span>© Tennis AI Coach · visual prototype</span><span>Privacy · Terms · Support</span></div></footer><div class="modal" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-<div class="modal-card"><div class="modal-header"><div><div class="eyebrow">WELCOME</div><h2 id="auth-title" style="font-size:27px">Your tennis workspace</h2></div><button class="close" aria-label="Close" onclick="closeAuth()">×</button></div>
-<div class="tabs"><button class="btn primary" id="loginTab" onclick="setAuth('login')">Login</button><button class="btn" id="registerTab" onclick="setAuth('register')">Register</button></div>
-<form id="auth-form"><div class="field" id="nameField" hidden=""><label for="full-name">Name</label><input id="full-name" placeholder="Your name"></div>
-<div class="field"><label for="email">Email</label><input required="" id="email" type="email" placeholder="you@example.com"></div>
-<div class="field"><label for="pass">Password</label><input required="" id="pass" type="password" minlength="4" placeholder="••••••••"></div>
-<button class="btn primary" id="auth-submit" style="width:100%">Log in (demo)</button></form>
-<p style="font-size:12px;margin-top:12px">Prototype only. Demo navigation, no account is created and no credentials are sent.</p>
-</div></div>
+<div class="app-shell">
+<aside class="sidebar">
+<a class="brand" href="../pages/dashboard.html"><span class="logo">AI</span>Tennis Coach</a>
+<div class="side-links">
+<a href="../pages/dashboard.html">Dashboard</a>
+<a href="../pages/training.html" aria-current="page">Training</a>
+<a href="../pages/history.html">History</a>
+<a href="../pages/subscription.html">Subscription</a>
+<a href="../pages/profile.html">Profile</a>
+<a href="../pages/settings.html">Settings</a>
+</div>
+</aside>
+<div class="app-main">
+<header class="app-top">
+<span class="eyebrow" style="margin:0">Tennis Coach / Training</span>
+<div class="flex"><span class="muted">Alex Morgan · demo user</span><a class="btn small" href="../pages/index.html">Log out</a></div>
+</header>
+<main class="app-content layout-content-slot" aria-label="Page content"></main>
+</div>
+</div>
 <script src="../app.js"></script>
-
 </body>
 </html>

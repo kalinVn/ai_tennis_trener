@@ -11,8 +11,8 @@ History, Subscription, Profile, Settings and Camera modal design. The legacy
 `tennis-ai-coach.html` was absent before this reorganization and was not restored.
 No image assets are required, so there is no unused `assets/` directory.
 
-The four layout demos reuse the existing public shell, authentication modal,
-application shell and Training screen. The 15 component demos extract existing
+The two layout demos define the reusable Public and Authentication shells.
+The 15 component demos extract existing
 markup. Missing variants are identified directly in their HTML pages; there are
 no new component-specific Markdown files or invented component designs.
 
@@ -53,14 +53,14 @@ Responsive behavior:
   and supporting panels below. The camera opens within Training as a viewport-sized modal. Collapsible icons grow within a 44px area through 1100px viewport width.
 - Desktop styles, the shared form alignment and select arrows are retained.
 
-Responsive QA covers all 30 HTML pages (10 originals, 4 layouts, 15 components
+Responsive QA covers all 28 HTML pages (10 originals, 2 layouts, 15 components
 and the catalog) at 414×896, 896×414, 768×1024, 1024×768,
 and 1440×900. Check drawer dismissal and focus cycling, rotation while open,
 scroll restoration, expanded form sections, both authentication modes, camera
 ordering, and page overflow. Compare desktop screenshots with all sections
 expanded and registration dialogs open as well as the default page states.
 
-Verification completed in Chromium on 2026-09-27: all 30 pages opened at all five
+Historical verification completed in Chromium on 2026-09-27, before the layout consolidation: all 30 pages opened at all five
 sizes (150 page/viewport checks), 380 local references resolved, and the drawer,
 authentication, collapsibles, controls and select arrows passed their checks.
 All eight extracted/original authentication forms reached `pages/dashboard.html`.
@@ -109,7 +109,7 @@ plan cards/demo dialog. The shared script links application sidebars to this
 Pricing page using ordinary anchor navigation.
 
 Checkout is available at `pages/checkout.html` (the documented `/checkout` route)
-and last in the application sidebar. It uses the existing application layout,
+and last in the application sidebar. It uses the Authentication Layout,
 Performance plan (€19/month), order summary, disabled sample payment fields, a
 demo-only completion message, and links back to Pricing. No payment
 provider, network submission, card storage or subscription creation is involved.

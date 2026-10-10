@@ -119,27 +119,43 @@ The output must contain:
 new
 ```
 
+---
 ## Project Structure
 
-Derive the structure requirements from the provided frontend specification and its project constraints. Include:
+Read the `Project Structure` section in `docs/frontend/frontend.md`.
 
-- application root directory
-- required feature modules and their responsibilities
-- placement of module-specific pages and components
-- placement of shared components, routing, styles, assets, and other required shared resources
+From that section, collect all referenced frontend project-structure documents and use those referenced files as the authoritative source for frontend structure, placement, and organization rules.
 
-Within each feature module, separate Vue views from JavaScript logic. Keep templates in `.vue` page and component files, and place state, event handlers, validation, and other behavior in separate `.js` modules or composables imported by those views. Keep the Vue script block limited to imports and minimal wiring required to connect the template to the external logic. Keep API access in separate service modules rather than embedding it in view files.
+Do not hardcode project-structure reference files in this planning skill. The list of authoritative structure documents is owned by `frontend.md` and may change over time.
 
-For each planned page or component, describe the placement of its Vue view and any required JavaScript logic files within the owning module. Shared logic belongs in shared resources only when reused. Do not create placeholder logic files for views that need no JavaScript behavior.
+Use the referenced structure documents to determine:
 
-Plan Pinia stores for shared feature state: module-specific stores belong in that module's `stores/` directory; application-wide stores belong in `src/stores/`. Describe the state ownership and actions needed by pages and feature components, which access their store directly instead of forwarding shared state through props. Keep API calls in services and initialize Pinia once at application startup. Do not persist passwords or secrets. Do not force purely local UI state or generic component props into stores.
+- where planned pages belong;
+- where reusable components belong;
+- how simple and complex components should be organized;
+- where component-supporting JavaScript files or classes belong;
+- where composables belong;
+- where Pinia stores belong;
+- where services, routing, layouts, styles, assets, utilities, configuration, and other shared frontend resources belong;
+- how files related to the same page or component should be grouped when the referenced structure rules define such organization.
 
-Describe only the structure required by the planned frontend. Mark unspecified structural decisions explicitly for resolution rather than inventing additional modules or folders.
+When the referenced documents point to existing prototype directories or structural examples, inspect those examples as additional guidance for understanding the intended organization.
 
-Return these requirements as part of the plan. The orchestrator passes them to Frontend Project Structure to inspect the existing project and create missing directories; this planning skill does not create them.
+Use those examples to understand existing structural patterns, including more complex components that may contain a Vue component together with multiple JavaScript files, classes, supporting logic, styles, or other related files.
 
+Do not copy example structures blindly. Apply them only when they are relevant to the page or component being planned.
 
+For every planned page or component, determine its required placement and supporting files according to the authoritative references obtained through `frontend.md`.
 
+Do not redefine frontend project-structure rules inside this planning skill.
+Do not duplicate the contents of the referenced structure documents.
+Do not invent additional architectural layers, directories, or placeholder files unless they are required by the frontend specification or explicitly allowed by the referenced structure rules.
+
+Return the resolved project-structure requirements as part of the frontend plan.
+
+This planning skill determines structure and placement only. It does not create directories or implementation files.
+
+---
 ## Open Questions and Blockers
 
 Return an empty list when there are no unresolved issues. Otherwise, for each issue include:
@@ -153,6 +169,9 @@ required_resolution
 ```
 
 Identify missing information and conflicting requirements explicitly. Explain which work cannot proceed and what clarification or source is needed. Do not present assumptions as confirmed requirements or a blocked plan as ready for implementation. Return these issues to the orchestrator for resolution before affected work begins.
+
+---
+
 
 ## Build Order
 
@@ -195,6 +214,22 @@ Those responsibilities belong to specialized skills coordinated by the Frontend 
 ## Validation
 
 After producing the frontend design plan, return it to the orchestrator for validation. If validation errors are provided, use them as correction context and return a complete corrected plan.
+
+---
+
+## Plan Output
+
+Write the completed frontend plan to:
+
+`docs/frontend/plan/new-frontend-plan.md`
+
+Create the `docs/frontend/plan/` directory if it does not already exist.
+
+The generated plan must be written to this file after all planning sections, open questions, blockers, build-order decisions, and required validations have been completed.
+
+Use `docs/frontend/plan/new-frontend-plan.md` as the canonical output file for this planning skill.
+
+Do not write the generated plan to another location unless the task explicitly requires a different output path.
 
 ---
 

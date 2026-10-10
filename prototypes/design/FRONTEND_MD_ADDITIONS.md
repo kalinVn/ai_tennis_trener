@@ -7,12 +7,10 @@ Prototype paths below are relative to the repository root. The catalog is `proto
 
 | Layout | Purpose | Pages | Visual reference |
 | --- | --- | --- | --- |
-| Public Layout | Public navigation + page content + footer | Home `/`, Features `/features`, Pricing `/pricing` | `prototypes/design/pages/index.html`, `prototypes/design/pages/features.html`, `prototypes/design/pages/pricing.html` |
-| Authentication UI | Shared modal for Login/Register (not a separate page layout in this prototype) | Available from public pages | `prototypes/design/pages/index.html` |
-| Authenticated Application Layout | Shared sidebar and app header | Dashboard `/dashboard`, Training `/training`, History `/history`, Subscription `/subscription`, Profile `/profile`, Settings `/settings` | `prototypes/design/pages/dashboard.html`, `prototypes/design/pages/training.html`, `prototypes/design/pages/history.html`, `prototypes/design/pages/subscription.html`, `prototypes/design/pages/profile.html`, `prototypes/design/pages/settings.html` |
-| Camera Preview Modal | Camera-first screen with minimal controls | `/training` (in-page modal) | `prototypes/design/pages/camera.html` |
+| Public Layout | Public navigation + empty page-content area + footer | Home `/`, Features `/features`, Pricing `/pricing` | `prototypes/design/layouts/public.html` |
+| Authentication Layout | Authenticated sidebar + app header + empty page-content area | Dashboard `/dashboard`, Training `/training`, History `/history`, Subscription `/subscription`, Profile `/profile`, Settings `/settings` | `prototypes/design/layouts/authentication.html` |
 
-The dashboard is a page within Authenticated Application Layout, not necessarily a separate Dashboard Layout. Settings is also a page in the same shared layout unless a real design requires a different shell.
+The dashboard is a page within Authentication Layout, not necessarily a separate Dashboard Layout. Settings is also a page in the same shared layout unless a real design requires a different shell.
 
 ## Route mapping
 
@@ -21,15 +19,15 @@ The dashboard is a page within Authenticated Application Layout, not necessarily
 | `/` | `prototypes/design/pages/index.html` | Public |
 | `/features` | `prototypes/design/pages/features.html` | Public |
 | `/pricing` | `prototypes/design/pages/pricing.html` | Public |
-| `/dashboard` | `prototypes/design/pages/dashboard.html` | Authenticated Application |
-| `/training` | `prototypes/design/pages/training.html` | Authenticated Application |
+| `/dashboard` | `prototypes/design/pages/dashboard.html` | Authentication |
+| `/training` | `prototypes/design/pages/training.html` | Authentication |
 | `/training` (in-page modal) | `prototypes/design/pages/camera.html` | Camera Preview Modal |
-| `/history` | `prototypes/design/pages/history.html` | Authenticated Application |
-| `/subscription` | `prototypes/design/pages/subscription.html` | Authenticated Application |
-| `/profile` | `prototypes/design/pages/profile.html` | Authenticated Application |
-| `/settings` | `prototypes/design/pages/settings.html` | Authenticated Application |
+| `/history` | `prototypes/design/pages/history.html` | Authentication |
+| `/subscription` | `prototypes/design/pages/subscription.html` | Authentication |
+| `/profile` | `prototypes/design/pages/profile.html` | Authentication |
+| `/settings` | `prototypes/design/pages/settings.html` | Authentication |
 
-Login/Register remain modal dialogs on public pages, per the prototype request.
+Login/Register remain public-page interactions rather than another layout. The camera preview remains an in-page modal owned by Training; it is not a layout.
 
 ## Replacement for Plan New Frontend Design: Step 5
 

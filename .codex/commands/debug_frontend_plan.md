@@ -22,7 +22,7 @@ Run .codex/commands/debug_frontend_plan.md with specification_path=<path>.
 
 - Receive an explicit `specification_path`, resolving it from the repository root. A task/prototype must be supplied through, or associated with, that specification, as in the normal build command. The example path above is not a fallback when input is absent.
 - Read the root `AGENTS.md`, [planning rules](../rules/frontend-planning.md), and [planning workflow](../workflows/frontend-planning.md). Execute that workflow completely, including its independent plan-validation gate and bounded corrections.
-- Read source/specification/prototype files without changing them. Do not call the original full build orchestrator: its post-validation steps implement the frontend.
+- Read required source and specification files without changing them. Resolve and verify referenced prototype paths. Detailed UI implementation analysis remains out of scope, but prototype directory/file organization explicitly referenced by `docs/frontend/frontend.md` for project-structure guidance may be inspected read-only. Do not call the original full build orchestrator: its post-validation steps implement the frontend.
 - The only repository writes allowed during command execution are the two output files below and creation of their parent directory. Do not create application directories, scaffold code, install dependencies, run builders, change configuration, fix inspected code, commit, or deploy. Planning future implementation/tests is allowed; executing them is not.
 
 ## Output Contract
@@ -33,6 +33,8 @@ Use these literal paths relative to the repository root:
 docs/debug_plan_outputs/new_frontend_plan_N.md
 docs/debug_plan_outputs/new_frontend_plan_BG.md
 ```
+
+These paths intentionally override the normal planner destination `docs/frontend/plan/new-frontend-plan.md` for this debug-only command. Do not create or update the canonical plan file during a debug run.
 
 `N` is literal, not a counter. Each execution replaces this pair with the current run's English report and translation; it does not create additional history files. Preserve unrelated files and do not run two executions against this fixed pair concurrently.
 

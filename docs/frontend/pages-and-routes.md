@@ -26,7 +26,7 @@
 ### Training
 - purpose: `Primary page for real-time training where the user records strokes, sees instant analysis, and receives guidance.`
 - route: `/training`
-- layout: `Training Layout`
+- layout: `Authentication Layout`
 - Example Prototype: `design/pages/training.html`
 - name: `training`
 - description: `Follow the referenced Training HTML prototype for the page title, secondary text, section titles, descriptions, fields, labels, buttons/actions, and all other page-level content. The current prototype contains the camera preview/entry area and Coaching Cue, Connection, and Session panels; it contains no collapsible form sections, so do not invent any. Where the referenced prototype contains collapsible form sections, use the existing CollapseForm component. The Training page component owns and creates each such form configuration, deriving its title, secondary description, fields, labels, relevant field configuration, buttons/actions, and other required content directly from that prototype. Supply the corresponding CollapseForm instances through their existing title/description props and page-rendered default/footer slots; Training-specific data, configuration, form handling, and actions belong to the page, while CollapseForm remains generic and reusable. Implement all remaining elements directly as page-level DOM/layout matching the prototype; do not extract static sections into new components. Keep the shared Button for Start Training near the camera preview. Preserve the existing camera/full-screen training modal or camera training flow, reusing its implementation without duplicate camera logic or a second training flow. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
@@ -48,10 +48,10 @@
 ### Dashboard
 - purpose: `Provides the user with an overview of their training activity, recent sessions, progress, and quick access to the main application features.`
 - route: `/dashboard`
-- layout: `Authenticated Application Layout`
+- layout: `Authentication Layout`
 - Example Prototype: `design/pages/dashboard.html`
 - name: `dashboard`
-- description: `Follow the Dashboard prototype directly for all page content, sections, containers, text, and visual structure, implemented as page-level DOM/layout. Do not introduce page-specific shared components or extract static sections into reusable components. Keep Session History available as defined in the prototype. Each returned session row opens Session Review using its server-supplied session id. Sidebar and top header remain provided by the Authenticated Application Layout and are not part of the page sections.`
+- description: `Follow the Dashboard prototype directly for all page content, sections, containers, text, and visual structure, implemented as page-level DOM/layout. Do not introduce page-specific shared components or extract static sections into reusable components. Keep Session History available as defined in the prototype. Each returned session row opens Session Review using its server-supplied session id. Sidebar and top header remain provided by the Authentication Layout and are not part of the page sections.`
 - required shared components: None
 - required feature components: None
 - data contract: `GET /api/v1/dashboard`; example response shape is in [integration contract examples](integration-contracts.md#dashboard-profile-and-settings-data).
@@ -62,7 +62,7 @@
 ### History
 - purpose: `allows the user to review previous training sessions, results, performance metrics, and past coaching feedback`
 - Route: `/history`
-- Layout: `Authenticated Application Layout`
+- Layout: `Authentication Layout`
 - Example Prototype: `design/pages/history.html`
 - description: `Follow the History HTML/design prototype for all sections and page-level elements. Use the existing shared BaseTable component for the session/history table. All other headings, descriptions, controls, containers, filters, surrounding layout, and visual elements remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
 - required shared components: `BaseTable`
@@ -77,7 +77,7 @@
 - page/component: `frontend/src/pages/SessionReviewPage.vue`.
 - route: `/sessions/:sessionId`
 - name: `session-review`
-- layout: `Authenticated Application Layout`
+- layout: `Authentication Layout`
 - access: Authenticated; the backend authorizes access to the requested session.
 - route parameters: required `sessionId` opaque identifier. Reject malformed identifiers and show not-found/unauthorized states without leaking whether another user's session exists.
 - navigation destination: Session rows on History and Dashboard link to this route using their returned session ids. Session Review is not a top-level sidebar item; History remains the active navigation section.
@@ -92,7 +92,7 @@
 - page/component: `frontend/src/pages/ProgressPage.vue`.
 - route: `/progress`
 - name: `progress`
-- layout: `Authenticated Application Layout`
+- layout: `Authentication Layout`
 - access: Authenticated; the backend authorizes progress data.
 - route parameters: None. Load the backend-provided default range. Do not add date-range controls until a product requirement calls for them.
 - navigation destination: Authenticated sidebar item `Progress`, placed after History. Compact Dashboard progress summaries may link here.
@@ -119,7 +119,7 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 ### Subscription
 - purpose: `allows the user to view their current subscription plan, manage billing details, and change or upgrade their subscription.`
 - Route: `/subscription`
-- Layout: `Authenticated Application Layout`
+- Layout: `Authentication Layout`
 - Example Prototype: `design/pages/subscription.html`
 - description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Change plan and Manage billing actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
 - required shared components: `PaymentCardPlan`, `BillingDetailsCard`
@@ -131,7 +131,7 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 ### Profile
 - purpose: `Allow authenticated users to view and manage their profile and account information.`
 - Route: `/profile`
-- Layout: `Authenticated Application Layout`
+- Layout: `Authentication Layout`
 - Example Prototype: `design/pages/profile.html`
 - name: `profile`
 - description: `Follow the referenced Profile HTML prototype for the page title, secondary text, section titles, secondary descriptions, fields, labels, buttons/actions, and all other page-level content. The four collapsible sections are Personal Information, Tennis Profile (including Training Goals), Physical Information, and Account Overview; each uses the existing CollapseForm component. The Profile page component owns and creates the data/configuration for each section, deriving its title, secondary description, all fields and their labels and relevant configuration (including types, options, validation constraints, and read-only attributes), buttons/actions, and any additional content directly from the prototype. Supply each CollapseForm instance from this page-owned configuration through its existing title/description props and page-rendered default/footer slots for fields, actions, and other content. Profile-specific values, configuration, form handling, and actions remain in the Profile page; CollapseForm stays generic and reusable. Do not create separate components for individual Profile sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the prototype. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
@@ -144,7 +144,7 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 ### Settings
 
 - Route: `/settings`
-- Layout: `Authenticated Application Layout`
+- Layout: `Authentication Layout`
 - Example Prototype: `design/pages/settings.html`
 - name: `settings`
 - description: `Follow the referenced Settings HTML prototype as the source of truth for the page title, secondary text, all collapsible sections, and all other page-level content. Each collapsible section uses the existing shared CollapseForm component. The Settings page owns and creates each section's data/configuration directly from the prototype. Pass only the section title/header and secondary title/description through the existing title and description props. Define and render all section-specific fields, labels, selects, controls, buttons, actions, and other body content in the Settings page, supplying that content through CollapseForm's default slot and its footer slot where appropriate. Field configuration, values, validation, form handling, and action behavior remain owned by the Settings page; do not pass a field schema to CollapseForm or move Settings-specific content or behavior into it. Keep CollapseForm generic and reusable. Do not create separate components for individual Settings sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the Settings prototype. Do not invent fields, controls, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
@@ -169,7 +169,7 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 ### Checkout
 
 - Route: `/checkout`
-- Layout: `Authenticated Application Layout`
+- Layout: `Authentication Layout`
 - Example Prototype: `design/pages/checkout.html`
 - name: `checkout`
 - description: `The Checkout page contains two main sections: a left section with the existing Checkout PerformanceCard and PaymentInformationCard components stacked vertically, and a right section with an OrderSummaryCard component. Start through the provider-hosted checkout contract, verify every return state with the backend, and retain pending/cancelled/failed/expired/recoverable-error states.`

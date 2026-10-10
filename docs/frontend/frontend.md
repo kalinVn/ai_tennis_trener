@@ -268,7 +268,20 @@ Do not present fabricated analysis, session, progress, or subscription data as r
 
 ## Project Structure
 
-Read `docs/frontend/frontend-project-structure.md`. It is the single source of truth for the frontend project structure.
+Use [Frontend Project Structure](frontend-project-structure.md) as the authoritative source for physical frontend directories and global placement rules. This section is the navigation point for structural references; it does not redefine that structure.
+
+Inspect the existing prototypes only as organization and ownership guidance:
+
+- [Prototype components](../../prototypes/components/) show the current shared and feature component families.
+- [Visual page prototypes](../../prototypes/design/pages/) show page-level composition, while [Vue page examples](../../prototypes/pages/) and the existing [Home](../../prototypes/home/), [Pricing](../../prototypes/pricing/), [Subscription](../../prototypes/subscription/), [Checkout](../../prototypes/checkout/), and [Training](../../prototypes/training/) entry directories show current page wiring examples.
+- [Prototype composables](../../prototypes/composables/), [stores](../../prototypes/stores/), and [services](../../prototypes/services/) show existing behavior, state, and communication boundaries where examples are present.
+- The [Home Page Video Slider](../../prototypes/components/sliders/home-page-video-slider/) is the reference for a complex component that owns substantial internal logic and several supporting files. Its current organization includes a Vue component, multiple supporting JavaScript classes/files, controller and lifecycle logic, rendering and animation logic, configuration, component-specific styles, a local [README](../../prototypes/components/sliders/home-page-video-slider/README.md), and related [tests](../../prototypes/tests/home-page-video-slider.test.js).
+
+Use these references to understand practical grouping and ownership, not as files to copy blindly. A simple component may remain one `.vue` file when that is sufficient; only components with genuine internal complexity should group multiple supporting files with a clear owner. Component-specific logic and styles may stay grouped with that owner when allowed by the authoritative structure.
+
+Prototype `assets/` directories do not determine production asset placement. Shared application assets belong in the approved global `src/assets/` location. Shared or global Sass/CSS likewise follows the authoritative global structure and must not become feature-owned merely because a prototype keeps styling nearby.
+
+Do not introduce a frontend `modules/` feature-root layer.
 
 ---
 
