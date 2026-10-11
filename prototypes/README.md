@@ -59,6 +59,15 @@ Build compiles the configured page, layout, and camera entries, not the entire a
 The HTML camera specimen is a design reference for this modal, also reachable
 from the local-file Training preview. It does not use the browser Fullscreen API.
 
+## Authentication pages
+
+Open `design/pages/login.html` and `design/pages/register.html` through the Vite
+server. These entries mount the dedicated `LoginPage`/`LoginForm` and
+`RegisterPage`/`RegisterForm` prototypes. Public Login actions lead to Login;
+Start Free, Register, Create Account, and pricing-plan selection lead to Register.
+The forms are visual prototypes only: they do not authenticate, create accounts,
+start OAuth, or implement OTP/MFA.
+
 ## Checkout cards
 
 Open `/prototypes/design/pages/checkout.html` through the same Vite server to
@@ -73,6 +82,6 @@ Checkout retains its distinct PerformanceCard order summary. Pricing and Subscri
 
 ## Pricing and Subscription cards
 
-Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry scripts mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing actions open the existing registration dialog; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare public pricing remains a page-level link.
+Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry scripts mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing actions navigate to the dedicated Register page; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare public pricing remains a page-level link.
 
 Card design examples are `design/components/cards/payment-card-plan.html` (normal), `design/components/cards/payment-card-plan-selected.html` (selected state of the same component) and `design/components/cards/billing-details-card.html`. The build includes the Pricing and Subscription entries.

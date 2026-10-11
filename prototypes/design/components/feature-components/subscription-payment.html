@@ -8,9 +8,9 @@
 </head>
 <body class="prototype-library">
 <div class="app-shell"><aside class="sidebar"><a class="brand" href="../../pages/dashboard.html"><span class="logo">AI</span>Coach</a><div class="side-links"><a href="../../pages/dashboard.html" aria-current="page">Dashboard</a><a href="../../pages/training.html">Training</a><a href="../../pages/history.html">History</a><a href="../../pages/subscription.html">Subscription</a><a href="../../pages/profile.html">Profile</a><a href="../../pages/settings.html">Settings</a></div><p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authentication Layout · demo</p></aside><div class="app-main"><header class="app-top"><span class="eyebrow" style="margin:0">Tennis AI Coach / Subscription &amp; Payment</span><div class="flex"><span class="muted">Alex Morgan · demo user</span><a class="btn small" href="../../pages/index.html">Log out</a></div></header><main class="app-content"><div class="page-head"><div class="eyebrow"><a href="../../index.html">← Prototype catalog</a></div><h1>Subscription &amp; Payment</h1><p>Existing plan cards, pricing comparison, billing details and display-currency/invoice-email preferences.</p></div><div class="stack"><div class="two-col"><div class="panel"><span class="pill">Active · demo</span><h2 style="margin-top:16px">Performance plan</h2><p>Realtime coaching, richer insights and progress tools.</p><h2 class="accent">€19 <span class="muted" style="font-size:16px">/ month (example)</span></h2><button class="btn primary" onclick="showDemoNote('Plan change is not connected in this prototype.')">Change plan</button></div><div class="panel"><h3>Billing details</h3><p>Next renewal: Oct 26, 2026 (illustrative).</p><p>Payment method: Not connected.</p><button class="btn" onclick="showDemoNote('Billing is a visual prototype only.')">Manage billing</button></div></div><p id="demo-note" class="callout" role="status" hidden></p><div class="pricing">
-<div class="card price"><h3>Starter</h3><strong>€9</strong><small>/month</small><p>Core analysis and training history.</p><button class="btn" style="width:100%" onclick="openAuth('register')">Choose Starter</button></div>
-<div class="card price featured"><div class="eyebrow">Most popular</div><h3>Performance</h3><strong>€19</strong><small>/month</small><p>Realtime coaching, richer insights and progress tools.</p><button class="btn primary" style="width:100%" onclick="openAuth('register')">Choose Performance</button></div>
-<div class="card price"><h3>Pro</h3><strong>€39</strong><small>/month</small><p>Advanced training insights and premium tools.</p><button class="btn" style="width:100%" onclick="openAuth('register')">Choose Pro</button></div>
+<div class="card price"><h3>Starter</h3><strong>€9</strong><small>/month</small><p>Core analysis and training history.</p><a class="btn" style="width:100%" href="../../pages/register.html">Choose Starter</a></div>
+<div class="card price featured"><div class="eyebrow">Most popular</div><h3>Performance</h3><strong>€19</strong><small>/month</small><p>Realtime coaching, richer insights and progress tools.</p><a class="btn primary" style="width:100%" href="../../pages/register.html">Choose Performance</a></div>
+<div class="card price"><h3>Pro</h3><strong>€39</strong><small>/month</small><p>Advanced training insights and premium tools.</p><a class="btn" style="width:100%" href="../../pages/register.html">Choose Pro</a></div>
 </div><details class="panel settings-section">
           <summary><div><h2>Subscription &amp; Billing</h2><p>Payment preferences and Stripe subscription management.</p></div></summary>
           <div class="settings-body"><div class="settings-grid form-grid">
@@ -19,15 +19,7 @@
             <div class="field wide"><p>Payment methods, invoices and billing details should be managed through Stripe's hosted checkout or customer portal. Do not store card numbers or CVC in this prototype.</p></div>
             <div class="field wide"><a class="btn" href="../../pages/subscription.html">View subscription</a></div>
           </div></div>
-        </details><div class="callout"><p style="margin:0">Checkout forms, payment summaries and Stripe payment-state components are missing. Existing billing and plan actions remain demo-only; no card information is collected.</p></div></div></main></div></div><div class="modal" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-<div class="modal-card"><div class="modal-header"><div><div class="eyebrow">WELCOME</div><h2 id="auth-title" style="font-size:27px">Your tennis workspace</h2></div><button class="close" aria-label="Close" onclick="closeAuth()">×</button></div>
-<div class="tabs"><button class="btn primary" id="loginTab" onclick="setAuth('login')">Login</button><button class="btn" id="registerTab" onclick="setAuth('register')">Register</button></div>
-<form id="auth-form"><div class="field" id="nameField" hidden=""><label for="full-name">Name</label><input id="full-name" placeholder="Your name"></div>
-<div class="field"><label for="email">Email</label><input required="" id="email" type="email" placeholder="you@example.com"></div>
-<div class="field"><label for="pass">Password</label><input required="" id="pass" type="password" minlength="4" placeholder="••••••••"></div>
-<button class="btn primary" id="auth-submit" style="width:100%">Log in (demo)</button></form>
-<p style="font-size:12px;margin-top:12px">Prototype only. Demo navigation, no account is created and no credentials are sent.</p>
-</div></div>
+        </details><div class="callout"><p style="margin:0">Checkout forms, payment summaries and Stripe payment-state components are missing. Existing billing and plan actions remain demo-only; no card information is collected.</p></div></div></main></div></div>
 <script src="../../app.js"></script>
 
 </body>

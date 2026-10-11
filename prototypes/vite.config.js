@@ -26,6 +26,8 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: { input: {
       home: root + '/prototypes/design/pages/index.html',
+      login: root + '/prototypes/design/pages/login.html',
+      register: root + '/prototypes/design/pages/register.html',
       checkout: root + '/prototypes/design/pages/checkout.html',
       pricing: root + '/prototypes/design/pages/pricing.html',
       subscription: root + '/prototypes/design/pages/subscription.html',

@@ -11,8 +11,8 @@ if (target) {
         { planName: 'Performance', price: '€19', selected: true, description: 'Realtime coaching, richer insights and progress tools.' },
         { planName: 'Pro', price: '€39', description: 'Advanced training insights and premium tools.' },
       ]
-      // Preserve the existing demo registration action; no checkout or billing integration.
-      function choosePlan() { window.openAuth('register') }
+      // Plan selection enters the dedicated registration prototype; no checkout is connected.
+      function choosePlan() { window.location.href = 'register.html' }
       return { plans, choosePlan }
     },
     template: `<PaymentCardPlan v-for="plan in plans" :key="plan.planName" v-bind="plan"

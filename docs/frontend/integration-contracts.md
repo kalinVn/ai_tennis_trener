@@ -10,15 +10,16 @@ Successful JSON responses use the resource-specific shape below. Failed requests
 {
   "error": {
     "code": "SESSION_EXPIRED",
+    "success": false,
     "message": "Your session has expired.",
     "requestId": "opaque-server-generated-id",
     "retryable": false,
-    "fieldErrors": {}
+    "errors": {}
   }
 }
 ```
 
-`message` is safe to display; clients must branch on `code`, never parse message text. `fieldErrors` is optional. Do not expose stack traces, tokens, provider secrets, or internal diagnostics.
+`message` is safe to display; clients must branch on `code`, never parse message text. `errors` is optional. Do not expose stack traces, tokens, provider secrets, or internal diagnostics.
 
 ## Authentication and application session
 
@@ -33,7 +34,7 @@ Example endpoints:
 - `POST /api/v1/auth/logout` — invalidates the server session and clears its cookie.
 - Google and Apple sign-in use backend-owned OAuth authorization/callback flows with state and nonce validation; the frontend handles redirect, pending, cancelled, and recoverable failure states. It never handles provider client secrets.
 
-A protected request returning `401` clears local session state and returns to the login dialog while preserving a validated internal `returnTo`. A `403` is an authorization failure and must not be treated as logged out. A session lookup network failure is `unavailable`, not signed out.
+A protected request returning `401` clears local session state and returns to the Login page while preserving a validated internal `returnTo`. A `403` is an authorization failure and must not be treated as logged out. A session lookup network failure is `unavailable`, not signed out.
 
 ## Training session and analysis transport
 

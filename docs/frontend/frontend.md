@@ -80,7 +80,7 @@ Its [Session Review](pages-and-routes.md#session-review) and [Progress](pages-an
 
 - Public navigation links to relevant landing-page sections and authentication.
 - Authenticated navigation exposes all required application pages.
-- Public horizontal navigation is visible when the user is not authenticated and includes Home, Training, Pricing, and Login Modal.
+- Public horizontal navigation is visible when the user is not authenticated and includes Home, Training, Pricing, and Login; Start Free actions navigate to Register where present.
 - Authenticated vertical navigation is visible when the user is authenticated and includes Dashboard, Training, History, Subscription, Profile, Settings, and Checkout.
 - Session Review and Progress access is authenticated. History and Dashboard session rows open Session Review; the authenticated sidebar includes Progress after History.
 - Navigation remains usable with keyboard input and on mobile screens.

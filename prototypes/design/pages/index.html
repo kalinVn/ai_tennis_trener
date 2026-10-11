@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Home · Tennis AI Coach</title><link rel="stylesheet" href="../style.css"><link rel="stylesheet" href="../components/home_page_slider/home-hero.css"></head><body><nav class="public-nav"><div class="container nav-inner">
 <a class="brand" href="index.html"><span class="logo">AI</span>Tennis AI Coach</a>
 <div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="training.html">Training</a><a href="pricing.html">Pricing</a></div>
-<div class="nav-actions"><button class="btn small" onclick="openAuth('login')">Log in</button><button class="btn primary small" onclick="openAuth('register')">Start free</button></div>
+<div class="nav-actions"><a class="btn small" href="login.html">Log in</a><a class="btn primary small" href="register.html">Start free</a></div>
 </div></nav><main class="container public-main"><section class="container hero">
 <div id="home-info-root" style="display:contents">
 <div class="hero-copy" style="position:relative;z-index:2;min-width:0">
@@ -50,15 +50,7 @@
 <div id="video-load-error" class="video-load-error" hidden>Video unavailable. Connect to the internet or download the tennis clip and place it in <code>components/home_page_slider/assets/2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm</code>. <a href="https://commons.wikimedia.org/wiki/File:2018_Davis_Cup_Americas_Zone_-_Uruguay_vs_Mexico_-_04.webm" target="_blank" rel="noopener">Open the source video</a>.</div>
 </div>
 </div>
-</section><section class="section"><div class="callout"><b>Pages are separate:</b> Features, Pricing, Training and the signed-in workspace each have their own HTML file. Login/Register remain demo dialogs.</div></section></main><footer class="public-footer"><div class="container footer-row"><span>© Tennis AI Coach · visual prototype</span><span>Privacy · Terms · Support</span></div></footer><div class="modal" id="auth" role="dialog" aria-modal="true" aria-labelledby="auth-title">
-<div class="modal-card"><div class="modal-header"><div><div class="eyebrow">WELCOME</div><h2 id="auth-title" style="font-size:27px">Your tennis workspace</h2></div><button class="close" aria-label="Close" onclick="closeAuth()">×</button></div>
-<div class="tabs"><button class="btn primary" id="loginTab" onclick="setAuth('login')">Login</button><button class="btn" id="registerTab" onclick="setAuth('register')">Register</button></div>
-<form id="auth-form"><div class="field" id="nameField" hidden><label for="full-name">Name</label><input id="full-name" placeholder="Your name"></div>
-<div class="field"><label for="email">Email</label><input required id="email" type="email" placeholder="you@example.com"></div>
-<div class="field"><label for="pass">Password</label><input required id="pass" type="password" minlength="4" placeholder="••••••••"></div>
-<button class="btn primary" id="auth-submit" style="width:100%">Log in (demo)</button></form>
-<p style="font-size:12px;margin-top:12px">Prototype only. Demo navigation, no account is created and no credentials are sent.</p>
-</div></div><script src="../app.js"></script><script>if (location.protocol === 'file:') { const script = document.createElement('script'); script.src = '../components/home_page_slider/video-demo.js'; document.body.append(script); }</script><script>
+</section><section class="section"><div class="callout"><b>Pages are separate:</b> Features, Pricing, Login, Register, Training and the signed-in workspace each have their own prototype page.</div></section></main><footer class="public-footer"><div class="container footer-row"><span>© Tennis AI Coach · visual prototype</span><span>Privacy · Terms · Support</span></div></footer><script src="../app.js"></script><script>if (location.protocol === 'file:') { const script = document.createElement('script'); script.src = '../components/home_page_slider/video-demo.js'; document.body.append(script); }</script><script>
 // Preserve the static file preview; Vite mounts the reusable Vue section over HTTP.
 if (location.protocol === 'file:') {
   const alignment = document.createElement('script');

@@ -53,12 +53,12 @@ Responsive behavior:
   and supporting panels below. The camera opens within Training as a viewport-sized modal. Collapsible icons grow within a 44px area through 1100px viewport width.
 - Desktop styles, the shared form alignment and select arrows are retained.
 
-Responsive QA covers all 28 HTML pages (10 originals, 2 layouts, 15 components
+Responsive QA should include the dedicated Login and Register pages alongside the existing HTML pages
 and the catalog) at 414×896, 896×414, 768×1024, 1024×768,
 and 1440×900. Check drawer dismissal and focus cycling, rotation while open,
-scroll restoration, expanded form sections, both authentication modes, camera
+scroll restoration, expanded form sections, both authentication pages, camera
 ordering, and page overflow. Compare desktop screenshots with all sections
-expanded and registration dialogs open as well as the default page states.
+expanded and both authentication pages as well as the default page states.
 
 Historical verification completed in Chromium on 2026-09-27, before the layout consolidation: all 30 pages opened at all five
 sizes (150 page/viewport checks), 380 local references resolved, and the drawer,
@@ -115,7 +115,7 @@ demo-only completion message, and links back to Pricing. No payment
 provider, network submission, card storage or subscription creation is involved.
 
 `pages/not-found.html` is a 404 prototype using the existing Public Layout,
-including public navigation, footer and demo authentication dialogs. Its primary
+including public navigation, footer and links to the dedicated authentication pages. Its primary
 action returns to Home. Unknown-route handling remains separate from this visual
 prototype.
 
@@ -123,7 +123,7 @@ prototype.
 ## Navigation visual source of truth
 
 - [Public navigation](components/navigation/public-navigation.html): Home, Training,
-  Pricing and a Login Modal trigger; horizontal desktop header and collapsible
+  Pricing and a Login page link; horizontal desktop header and collapsible
   menu at 720px and below.
 - [Authenticated navigation](components/navigation/authenticated-navigation.html):
   Dashboard, Training, History, Subscription, Profile, Settings and Checkout;

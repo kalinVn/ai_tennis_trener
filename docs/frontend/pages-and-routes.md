@@ -23,6 +23,28 @@
 - required feature components: None
 - dependencies: None
 
+### Login Page
+- purpose: `Allow an existing user to enter email/password credentials or choose a supported social login entry point.`
+- route: `/login`
+- layout: `Public Layout`
+- Example Prototype: `design/pages/login.html`
+- name: `login`
+- description: `Dedicated public authentication page. Render the LoginForm with email and password fields, a primary Login action, a Create Account link to Register, and visual-only Google, Facebook, and Apple login buttons with their provider icons. Authentication and OAuth authority remain on the backend; the prototype does not create a session or start an OAuth flow.`
+- required shared components: `Button`
+- required feature components: `LoginForm`
+- dependencies: None
+
+### Register Page
+- purpose: `Allow a new user to enter the details required to create an account and accept the terms/privacy agreement.`
+- route: `/register`
+- layout: `Public Layout`
+- Example Prototype: `design/pages/register.html`
+- name: `register`
+- description: `Dedicated public registration page. Render the RegisterForm with first name, surname, email, phone, password, confirm-password, and terms/privacy agreement fields, plus a primary Create Account action and an existing-account link to Login. The prototype does not create an account or implement OTP/MFA.`
+- required shared components: `Button`
+- required feature components: `RegisterForm`
+- dependencies: None
+
 ### Training
 - purpose: `Primary page for real-time training where the user records strokes, sees instant analysis, and receives guidance.`
 - route: `/training`

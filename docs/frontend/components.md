@@ -117,9 +117,25 @@ Presentational card for a numbered feature, title, and description. The parent s
 - Vue component: [FeatureCard.vue](../../prototypes/components/cards/FeatureCard.vue)
 - Visual reference: [feature-card.html](../../prototypes/design/components/cards/feature-card.html)
 
+### LoginForm
+
+Dedicated login form containing an email field, password field, primary Login action, and Create Account navigation to the Register page. It also presents visual-only `Login with Google`, `Login with Facebook`, and `Login with Apple` buttons, each with its provider icon. Social actions do not start OAuth and the prototype does not authenticate or retain credentials.
+
+- Vue component prototype: [LoginForm.vue](../../prototypes/components/forms/LoginForm.vue)
+- Page prototype: [LoginPage.vue](../../prototypes/pages/LoginPage.vue)
+- Runnable design prototype: [login.html](../../prototypes/design/pages/login.html)
+
+### RegisterForm
+
+Dedicated registration form containing first name, surname, email, phone, password, confirm-password, and required terms/privacy agreement fields. It provides the primary Create Account action and an existing-account Login link. The prototype performs only same-form password confirmation feedback; it does not create an account, submit credentials, or implement OTP/MFA.
+
+- Vue component prototype: [RegisterForm.vue](../../prototypes/components/forms/RegisterForm.vue)
+- Page prototype: [RegisterPage.vue](../../prototypes/pages/RegisterPage.vue)
+- Runnable design prototype: [register.html](../../prototypes/design/pages/register.html)
+
 ### TopNav
 
-Reusable public top navigation with the existing AI logo and Tennis AI Coach title and parent-supplied links. The current Vue prototype exposes login and register events; the approved visible navigation follows the dedicated prototype and Navigation Requirements in frontend.md (Home, Training, Pricing, Login Modal). The older two-action layout does not require an extra registration button in production navigation. It owns the responsive menu toggle, Escape dismissal, and resize cleanup. It contains no authentication logic, routing, API access, or store integration.
+Reusable public top navigation with the existing AI logo and Tennis AI Coach title and parent-supplied links. The current Vue prototype exposes login and register events; parent-owned handlers navigate Login to the dedicated Login page and Start Free/Register to the dedicated Register page. The approved visible navigation follows the dedicated prototype and Navigation Requirements in frontend.md. It owns the responsive menu toggle, Escape dismissal, and resize cleanup. It contains no authentication logic, routing, API access, or store integration.
 
 - `items`: array of `{ label, href, active? }` objects; defaults to an empty array. Use unique `href` values. Optional `active` marks the current page.
 - Login uses the shared [Button.vue](../../prototypes/design/components/buttons/Button.vue) with `variant="secondary"` and `size="small"`; clicking emits `login`.
@@ -216,7 +232,7 @@ Emits `action` without a payload through a shared Button `click`. The page owns 
 - Vue implementation: [PaymentCardPlan.vue](../../prototypes/components/cards/PaymentCardPlan.vue).
 - Normal design prototype: [payment-card-plan.html](../../prototypes/design/components/cards/payment-card-plan.html).
 - Selected design prototype: [payment-card-plan-selected.html](../../prototypes/design/components/cards/payment-card-plan-selected.html). Both files illustrate the same shared Vue component; selected is a presentation state.
-- Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/subscription/main.js). Pricing preserves the demo registration dialog; Subscription preserves the existing informational Change plan message.
+- Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/subscription/main.js). Pricing navigates plan selection to the dedicated Register page; Subscription preserves the existing informational Change plan message.
 
 ### BillingDetailsCard
 

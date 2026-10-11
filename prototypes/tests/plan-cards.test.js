@@ -60,7 +60,7 @@ test('selected plan updates presentation without emitting or changing price; act
   app.unmount()
 })
 
-test('Pricing and Subscription entries mount shared cards and retain their demo actions', () => {
+test('Pricing navigates to Register while Subscription retains its demo actions', () => {
   for (const page of ['pricing', 'subscription']) {
     const root = node('root'), calls = []
     let app
@@ -68,13 +68,16 @@ test('Pricing and Subscription entries mount shared cards and retain their demo 
     new Function('createApp', 'PaymentCardPlan', 'BillingDetailsCard', 'document', 'window', code)(
       options => (app = renderer.createApp(options)), PaymentCardPlan, BillingDetailsCard,
       { getElementById: () => root },
-      { openAuth: mode => calls.push(mode), showDemoNote: message => calls.push(message) },
+      {
+        location: { set href(value) { calls.push(value) } },
+        showDemoNote: message => calls.push(message),
+      },
     )
     const cards = all(root).filter(n => n.type === 'article')
     assert.equal(cards.length, page === 'pricing' ? 3 : 1)
     const buttons = all(root).filter(n => n.type === 'button')
     buttons.forEach(button => button.props.onClick({ type: 'click' }))
-    assert.deepEqual(calls, page === 'pricing' ? ['register', 'register', 'register'] : [
+    assert.deepEqual(calls, page === 'pricing' ? ['register.html', 'register.html', 'register.html'] : [
       'Plan change is not connected in this prototype.', 'Billing is a visual prototype only.',
     ])
     if (page === 'subscription') {
