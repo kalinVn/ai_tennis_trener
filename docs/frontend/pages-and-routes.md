@@ -1,6 +1,5 @@
 ## Required Pages and Routes
 
-
 ### Home Page
 - purpose: `Main public entry page of the application`
 - route: `/`

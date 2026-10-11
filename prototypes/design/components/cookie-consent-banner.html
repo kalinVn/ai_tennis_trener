@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Cookie Consent Banner · Tennis AI Coach Library</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body class="prototype-library">
+  <main class="container public-main">
+    <div class="page-head">
+      <div class="eyebrow"><a href="../index.html">← Prototype catalog</a></div>
+      <h1>Cookie Privacy Policy</h1>
+      <p>The public feature component owns the full-width banner, preferences, policy content, persistence, and shared modal flow.</p>
+    </div>
+    <section class="panel">
+      <h2>Representative page content</h2>
+      <p>The banner is visually integrated with the footer. Saving any consent choice hides it; policy-only viewing does not.</p>
+    </section>
+  </main>
+  <footer class="public-footer"><div class="container footer-row"><span>© Tennis AI Coach · visual prototype</span><span>Privacy · Terms · Support</span></div></footer>
+  <div id="cookie-consent-root">
+    <aside class="cookie-banner cookie-banner--static" aria-label="Cookie consent">
+      <div class="cookie-banner__summary">
+        <div>
+          <div class="eyebrow">Your privacy choices</div>
+          <h2>Cookies and related technologies</h2>
+          <p>We use essential cookies for the application to work and, with your choice, cookies for analytics, preferences, and marketing or tracking.</p>
+          <p class="cookie-banner__links"><button type="button">Cookie Policy</button><button type="button">Privacy Policy</button></p>
+        </div>
+        <div class="cookie-banner__actions"><button class="btn primary">Accept All</button><button class="btn">Reject All</button><button class="btn ghost">Manage Preferences</button></div>
+      </div>
+    </aside>
+  </div>
+  <script type="module">
+    import { createApp } from 'vue'
+    import CookiePrivacyPolicy from '../../components/features/CookiePrivacyPolicy/CookiePrivacyPolicy.vue'
+    createApp(CookiePrivacyPolicy).mount('#cookie-consent-root')
+  </script>
+</body>
+</html>

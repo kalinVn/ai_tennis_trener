@@ -59,6 +59,19 @@ Build compiles the configured page, layout, and camera entries, not the entire a
 The HTML camera specimen is a design reference for this modal, also reachable
 from the local-file Training preview. It does not use the browser Fullscreen API.
 
+## Global cookie consent
+
+Application pages load the public `CookiePrivacyPolicy` Vue feature from the
+shared design shell. Until a
+valid selection is stored under `tennis-ai-coach.cookie-consent.v1` in browser
+`localStorage`, the banner is shown again after navigation. Accept All, Reject All,
+and saved category preferences persist the choice. The feature-local composable
+owns all consent state. Manage Preferences, Cookie Policy, and Privacy Policy
+reuse shared `BaseModal` over the current page;
+opening policy content does not count as consent. Footer Cookie Settings reopens
+the saved preferences through `TextButton`. The policy copy requires legal review before launch, and
+no analytics or marketing integrations are initialized by this implementation.
+
 ## Authentication pages
 
 Open `design/pages/login.html` and `design/pages/register.html` through the Vite

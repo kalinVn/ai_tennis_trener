@@ -44,6 +44,37 @@ The inspected Button renders a native button and does not support a `to` prop or
 - [main.scss](../../prototypes/design/components/buttons/main.scss): variants, sizes, focus, disabled/loading and reduced-motion styles.
 - [Button visual prototypes](../../prototypes/design/components/buttons): visual examples; their page labels do not define additional components.
 
+### TextButton
+
+[TextButton.vue](../../prototypes/design/components/buttons/TextButton.vue) is a lightweight native button for inline legal/settings actions. It accepts content through its default slot, supports the native `button`, `submit`, and `reset` types, and emits `click`. It owns only text-button hover, active, and focus-visible presentation; it has no loading state, variants, persistence, or cookie-specific logic.
+
+### BaseModal
+
+[BaseModal.vue](../../prototypes/components/modal/BaseModal.vue) is the shared native-dialog shell. It owns the backdrop, viewport-safe container, close control, Escape/backdrop dismissal, focus restoration, page scroll locking, and internally scrollable body. Its title and body are supplied by props/slots. It contains no cookie or policy logic; the existing full-screen camera modal remains specialized because its media lifecycle and full-viewport layout are materially different.
+
+### CookiePrivacyPolicy
+
+[CookiePrivacyPolicy.vue](../../prototypes/components/features/CookiePrivacyPolicy/CookiePrivacyPolicy.vue) is the single public feature component for the complete cookie/privacy flow. The shared application shell mounts it independently from authentication state across public and authenticated pages. Its internal `PrivacyChoicesBanner` renders a slightly translucent, full-viewport-width bar attached to the bottom edge and visually integrated with the application/footer.
+
+The main actions are `Accept All`, `Reject All`, and `Manage Preferences`. Accept All enables every optional category; Reject All disables every optional category while Essential remains enabled and core registration, login, session, security, and transactional behavior remain available. Manage Preferences opens `BaseModal` with `CookiePreferencesContent` and `Save Preferences`.
+
+| Category | Prototype behavior |
+| --- | --- |
+| Essential Cookies | Always enabled and disabled for editing; covers authentication, session handling, security, and required application state. |
+| Analytics Cookies | Optional checkbox for anonymous or aggregated product/traffic analytics. |
+| Preference Cookies | Optional checkbox for interface or experience preferences. |
+| Marketing Cookies | Optional checkbox for advertising, remarketing, pixels, or other optional tracking. |
+
+`CookiePrivacyPolicy` renders one `BaseModal` and selects its active content dynamically: `CookiePreferencesContent`, `CookiePolicyContent`, or `PrivacyPolicyContent`. Policy bodies scroll independently over the current route. Opening or closing either policy is informational only: it neither writes consent nor hides the banner. Closing unsaved preferences also leaves the previous state unchanged.
+
+The feature-local [useCookieConsent.js](../../prototypes/components/features/CookiePrivacyPolicy/useCookieConsent.js) owns consent categories, decision state, the active modal, persistence, and all consent actions. It preserves the existing versioned `tennis-ai-coach.cookie-consent.v1` browser `localStorage` contract, including compatibility with already-saved records. Valid consent hides the banner across navigation, refresh, login, and logout. Invalid, removed, or future-version data shows it again. Privacy Policy, Cookie Policy, and Cookie Settings actions use `TextButton` in the public footer or authenticated sidebar legal area; Cookie Settings reopens the same saved preferences flow without bringing back the initial banner.
+
+- Public feature: [CookiePrivacyPolicy.vue](../../prototypes/components/features/CookiePrivacyPolicy/CookiePrivacyPolicy.vue)
+- Internal feature components: [CookiePrivacyPolicy directory](../../prototypes/components/features/CookiePrivacyPolicy)
+- Shared shell components: [BaseModal.vue](../../prototypes/components/modal/BaseModal.vue) and [TextButton.vue](../../prototypes/design/components/buttons/TextButton.vue)
+- Visual design prototype: [cookie-consent-banner.html](../../prototypes/design/components/cookie-consent-banner.html)
+- Feature mount adapter: [mountCookiePrivacyPolicy.js](../../prototypes/components/features/CookiePrivacyPolicy/mountCookiePrivacyPolicy.js), loaded once per multi-page prototype by the shared [app.js](../../prototypes/design/app.js) shell. It remains inside the feature rather than introducing an application module. The vanilla implementation in `app.js` exists only as a direct-`file://` preview fallback.
+
 ### Field
 
 The field prototypes in `prototypes/components/fields/` demonstrate a label and native control with standard Vue `v-model`. They are reference implementations, without application, store, or API integration.

@@ -6,8 +6,16 @@ Existing HTML pages load the root `style.css` and `app.js`; links between origin
 application pages keep their existing filenames. Demo authentication resolves its
 dashboard destination from the shared script, so it also works from library pages.
 
-The current source contains 10 pages: Home, Features, Pricing, Dashboard, Training,
-History, Subscription, Profile, Settings and Camera modal design. The legacy
+`app.js` loads the same `CookiePrivacyPolicy` Vue entry on every application page
+across the public and authenticated layout families. The public feature composes
+its banner and three content components, uses shared `BaseModal` and `TextButton`,
+and keeps state in its local `useCookieConsent` composable. A direct-`file://`
+fallback remains in `app.js` because bare Vue imports cannot run in that preview
+mode. Both paths preserve `tennis-ai-coach.cookie-consent.v1`; the prototype does
+not start analytics or marketing services.
+
+The current source contains 10 product pages—Home, Features, Pricing, Dashboard,
+Training, History, Subscription, Profile, Settings and Camera modal design. The legacy
 `tennis-ai-coach.html` was absent before this reorganization and was not restored.
 No image assets are required, so there is no unused `assets/` directory.
 

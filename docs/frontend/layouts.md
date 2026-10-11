@@ -6,6 +6,12 @@ The Public Layout is the reusable shell for public pages. It contains only produ
 
 Authoritative prototype: `prototypes/design/layouts/public.html`.
 
+### Global Consent Placement
+
+`CookiePrivacyPolicy` is a global feature component, not Home page content and not a replacement for the footer. The repository's prototypes are multi-page HTML rather than one Vue root above both layout families, so the shared `app.js` shell loads the feature-local [mount adapter](../../prototypes/components/features/CookiePrivacyPolicy/mountCookiePrivacyPolicy.js) on every application page. That adapter mounts one `CookiePrivacyPolicy` instance; individual pages do not own or duplicate its internal logic. A future routed application with a single root should mount the same public feature once above both layouts.
+
+The banner stays full-width at the viewport bottom until Accept All, Reject All, or Save Preferences writes the versioned `localStorage` record. `CookiePrivacyPolicy` uses one shared `BaseModal` for preferences and both policy contents. Legal actions use `TextButton` in the public footer and, where that layout has no footer, in the authenticated sidebar legal area. Cookie Settings therefore remains available after consent and reopens saved values without showing the initial banner. Consent enforcement, tracking-provider initialization, legal approval, and backend storage remain outside the prototype scope.
+
 ### Authentication Layout
 
 The Authentication Layout is the reusable shell for authenticated pages, including Training. It contains the authenticated left-side navigation, the authenticated top/header area with identity and account actions, and an empty responsive page-content area. Dashboard, Training, History, Session Review, Progress, Subscription, Profile, Settings, and Checkout render their page-specific UI inside that content area.

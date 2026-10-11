@@ -110,8 +110,12 @@ The required shared components are:
 - BaseTable
 - PaymentCardPlan
 - BillingDetailsCard
+- BaseModal
+- TextButton
 
 Each shared visual pattern uses one reusable implementation across pages. [components.md](components.md) defines the authoritative Button and PaymentCardPlan contracts, including Button props/events/ownership and the presentation-only `selected` state. Pricing and Subscription use the shared PaymentCardPlan implementation; BillingDetailsCard presents the separate billing panel. Checkout retains its distinct PerformanceCard summary.
+
+`BaseModal` provides reusable dialog-shell behavior and `TextButton` provides accessible inline actions. Neither owns feature logic.
 
 ---
 
@@ -120,6 +124,8 @@ Each shared visual pattern uses one reusable implementation across pages. [compo
 - `HomePageInfoSection`: [Vue component](../../prototypes/components/sections/HomePageInfoSection.vue), [HTML prototype](../../prototypes/design/components/sections/home-page-info-section.html). Existing Home headline, description, CTA links and feature cards; see [component details](components.md#homepageinfosection).
 
 Feature components are project- or feature-specific UI components, distinct from generic shared UI elements.
+
+- `CookiePrivacyPolicy` — the only public cookie/privacy feature component mounted by the application shell across public and authenticated pages. It composes `PrivacyChoicesBanner`, `CookiePreferencesContent`, `CookiePolicyContent`, and `PrivacyPolicyContent`, uses the shared `BaseModal` and `TextButton`, and delegates state/persistence to its local `useCookieConsent` composable. Consent is independent from authentication and survives navigation, refresh, login, and logout.
 
 - `FeatureCard` — presents a numbered product feature with a title and description.
 - `PerformanceCard` — existing Checkout order summary with description, price, billing note and back link, distinct from the selectable Pricing/Subscription plan card.
