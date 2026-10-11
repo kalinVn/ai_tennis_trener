@@ -46,11 +46,85 @@ The inspected Button renders a native button and does not support a `to` prop or
 
 ### TextButton
 
-[TextButton.vue](../../prototypes/design/components/buttons/TextButton.vue) is a lightweight native button for inline legal/settings actions. It accepts content through its default slot, supports the native `button`, `submit`, and `reset` types, and emits `click`. It owns only text-button hover, active, and focus-visible presentation; it has no loading state, variants, persistence, or cookie-specific logic.
+`TextButton` is the shared lightweight action control for places where a filled primary, secondary, or ghost Button would add too much visual weight. Cookie Policy, Privacy Policy, Cookie Settings, and Manage Preferences are representative usages, not component-owned behavior. It renders a native `button` and contains no navigation, persistence, modal, cookie, or other feature logic.
+
+#### Props and States
+
+| Prop | Supported values / type | Default |
+| --- | --- | --- |
+| `type` | `button`, `submit`, `reset` | `button` |
+| `disabled` | Boolean | `false` |
+| `tone` | `accent`, `inherit` | `accent` |
+
+Content comes from the default slot. `accent` uses the shared accent color; `inherit` adopts the surrounding text color for visually integrated footer, sidebar, or inline actions. Native attributes, including `aria-label`, `aria-describedby`, `aria-expanded`, and `aria-controls`, fall through to the native button. Parent-supplied `class` and `style` are valid extension points for local layout only; consumers must not replace the component's interaction states or turn it into a feature-specific variant.
+
+Supported states are default, hover, active, focus-visible, and disabled. The component intentionally has no loading state, icon API, size system, routing mode, or feature-specific variants.
+
+#### Emits and Ownership
+
+Emits:
+
+- `click` — forwards the original DOM event for enabled activation.
+
+The parent handles the action. Native button semantics provide Enter/Space keyboard activation, and a disabled button is not focusable or activatable. Focus-visible uses the shared cyan outline and does not rely on color alone.
+
+```vue
+<TextButton aria-haspopup="dialog" @click="openPreferences">
+  Manage Preferences
+</TextButton>
+```
+
+#### References
+
+- Vue component: [TextButton.vue](../../prototypes/design/components/buttons/TextButton.vue)
+- Component styling: [text-button.scss](../../prototypes/design/components/buttons/text-button.scss)
+- Live visual prototype: [text-button.html](../../prototypes/design/components/buttons/text-button.html)
 
 ### BaseModal
 
-[BaseModal.vue](../../prototypes/components/modal/BaseModal.vue) is the shared native-dialog shell. It owns the backdrop, viewport-safe container, close control, Escape/backdrop dismissal, focus restoration, page scroll locking, and internally scrollable body. Its title and body are supplied by props/slots. It contains no cookie or policy logic; the existing full-screen camera modal remains specialized because its media lifecycle and full-viewport layout are materially different.
+`BaseModal` is the shared generic modal shell. It renders a native modal dialog, backdrop, viewport-safe panel, header, top-right close button, and internally scrollable content area. It contains no cookie, privacy, camera, saving, acceptance, routing, API, or other feature logic. The existing full-screen camera modal remains specialized because its media lifecycle and full-viewport layout are materially different.
+
+#### Props and States
+
+| Prop | Type | Default / requirement |
+| --- | --- | --- |
+| `open` | Boolean | `false` |
+| `title` | String | Required; labels the dialog heading |
+
+Supported states are closed, open, content-overflow/scrolling, and responsive desktop/mobile sizing. The component does not maintain a feature-specific state machine. The parent owns the `open` value and active content selection.
+
+#### Emits and Close Behavior
+
+Emits:
+
+- `close` — requests that the parent close the modal.
+
+The standard close button appears at the top right and emits `close`. Escape and a direct backdrop click use the same close path. Closing the shell only dismisses it: it never implies save, accept, reject, submit, or navigation behavior. The owning parent responds to `close` by updating its `open` state.
+
+#### Slots and Dynamic Content
+
+| Slot | Purpose |
+| --- | --- |
+| default | Arbitrary modal body content supplied by the parent |
+| `eyebrow` | Optional short context label above the title |
+
+The parent may pass ordinary slot content or render its selected Vue component in the default slot. Dynamic selection follows normal Vue composition, conceptually `BaseModal → active content component`; `BaseModal` neither imports nor enumerates its consumers. Cookie policy, privacy policy, and preferences content are consumers of this contract, not part of it.
+
+```vue
+<BaseModal :open="isOpen" :title="activeTitle" @close="isOpen = false">
+  <component :is="activeContentComponent" />
+</BaseModal>
+```
+
+#### Behavior and Accessibility
+
+When opened, the native `dialog.showModal()` behavior provides modal focus containment. The close control receives initial focus, has an accessible name, and remains keyboard visible. The component stores the previously focused element, locks document scrolling while open, and restores both scrolling and focus on close or cleanup. The title is connected through `aria-labelledby`. Tall content scrolls inside the body while the header and close control remain visible; horizontal overflow is contained. Width, maximum height, and mobile spacing remain bounded by the viewport.
+
+#### References
+
+- Vue component and scoped shell styling: [BaseModal.vue](../../prototypes/components/modal/BaseModal.vue)
+- Live generic prototype with custom and scrollable dynamic content: [modals.html](../../prototypes/design/components/modals.html)
+- Prototype mount: [baseModalPrototype.js](../../prototypes/components/modal/baseModalPrototype.js)
 
 ### CookiePrivacyPolicy
 
@@ -68,6 +142,32 @@ The main actions are `Accept All`, `Reject All`, and `Manage Preferences`. Accep
 `CookiePrivacyPolicy` renders one `BaseModal` and selects its active content dynamically: `CookiePreferencesContent`, `CookiePolicyContent`, or `PrivacyPolicyContent`. Policy bodies scroll independently over the current route. Opening or closing either policy is informational only: it neither writes consent nor hides the banner. Closing unsaved preferences also leaves the previous state unchanged.
 
 The feature-local [useCookieConsent.js](../../prototypes/components/features/CookiePrivacyPolicy/useCookieConsent.js) owns consent categories, decision state, the active modal, persistence, and all consent actions. It preserves the existing versioned `tennis-ai-coach.cookie-consent.v1` browser `localStorage` contract, including compatibility with already-saved records. Valid consent hides the banner across navigation, refresh, login, and logout. Invalid, removed, or future-version data shows it again. Privacy Policy, Cookie Policy, and Cookie Settings actions use `TextButton` in the public footer or authenticated sidebar legal area; Cookie Settings reopens the same saved preferences flow without bringing back the initial banner.
+
+`CookiePrivacyPolicy` has no props or emitted events. It owns composition of the feature-local state and components described below.
+
+#### PrivacyChoicesBanner
+
+[PrivacyChoicesBanner.vue](../../prototypes/components/features/CookiePrivacyPolicy/PrivacyChoicesBanner.vue) is the fixed consent-decision banner. It has no props. It emits `accept-all`, `reject-all`, `manage-preferences`, `open-cookie-policy`, and `open-privacy-policy`; the parent owns every resulting consent or modal action. It composes the shared `Button` and `TextButton` primitives and contains no persistence logic.
+
+#### CookiePreferencesContent
+
+[CookiePreferencesContent.vue](../../prototypes/components/features/CookiePrivacyPolicy/CookiePreferencesContent.vue) renders the preference form used inside `BaseModal`.
+
+| Prop | Type | Default |
+| --- | --- | --- |
+| `analytics` | Boolean | `false` |
+| `preferences` | Boolean | `false` |
+| `marketing` | Boolean | `false` |
+
+The component keeps an editable local selection synchronized with those props. Essential remains checked and disabled. Submitting emits `save` with `{ analytics, preferences, marketing }`; the parent persists the result and decides whether to close the modal or hide the banner.
+
+#### CookiePolicyContent
+
+[CookiePolicyContent.vue](../../prototypes/components/features/CookiePrivacyPolicy/CookiePolicyContent.vue) is presentational, scroll-ready Cookie Policy content rendered through the shared modal body. It has no props or emitted events and performs no consent action or persistence.
+
+#### PrivacyPolicyContent
+
+[PrivacyPolicyContent.vue](../../prototypes/components/features/CookiePrivacyPolicy/PrivacyPolicyContent.vue) is presentational, scroll-ready Privacy Policy content rendered through the shared modal body. It has no props or emitted events and performs no consent action or persistence.
 
 - Public feature: [CookiePrivacyPolicy.vue](../../prototypes/components/features/CookiePrivacyPolicy/CookiePrivacyPolicy.vue)
 - Internal feature components: [CookiePrivacyPolicy directory](../../prototypes/components/features/CookiePrivacyPolicy)
@@ -318,9 +418,15 @@ The parent reads Pinia/store values, passes them to slotted fields, receives fie
 
 The HTML demonstrates the original Tennis Profile content and footer styling. Its buttons are visual-only; the Vue prototype provides the reusable container and slots. Styling remains prototype-level reference CSS.
 
+### TrainingCamera
+
+[TrainingCamera.vue](../../prototypes/components/training/TrainingCamera.vue) is the Training feature entry for camera and microphone acquisition. Its optional `endpoint` string prop defaults to an empty string and is forwarded to `CameraPreviewModal`. It emits no events.
+
+The component composes shared `Button`, [useCameraSession.js](../../prototypes/composables/useCameraSession.js), and `CameraPreviewModal`. It owns Start Training, the temporary requesting/cancel state, permission-error presentation, and stopping the camera session when the modal closes. Media acquisition and stream cleanup remain in `useCameraSession`; analysis and modal presentation remain outside this component.
+
 ### CameraPreviewModal
 
-[CameraPreviewModal.vue](../../prototypes/components/modal/CameraPreviewModal.vue) converts the [camera design](../../prototypes/design/pages/camera.html) into a viewport-sized modal inside Training. [TrainingCamera.vue](../../prototypes/components/training/TrainingCamera.vue) requests camera and microphone through [useCameraSession.js](../../prototypes/composables/useCameraSession.js), then mounts the modal without replacing Training or navigating.
+[CameraPreviewModal.vue](../../prototypes/components/modal/CameraPreviewModal.vue) converts the [camera design](../../prototypes/design/pages/camera.html) into a viewport-sized modal inside Training without replacing the Training page or navigating.
 
 The modal accepts `stream`, `endpoint`, and optional `analysisFps` (default 5). It emits `analysis-result` for parent-owned session handling and `close` after releasing media. The optional `overlay` slot receives the latest backend `result`. Microphone capture is active with a local mute control; video playback stays muted to prevent microphone loopback. No microphone upload or coaching-audio protocol is invented.
 

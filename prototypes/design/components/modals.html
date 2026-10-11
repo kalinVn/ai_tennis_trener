@@ -1,14 +1,34 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Modals · Tennis AI Coach Library</title>
-<link rel="stylesheet" href="../style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>BaseModal · Tennis AI Coach Library</title>
+  <link rel="stylesheet" href="../style.css">
+  <style>
+    .base-modal-specimen { max-width: 940px; }
+    .base-modal-specimen__actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+    .base-modal-example { display: grid; gap: 18px; padding: 22px; }
+    .base-modal-example h3 { margin: 0; }
+    .base-modal-example p { margin: 0; }
+    .base-modal-example__list { display: grid; gap: 12px; margin: 0; padding-left: 22px; color: var(--muted); }
+    @media (max-width: 600px) { .base-modal-specimen__actions { display: grid; } .base-modal-specimen__actions .btn { width: 100%; } }
+  </style>
 </head>
 <body class="prototype-library">
-<div class="app-shell"><aside class="sidebar"><a class="brand" href="../pages/dashboard.html"><span class="logo">AI</span>Coach</a><div class="side-links"><a href="../pages/dashboard.html" aria-current="page">Dashboard</a><a href="../pages/training.html">Training</a><a href="../pages/history.html">History</a><a href="../pages/subscription.html">Subscription</a><a href="../pages/profile.html">Profile</a><a href="../pages/settings.html">Settings</a></div><p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authentication Layout · demo</p></aside><div class="app-main"><header class="app-top"><span class="eyebrow" style="margin:0">Tennis AI Coach / Modals</span><div class="flex"><span class="muted">Alex Morgan · demo user</span><a class="btn small" href="../pages/index.html">Log out</a></div></header><main class="app-content"><div class="page-head"><div class="eyebrow"><a href="../index.html">← Prototype catalog</a></div><h1>Modals</h1><p><code>BaseModal.vue</code> provides the reusable dialog shell used by the cookie/privacy feature. The camera modal remains specialized for its full-screen media lifecycle.</p></div><div class="stack"><div class="cta"><a class="btn primary" href="cookie-consent-banner.html">Open cookie/privacy modal specimen</a><a class="btn" href="camera-preview.html">Open camera modal specimen</a></div><div class="callout"><p style="margin:0">Confirmation, warning and destructive-action content remains absent; BaseModal supplies infrastructure without inventing those flows.</p></div></div></main></div></div>
-<script src="../app.js"></script>
+<main class="container public-main base-modal-specimen">
+  <div class="page-head">
+    <div class="eyebrow"><a href="../index.html">← Prototype catalog</a></div>
+    <h1>BaseModal</h1>
+    <p>A live prototype of the generic shared modal shell. It renders parent-supplied content and contains no cookie, privacy, camera or other feature logic.</p>
+  </div>
 
+  <section class="panel">
+    <h2>Dynamic content examples</h2>
+    <p>Open either example, close it with the top-right control, click the backdrop, or press Escape. The long example demonstrates internal scrolling and viewport-safe sizing.</p>
+    <div id="base-modal-prototype"></div>
+  </section>
+</main>
+<script type="module" src="../../components/modal/baseModalPrototype.js"></script>
 </body>
 </html>

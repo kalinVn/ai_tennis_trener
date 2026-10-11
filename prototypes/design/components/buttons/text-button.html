@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>TextButton · Tennis AI Coach</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .text-button-prototype .container { max-width: 820px; }
+    .text-button-prototype h1 { font-size: clamp(32px, 6vw, 56px); }
+    .text-button-grid { display: grid; gap: 20px; }
+    .text-button-example { display: grid; grid-template-columns: minmax(150px, .7fr) 1fr; align-items: center; gap: 18px; }
+    .text-button-context { display: flex; flex-wrap: wrap; align-items: center; gap: 20px; padding: 16px; border: 1px solid var(--border); border-radius: 13px; background: var(--panel2); }
+    @media (max-width: 560px) { .text-button-example { grid-template-columns: 1fr; gap: 6px; } }
+  </style>
+</head>
+<body class="button-prototype text-button-prototype">
+<main class="container public-main">
+  <div class="page-head">
+    <div class="eyebrow">Shared button primitive</div>
+    <h1>TextButton</h1>
+    <p>Use the live controls below to inspect pointer hover, active and keyboard focus. Press Tab to see the focus-visible treatment.</p>
+  </div>
+  <section class="panel text-button-grid" aria-label="TextButton examples">
+    <div class="text-button-example"><span class="muted">Default actions</span><div id="text-button-default"></div></div>
+    <div class="text-button-example"><span class="muted">Inherited color</span><div class="text-button-context" id="text-button-context"></div></div>
+    <div class="text-button-example"><span class="muted">Disabled</span><div id="text-button-disabled"></div></div>
+    <p class="callout" id="text-button-status" role="status" aria-live="polite">Prototype actions have not been activated.</p>
+  </section>
+</main>
+<script type="module" src="./text-button.js"></script>
+</body>
+</html>

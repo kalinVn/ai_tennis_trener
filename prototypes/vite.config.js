@@ -35,6 +35,8 @@ export default defineConfig({
       publicLayout: root + '/prototypes/design/layouts/public.html',
       authenticationLayout: root + '/prototypes/design/layouts/authentication.html',
       camera: root + '/prototypes/design/components/camera-preview.html',
+      baseModal: root + '/prototypes/design/components/modals.html',
+      textButton: root + '/prototypes/design/components/buttons/text-button.html',
       cookiePrivacySpecimen: root + '/prototypes/design/components/cookie-consent-banner.html',
       cookiePrivacyApp: root + '/prototypes/components/features/CookiePrivacyPolicy/mountCookiePrivacyPolicy.js',
     }, output: {

@@ -113,20 +113,19 @@ The required shared components are:
 - BaseModal
 - TextButton
 
-Each shared visual pattern uses one reusable implementation across pages. [components.md](components.md) defines the authoritative Button and PaymentCardPlan contracts, including Button props/events/ownership and the presentation-only `selected` state. Pricing and Subscription use the shared PaymentCardPlan implementation; BillingDetailsCard presents the separate billing panel. Checkout retains its distinct PerformanceCard summary.
-
-`BaseModal` provides reusable dialog-shell behavior and `TextButton` provides accessible inline actions. Neither owns feature logic.
+Each shared visual pattern uses one reusable implementation across pages. Generic modal infrastructure and lightweight text actions are shared across features rather than reimplemented by individual pages. [components.md](components.md) is the authoritative source for shared component contracts, states, behavior, accessibility, styling, and prototype references. Pricing and Subscription use the shared PaymentCardPlan implementation; BillingDetailsCard presents the separate billing panel. Checkout retains its distinct PerformanceCard summary.
 
 ---
 
 ## Feature Components
 
-- `HomePageInfoSection`: [Vue component](../../prototypes/components/sections/HomePageInfoSection.vue), [HTML prototype](../../prototypes/design/components/sections/home-page-info-section.html). Existing Home headline, description, CTA links and feature cards; see [component details](components.md#homepageinfosection).
-
 Feature components are project- or feature-specific UI components, distinct from generic shared UI elements.
 
+- `HomePageInfoSection` — existing Home headline, description, CTA links and feature cards.
+- `HomePageVideoSlider` — interactive Home video and illustrative AI tennis-analysis preview.
+- `LoginForm` — dedicated Login form UI and prototype-only authentication feedback.
+- `RegisterForm` — dedicated registration form UI and prototype-only validation feedback.
 - `CookiePrivacyPolicy` — the only public cookie/privacy feature component mounted by the application shell across public and authenticated pages. It composes `PrivacyChoicesBanner`, `CookiePreferencesContent`, `CookiePolicyContent`, and `PrivacyPolicyContent`, uses the shared `BaseModal` and `TextButton`, and delegates state/persistence to its local `useCookieConsent` composable. Consent is independent from authentication and survives navigation, refresh, login, and logout.
-
 - `FeatureCard` — presents a numbered product feature with a title and description.
 - `PerformanceCard` — existing Checkout order summary with description, price, billing note and back link, distinct from the selectable Pricing/Subscription plan card.
 - `PaymentInformationCard` — reusable Checkout card presenting disabled sample payment fields from page-supplied display props; never collects raw card data.
@@ -170,7 +169,7 @@ The proposed `coaching_audio` event shape, instruction priority, optional authen
 - Play coaching audio when requested by the backend.
 - Start, stop, pause, resume, or interrupt audio playback when required.
 - Prevent multiple coaching audio messages from overlapping.
-- Prioritize the latest relevant coaching instruction when a new audio command is received.
+- PQueue audio coaching instructions to play sequentially, without interrupting earlier messages.
 - Handle audio playback failures and unavailable audio resources.
 - Keep audio playback logic separate from backend communication and analysis logic.
 - Release audio playback resources when they are no longer needed.
@@ -180,19 +179,16 @@ The proposed `coaching_audio` event shape, instruction priority, optional authen
 
 - Receive coaching feedback data through the `Analysis Client`.
 - Process feedback for the current training session.
-- Trigger relevant coaching audio through the `Audio Output`.
-- Display short coaching messages or status information when needed.
-- Store feedback for individual strokes.
-- Track successful strokes.
-- Track detected mistakes.
-- Track coaching recommendations.
-- Accumulate feedback during the training session.
-- Prepare data for the training summary.
-- Provide the collected feedback when the session is completed.
+- Display short coaching messages or status information immediately when critical, or queue them to align with the training flow when non-urgent.
+Receive stroke-specific feedback from the backend for individual strokes.
+- Receive successful-stroke information from the backend when available.
+- Receive detected-mistake information from the backend when available.
+- Receive coaching recommendations from the backend during the active training session.
+- May receive the completed training summary and collected session feedback from the backend when the training session is completed.
 
 ### Authentication
 
-The proposed cookie-backed session, login/registration, multi-factor challenge, OAuth redirect, logout, expiry, and error shapes are specified in [integration contract examples](integration-contracts.md#authentication-and-application-session). These examples keep credentials and authorization authority on the backend.
+The proposed cookie-backed session, login/registration, multi-factor challenge, OAuth redirect, logout, expiry, and error shapes are specified in [integration contract examples](integration-contracts.md) and must follow the requirements defined under `Feature Requirements → Authentication`. These examples keep credentials and authorization authority on the backend.
 
 - Provide login and logout functionality.
 
