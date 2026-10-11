@@ -62,7 +62,7 @@ These are proposed implementation values derived from the reference and shared r
 | Name | Purpose and shared structure | Used by pages |
 | --- | --- | --- |
 | PublicLayout | Branding, sticky public navigation to Features/Training/Pricing, authentication actions, empty content container, footer | Landing, Login, Registration |
-| AuthenticationLayout | Responsive authenticated navigation and header with an empty content container | Dashboard, Training, History, Progress, Subscription, Profile, Settings, Session Review |
+| AuthenticationLayout | Responsive authenticated navigation and header with an empty content container | Dashboard, Training, History, Progress, Pricing, Subscription, Profile, Settings, Session Review |
 
 Dedicated authentication routes are the proposed default. They retain the prototype's compact card and mode-switch appearance while supporting refresh, direct links, and keyboard navigation. A route-backed modal is the optional alternative, not an additional required implementation. Shared dialogs remain needed for mobile navigation and session/account confirmation flows.
 
@@ -80,6 +80,7 @@ The orchestrator selects implementation skills from the page requirements and de
 | Session Review / AuthenticationLayout | Summary, detected issues, supported metrics, recommendations, analyzed moments when available; incomplete/low-confidence labeling | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionSummary |
 | History / AuthenticationLayout | Prior sessions, review links, loading/empty/error states | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList | Session list contract and available paging semantics |
 | Progress / AuthenticationLayout | Supported trends, improvement areas, next recommended focus; unavailable or insufficient-history explanation | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | ProgressInsights | Progress data, measurement definitions, time range, evidence/confidence; no invented scores or projections |
+| Pricing / AuthenticationLayout | Available Starter, Performance and Pro plans with parent-owned selection actions | Button, PaymentCardPlan, PageHeader, NavigationItem, Dialog | None | authoritative plan definitions, prices and plan-selection destination |
 | Subscription / AuthenticationLayout | Available plans, current plan, comparison, subscription actions, protected checkout and its result states | Button, PaymentCardPlan, BillingDetailsCard, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
 | Profile / AuthenticationLayout | Supported personal and tennis information; view/edit, validation, saving, saved/error feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | ProfileEditor | profile schema, writable fields, update contract |
 | Settings / AuthenticationLayout | Supported application, camera, coaching, privacy and notification preferences; save/result feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | SettingsEditor | supported settings schema, persistence and browser capability handling |

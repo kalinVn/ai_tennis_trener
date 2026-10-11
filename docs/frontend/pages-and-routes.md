@@ -58,7 +58,7 @@
 ### Pricing
 - purpose: `Pricing page, presents the available subscription plans and helps users choose the right plan`
 - route: `/pricing`
-- Layout: `Public Layout`
+- Layout: `Authentication Layout`
 - Example Prototype: `design/pages/pricing.html`
 - name: `pricing`
 - description: `Follow the Pricing prototype directly for the complete page structure and all page-level content. Use the shared PaymentCardPlan component for the Starter, Performance, and Pro pricing plan cards. All other headings, descriptions, sections, labels, supporting content, and layout remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`

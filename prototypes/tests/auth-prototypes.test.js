@@ -55,7 +55,6 @@ test('public authentication navigation targets dedicated prototype pages', () =>
   for (const path of [
     'design/pages/index.html',
     'design/pages/features.html',
-    'design/pages/pricing.html',
     'design/pages/not-found.html',
     'design/layouts/public.html',
     'design/components/navigation.html',
@@ -65,4 +64,14 @@ test('public authentication navigation targets dedicated prototype pages', () =>
     assert.match(source, /login\.html/, path)
     assert.match(source, /register\.html/, path)
   }
+})
+
+test('pricing uses the same authentication layout shell as profile and settings', () => {
+  const pricing = read('design/pages/pricing.html')
+  assert.match(pricing, /class="app-shell"/)
+  assert.match(pricing, /class="sidebar"/)
+  assert.match(pricing, /class="app-top"/)
+  assert.match(pricing, /Authentication Layout/)
+  assert.doesNotMatch(pricing, /class="public-nav"/)
+  assert.doesNotMatch(pricing, /class="public-footer"/)
 })
