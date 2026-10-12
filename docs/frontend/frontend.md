@@ -157,7 +157,7 @@ Backend communication, API access, and external integration logic should be plac
 The authenticated initialization flow is:
 
 1. Login, MFA verification, or OAuth establishes the authenticated application session and provides the short-lived access token.
-2. The frontend immediately calls `GET /api/v1/user-data` once with that authenticated session.
+2. The frontend immediately calls `GET /api/v1/user/data` once with that authenticated session.
 3. `UserStore` atomically stores the complete response: account and personal information, subscription, Dashboard aggregates, the initial History collection, and persisted Settings groups.
 4. Dashboard, Profile, Settings, Subscription, History, the authenticated layout, and other authenticated consumers read their initial server data from `UserStore`. Route entry must not trigger redundant initial-load GET requests for data already present in that snapshot.
 5. Dedicated endpoints remain available only where the operation is independently necessary: History pagination or explicit refresh, Session Review detail, checkout verification, customer-portal creation, and other action-specific operations.

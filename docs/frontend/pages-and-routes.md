@@ -79,7 +79,7 @@
 - description: `Follow the Dashboard prototype directly for all page content, sections, containers, text, and visual structure, implemented as page-level DOM/layout. Do not introduce page-specific shared components or extract static sections into reusable components. Keep Session History available as defined in the prototype. Each returned session row opens Session Review using its server-supplied session id. Sidebar and top header remain provided by the Authentication Layout and are not part of the page sections.`
 - required shared components: None
 - required feature components: None
-- data contract: initial Dashboard aggregates and History items come from `GET /api/v1/user-data`; see [authenticated application data](integration-contracts.md#authenticated-application-data-and-persisted-user-updates). The page does not issue a separate initial Dashboard request.
+- data contract: initial Dashboard aggregates and History items come from `GET /api/v1/user/data`; see [authenticated application data](integration-contracts.md#authenticated-application-data-and-persisted-user-updates). The page does not issue a separate initial Dashboard request.
 - states: loading, empty, success, recoverable error, unavailable.
 - dependencies: `UserStore`
 
@@ -92,7 +92,7 @@
 - description: `Follow the History HTML/design prototype for all sections and page-level elements. Use the existing shared BaseTable component for the collapsible Training Sessions table, showing only Date, Duration, Status, and a Review Session action linked to /sessions/:sessionId. Keep pagination at the bottom of the section. All other headings, descriptions, controls, containers, filters, surrounding layout, and visual elements remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
 - required shared components: `BaseTable`
 - required feature components: None
-- data contract: the initial collection comes from `UserStore.sessionHistory`, populated by `GET /api/v1/user-data`. `GET /api/v1/training/sessions` remains for pagination or explicit refresh and writes its result back to that store section; see [integration contract examples](integration-contracts.md#session-history-and-session-review).
+- data contract: the initial collection comes from `UserStore.sessionHistory`, populated by `GET /api/v1/user/data`. `GET /api/v1/training/sessions` remains for pagination or explicit refresh and writes its result back to that store section; see [integration contract examples](integration-contracts.md#session-history-and-session-review).
 - states: loading, empty, success, recoverable error, unavailable.
 - dependencies: `UserStore`
 
@@ -149,7 +149,7 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Use one PaymentStatusCard implementation for the payment pending, success, failed, and cancelled return-state presentations; do not duplicate the card structure. Change plan, Manage billing, and payment-status actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
 - required shared components: `PaymentCardPlan`, `BillingDetailsCard`
 - required feature components: `PaymentStatusCard`
-- data contract: initial subscription data come from `GET /api/v1/user-data`. Checkout verification, plan changes, and the provider-hosted customer portal remain dedicated operations; see [integration contract examples](integration-contracts.md#checkout-and-billing).
+- data contract: initial subscription data come from `GET /api/v1/user/data`. Checkout verification, plan changes, and the provider-hosted customer portal remain dedicated operations; see [integration contract examples](integration-contracts.md#checkout-and-billing).
 - states: loading, no active subscription, active, pending change, payment pending, payment success after backend verification, payment failed, payment cancelled, recoverable error, unavailable.
 - dependencies: `UserStore`
 
@@ -162,7 +162,7 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - description: `Follow the referenced Profile HTML prototype for the page title, secondary text, and the remaining Personal Information section, which uses the existing CollapseForm component. The Profile page component owns and creates the section's data/configuration, deriving its title, secondary description, fields, labels, relevant configuration, buttons/actions, and any additional content directly from the prototype. Supply the CollapseForm instance through its existing title/description props and page-rendered default/footer slots. Profile-specific values, configuration, form handling, and actions remain in the Profile page; CollapseForm stays generic and reusable. Do not create additional Profile section components unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the prototype. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
 - required shared components: `CollapseForm`
 - required feature components: None
-- data contract: initial Personal Information data come from `GET /api/v1/user-data`. The dedicated Personal Information `PATCH` endpoint replaces the normalized `UserStore.personalInformation` section. See [authenticated application data and persisted user updates](integration-contracts.md#authenticated-application-data-and-persisted-user-updates).
+- data contract: initial Personal Information data come from `GET /api/v1/user/data`. The dedicated Personal Information `PATCH` endpoint replaces the normalized `UserStore.personalInformation` section. See [authenticated application data and persisted user updates](integration-contracts.md#authenticated-application-data-and-persisted-user-updates).
 - states: loading, loaded, validation error, save pending, recoverable error, unavailable.
 - dependencies: `UserStore`
 
@@ -175,7 +175,7 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - description: `Follow the referenced Settings HTML prototype as the source of truth for the page title, secondary text, and the remaining Account Security · Change Password, Notifications, and Privacy & Data sections. Each collapsible section uses the existing shared CollapseForm component. The Settings page owns and creates each section's data/configuration directly from the prototype. Pass only the section title/header and secondary title/description through the existing title and description props. Define and render all section-specific fields, labels, selects, controls, buttons, actions, and other body content in the Settings page, supplying that content through CollapseForm's default slot and its footer slot where appropriate. Field configuration, values, validation, form handling, and action behavior remain owned by the Settings page; do not pass a field schema to CollapseForm or move Settings-specific content or behavior into it. Keep CollapseForm generic and reusable. Do not create separate components for individual Settings sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the prototype. Do not invent fields, controls, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
 - required shared components: `CollapseForm`
 - required feature components: None
-- data contract: initial Notifications and Privacy & Data settings come from `GET /api/v1/user-data`. Each independently saved persisted group uses its dedicated `PATCH` endpoint; Change Password, data export, and account deletion remain separate actions. See [authenticated application data and persisted user updates](integration-contracts.md#authenticated-application-data-and-persisted-user-updates).
+- data contract: initial Notifications and Privacy & Data settings come from `GET /api/v1/user/data`. Each independently saved persisted group uses its dedicated `PATCH` endpoint; Change Password, data export, and account deletion remain separate actions. See [authenticated application data and persisted user updates](integration-contracts.md#authenticated-application-data-and-persisted-user-updates).
 - states: loading, loaded, validation error, save pending, recoverable error, unavailable.
 - dependencies: `UserStore`
 
