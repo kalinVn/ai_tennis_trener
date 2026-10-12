@@ -337,6 +337,8 @@ The component preserves the 244px desktop sidebar and phone drawer breakpoints. 
 
 Reusable presentational table based on the [History / Training Sessions table](../../prototypes/design/pages/history.html). It renders a supplied `title`, dynamic `columns` (`{ key, label }`), and `rows`; each column selects `row[column.key]`. Optional `rowKey` defaults to `id`, falling back to the row index when absent. Per-column `cell-<key>` slots receive `value`, `row`, and `column` for parent-owned formatting such as the existing status pills.
 
+When the supplied columns contain both `Session Name` and `Focus` (matched by normalized label or key), `BaseTable` removes those two columns and appends a `Review` action column. Its default cell links to `row.reviewHref` when supplied, otherwise to `/sessions/{row[rowKey]}`, with the visible label `Review Session`. The `cell-reviewSession` slot can override that cell. If either trigger column is absent, the component returns and renders the original columns unchanged.
+
 The parent supplies configuration and data through props and owns any integration with Pinia, the specified application state architecture. `BaseTable.vue` contains no store access, duplicated state, API calls, or History-specific business logic.
 
 The table preserves the History panel, headers, borders, spacing, and local horizontal scrolling on phone-sized screens. Scoped CSS is prototype-level visual guidance; production styling can later use external styles or shared design tokens.
@@ -460,7 +462,7 @@ The visual `success` state represents an already backend-verified successful out
 
 ### CollapseForm
 
-Reusable collapsible form container based on the Tennis Profile section in [Profile](../../prototypes/design/pages/profile.html). `title` is required; `description` is optional. Native `<details>` starts expanded and owns only its local collapse/expand UI state, including keyboard interaction and the plus/minus indicator.
+Reusable collapsible form container based on the remaining Personal Information section in [Profile](../../prototypes/design/pages/profile.html). `title` is required; `description` is optional. Native `<details>` starts expanded and owns only its local collapse/expand UI state, including keyboard interaction and the plus/minus indicator.
 
 The default slot accepts arbitrary fields, components, or layout containers. The named `footer` slot provides the existing wrapping two-button alignment. The parent supplies shared [Button](../../prototypes/design/components/buttons/Button.vue) instances, their labels, and their actions; use `primary` and `ghost` variants to reproduce Profile's Save/Reset appearance. No fields or buttons are hardcoded into `CollapseForm.vue`.
 
@@ -469,7 +471,7 @@ The parent reads Pinia/store values, passes them to slotted fields, receives fie
 - Visual design reference: [CollapseForm.html](../../prototypes/design/components/forms/CollapseForm.html)
 - Vue prototype: [CollapseForm.vue](../../prototypes/components/forms/CollapseForm.vue)
 
-The HTML demonstrates the original Tennis Profile content and footer styling. Its buttons are visual-only; the Vue prototype provides the reusable container and slots. Styling remains prototype-level reference CSS.
+The HTML demonstrates Personal Information content and footer styling. Its buttons are visual-only; the Vue prototype provides the reusable container and slots. Styling remains prototype-level reference CSS.
 
 ### TrainingCamera
 

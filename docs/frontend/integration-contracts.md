@@ -249,6 +249,8 @@ For Login and Register, `recaptchaToken` is a short-lived provider token, not th
 
 `401 Unauthorized` means that the access token is missing, invalid, or expired. `403 Forbidden` means that the authenticated principal lacks permission. These meanings are part of the HTTP contract; frontend recovery and navigation behavior are defined in `frontend.md`.
 
+After Login, MFA verification, or OAuth establishes the authenticated application session, the frontend calls `GET /api/v1/user-data` once and stores the complete response in the global `UserStore`. Authentication responses remain focused on session establishment and do not duplicate the user-data response.
+
 ## Training session and analysis transport
 
 ### Training session endpoints
@@ -425,9 +427,11 @@ Analysis stop uses this message:
 
 `version` is the schema version, `type` is the `stop_analysis` discriminator, and `sessionId` identifies the active session. After accepting it, the server must not treat later frame messages as part of active analysis. The binary JPEG/WebSocket schemas remain proposed contracts requiring backend adoption or versioned replacement.
 
-## Session History, Session Review, and Progress data
+## Session History and Session Review
 
 ### Session History
+
+The unified user-data response contains the initial History collection used by Dashboard and History. The dedicated list endpoint remains available for pagination, an explicit refresh, and loading data beyond the initial collection; successful responses update the `sessionHistory` section of the global `UserStore` rather than a second history store.
 
 - `GET /api/v1/training/sessions?cursor={opaqueCursor}&limit={1..50}`
 
@@ -504,36 +508,6 @@ Analysis stop uses this message:
   — relevant errors/status codes:
 
   Authorization failures, an unknown or inaccessible `sessionId`, and unavailable review data use the shared error envelope with the applicable HTTP status code.
-
-### Progress Data
-
-- `GET /api/v1/progress`
-
-  Returns progress data for the backend-selected default range. Optional `from` and `to` query parameters, when supported, are ISO dates and must be supplied together.
-
-  — request body:
-
-  The request has no JSON body.
-
-  — response body:
-
-  ```json
-  {
-    "range": {
-      "from": "2026-09-12",
-      "to": "2026-10-12"
-    },
-    "measurements": [],
-    "focus": null,
-    "availability": "insufficient_data"
-  }
-  ```
-
-  Supported measurements include stable identifiers, display labels, units, time buckets, and server-computed values. `focus` is backend-provided or `null`.
-
-  — relevant errors/status codes:
-
-  Authorization failures and invalid or incomplete date ranges use the shared error envelope with the applicable HTTP status code.
 
 ## Checkout and billing
 
@@ -614,7 +588,7 @@ The frontend sends plan identifiers, never amounts or card credentials, to the b
 
 - `GET /api/v1/subscriptions/status`
 
-  Returns the authenticated user's authoritative subscription status.
+  Returns the authenticated user's authoritative subscription status. Initial Subscription page data comes from the unified user-data response; this endpoint remains for checkout-return verification and explicit refreshes. A successful response updates the `subscription` section of the global `UserStore`.
 
   — request body:
 
@@ -624,15 +598,43 @@ The frontend sends plan identifiers, never amounts or card credentials, to the b
 
   ```json
   {
-    "status": "pending"
+    "status": "active",
+    "planId": "performance",
+    "currentPeriodEndsAt": "2026-10-26T00:00:00Z",
+    "paymentMethodDisplay": "Not connected",
+    "billingManagementAvailable": false
   }
   ```
 
-  Supported status values include `pending`, `active`, `paid`, and `failed`.
+  Supported status values include `pending`, `active`, `paid`, and `failed`. A successful response replaces `UserStore.subscription` with the normalized returned object.
 
   — relevant errors/status codes:
 
   Authorization and subscription-status lookup failures use the shared error envelope with the applicable HTTP status code.
+
+- `POST /api/v1/billing/customer-portal-sessions`
+
+  Creates a provider-hosted customer portal session for the Subscription page's Manage billing action. `returnPath` must be a validated internal application path.
+
+  — request body:
+
+  ```json
+  {
+    "returnPath": "/subscription"
+  }
+  ```
+
+  — response body:
+
+  ```json
+  {
+    "portalUrl": "https://provider.example.com/customer-portal/…"
+  }
+  ```
+
+  — relevant errors/status codes:
+
+  Invalid return paths, authorization failures, missing provider-customer state, and provider failures use the shared error envelope with the applicable HTTP status code.
 
 - `POST /api/v1/stripe/webhook`
 
@@ -656,73 +658,123 @@ The provider hosts payment fields and receives card data. Raw card data must not
 
 Backend and product owners must confirm endpoint names, required fields, units, bounds, retention, authentication, rate limits, idempotency, feedback-event provenance, session completion, and error mappings before connecting live services. Until then, frontend contract tests may use fixtures matching these proposed examples.
 
-## Dashboard, profile, and settings data
+## Authenticated application data and persisted user updates
 
-All endpoints in this section require the authenticated application session and use the shared error envelope. Profile and preferences update endpoints return field validation separately from transport errors.
+All endpoints in this section require the authenticated application session and use the shared error envelope. `UserStore` is the single frontend source of truth for the returned persisted user/application data. Pages may keep unsaved form drafts locally, but they must not create another authoritative copy of server state.
 
-### Dashboard Data
+### Get user data
 
-- `GET /api/v1/dashboard`
+- `GET /api/v1/user-data`
 
-  Returns server-authorized overview data for the authenticated user's Dashboard. Each returned item retains its source identifier and timestamp. Empty collections are valid, and the client does not derive a recommendation from raw metrics.
+  Returns all persisted user-specific data required to initialize the authenticated application after Login, MFA verification, OAuth session establishment, or a full application reload with a recoverable session. This replaces the former initial-load `GET /api/v1/dashboard`, `GET /api/v1/users/me`, and `GET /api/v1/users/me/preferences` requests.
 
-  — request body:
+  — request:
 
-  The request has no JSON body.
-
-  — response body:
-
-  ```json
-  {
-    "recentSessions": [],
-    "progressSummary": null,
-    "nextFocus": null
-  }
+  ```http
+  GET /api/v1/user-data HTTP/1.1
+  Authorization: Bearer <accessToken>
   ```
 
-  `progressSummary` and `nextFocus` are backend-provided or `null` when the corresponding supported data is unavailable.
-
-  — relevant errors/status codes:
-
-  Authorization and Dashboard-data availability failures use the shared error envelope with the applicable HTTP status code.
-
-### Profile Data
-
-- `GET /api/v1/users/me`
-
-  Returns the authenticated user's editable profile fields and read-only account fields separately.
-
-  — request body:
-
-  The request has no JSON body.
+  The request has no JSON body. The backend identifies the current user from the validated access token; the frontend does not send a separate `userId`.
 
   — response body:
 
   ```json
   {
-    "editable": {
+    "account": {
+      "id": "user_123",
+      "mfaEnabled": false,
+      "passwordChangedAt": null
+    },
+    "personalInformation": {
       "firstName": "Alex",
       "lastName": "Morgan",
+      "username": "alexmorgan",
       "displayName": "Alex",
-      "phone": "+359881234567"
-    },
-    "readOnly": {
-      "id": "user_123",
       "email": "player@example.com",
-      "emailVerified": true
+      "emailVerified": true,
+      "phoneCountryCode": "+359",
+      "phone": "888123456",
+      "phoneVerified": false,
+      "dateOfBirth": null,
+      "country": null,
+      "city": null,
+      "bio": null
+    },
+    "subscription": {
+      "status": "active",
+      "planId": "performance",
+      "currentPeriodEndsAt": "2026-10-26T00:00:00Z",
+      "paymentMethodDisplay": "Not connected",
+      "billingManagementAvailable": false
+    },
+    "dashboard": {
+      "statistics": {
+        "sessionsCountThisMonth": 8,
+        "practiceTime": 12600,
+        "lastSession": "2026-10-11T18:30:00Z"
+      }
+    },
+    "sessionHistory": {
+      "items": [
+        {
+          "id": "session_123",
+          "startedAt": "2026-10-12T08:30:00Z",
+          "durationMin": 42,
+          "status": "complete",
+          "summary": null
+        },
+        {
+          "id": "session_122",
+          "startedAt": "2026-10-08T16:00:00Z",
+          "durationMin": 35,
+          "status": "complete",
+          "summary": null
+        },
+        {
+          "id": "session_121",
+          "startedAt": "2026-10-03T07:15:00Z",
+          "durationMin": 48,
+          "status": "incomplete",
+          "summary": null
+        }
+      ]
+    },
+    "settings": {
+      "notifications": {
+        "trainingReminders": true,
+        "sessionSummaries": true,
+        "weeklyProgress": true,
+        "productUpdates": false,
+        "notificationChannel": "email",
+        "reminderTime": "18:00"
+      },
+      "privacy": {
+        "saveVideos": false,
+        "videoRetention": "30",
+        "historyVisibility": "private",
+        "performanceAnalytics": true,
+        "optionalTelemetry": false
+      }
     }
   }
   ```
 
-  The backend declares which profile fields are writable. Read-only account fields must not be copied into update requests.
+  `sessionHistory.items` is the single initial session collection used by both Dashboard recent activity and History; the response does not duplicate those session records inside `dashboard`. Empty arrays and `null` values are valid data states, not transport errors.
+
+  Physical device identifiers, camera/microphone availability, permission state, the currently selected browser device, audio-output routing, and unsaved avatar previews are intentionally absent. They remain local browser state.
+
+  On success, the frontend replaces the complete authenticated-data snapshot in `UserStore` atomically. It does not distribute the sections into additional Dashboard, Profile, Settings, Subscription, or History stores.
 
   — relevant errors/status codes:
 
-  Authorization and profile-data availability failures use the shared error envelope with the applicable HTTP status code.
+  Authorization and user-data availability failures use the shared error envelope with the applicable HTTP status code. A failed initial load leaves authenticated application data unavailable; pages must not issue the removed GET requests as independent fallbacks.
 
-- `PATCH /api/v1/users/me`
+### Profile update endpoints
 
-  Updates only the supplied backend-declared writable profile fields. Omitted writable fields remain unchanged.
+- `PATCH /api/v1/users/me/personal-information`
+
+  Updates the Profile page's Personal Information form. Omitted writable fields remain unchanged. The avatar control remains a local preview because the approved prototype does not upload an image.
 
   — request body:
 
@@ -730,8 +782,15 @@ All endpoints in this section require the authenticated application session and 
   {
     "firstName": "Alex",
     "lastName": "Morgan",
+    "username": "alexmorgan",
     "displayName": "Alex",
-    "phone": "+359881234567"
+    "email": "player@example.com",
+    "phoneCountryCode": "+359",
+    "phone": "888123456",
+    "dateOfBirth": null,
+    "country": null,
+    "city": null,
+    "bio": null
   }
   ```
 
@@ -739,31 +798,134 @@ All endpoints in this section require the authenticated application session and 
 
   ```json
   {
-    "editable": {
-      "firstName": "Alex",
-      "lastName": "Morgan",
-      "displayName": "Alex",
-      "phone": "+359881234567"
-    },
-    "readOnly": {
-      "id": "user_123",
-      "email": "player@example.com",
-      "emailVerified": true
-    }
+    "firstName": "Alex",
+    "lastName": "Morgan",
+    "username": "alexmorgan",
+    "displayName": "Alex",
+    "email": "player@example.com",
+    "emailVerified": true,
+    "phoneCountryCode": "+359",
+    "phone": "888123456",
+    "phoneVerified": false,
+    "dateOfBirth": null,
+    "country": null,
+    "city": null,
+    "bio": null
   }
   ```
 
-  The response contains the normalized saved representation. Unsupported or read-only fields are not accepted as writable profile data.
+  The frontend replaces `UserStore.personalInformation` with this normalized response. Email or phone changes may reset the corresponding verification state according to backend policy.
 
   — relevant errors/status codes:
 
-  Authorization failures and field-validation failures use the shared error envelope with the applicable HTTP status code. Field-validation details are returned separately from transport errors.
+  Authorization, uniqueness, and field-validation failures use the shared error envelope with the applicable HTTP status code.
 
-### Settings Data
+### Settings update endpoints
 
-- `GET /api/v1/users/me/preferences`
+- `PATCH /api/v1/users/me/preferences/notifications`
 
-  Returns the authenticated user's persisted application preferences.
+  Updates the Settings page's Notifications form.
+
+  — request body:
+
+  ```json
+  {
+    "trainingReminders": true,
+    "sessionSummaries": true,
+    "weeklyProgress": true,
+    "productUpdates": false,
+    "notificationChannel": "email",
+    "reminderTime": "18:00"
+  }
+  ```
+
+  — response body:
+
+  ```json
+  {
+    "trainingReminders": true,
+    "sessionSummaries": true,
+    "weeklyProgress": true,
+    "productUpdates": false,
+    "notificationChannel": "email",
+    "reminderTime": "18:00"
+  }
+  ```
+
+  The frontend replaces `UserStore.settings.notifications` with this normalized response.
+
+  — relevant errors/status codes:
+
+  Authorization, unsupported notification channel, and field-validation failures use the shared error envelope with the applicable HTTP status code.
+
+- `PATCH /api/v1/users/me/preferences/privacy`
+
+  Updates the persisted fields from the Settings page's Privacy & Data form.
+
+  — request body:
+
+  ```json
+  {
+    "saveVideos": false,
+    "videoRetention": "30",
+    "historyVisibility": "private",
+    "performanceAnalytics": true,
+    "optionalTelemetry": false
+  }
+  ```
+
+  — response body:
+
+  ```json
+  {
+    "saveVideos": false,
+    "videoRetention": "30",
+    "historyVisibility": "private",
+    "performanceAnalytics": true,
+    "optionalTelemetry": false
+  }
+  ```
+
+  The frontend replaces `UserStore.settings.privacy` with this normalized response. Cookie-consent categories remain governed by the separate browser-local cookie-consent mechanism and are not part of this endpoint.
+
+  — relevant errors/status codes:
+
+  Authorization, unsupported retention policy, and field-validation failures use the shared error envelope with the applicable HTTP status code.
+
+### Security and data-management actions
+
+- `PATCH /api/v1/users/me/password`
+
+  Changes the authenticated user's password as a separate security action. Password values are never stored in `UserStore` or any other persistent frontend state.
+
+  — request body:
+
+  ```json
+  {
+    "currentPassword": "…",
+    "newPassword": "…"
+  }
+  ```
+
+  `confirmPassword` is checked locally and is not transmitted.
+
+  — response body:
+
+  ```json
+  {
+    "passwordChangedAt": "2026-10-12T10:00:00Z"
+  }
+  ```
+
+  The frontend updates only `UserStore.account.passwordChangedAt`, then clears all password fields. The backend verifies the current password, enforces password policy, stores only a secure password hash, and applies its session-revocation policy.
+
+  — relevant errors/status codes:
+
+  Invalid current credentials, password-policy failures, rate limits, and authorization failures use the shared error envelope with the applicable HTTP status code and never echo password values.
+
+- `POST /api/v1/users/me/data-exports`
+
+  Starts the Settings page's Export my data action. Export generation is asynchronous and remains separate from preference persistence.
 
   — request body:
 
@@ -773,46 +935,60 @@ All endpoints in this section require the authenticated application session and 
 
   ```json
   {
-    "applicationLanguage": "en",
-    "timezone": "Europe/Sofia",
-    "measurementUnits": "metric"
+    "exportId": "export_123",
+    "status": "pending",
+    "downloadUrl": null
   }
   ```
-
-  Only backend-declared preferences are returned as persisted settings. Browser capability and device availability remain client-observed state.
 
   — relevant errors/status codes:
 
-  Authorization and preferences-data availability failures use the shared error envelope with the applicable HTTP status code.
+  Authorization, rate-limit, and export availability failures use the shared error envelope with the applicable HTTP status code. Any later download URL must be authenticated, short-lived, and backend-issued.
 
-- `PATCH /api/v1/users/me/preferences`
+- `GET /api/v1/users/me/data-exports/{exportId}`
 
-  Updates only the supplied backend-declared preference fields. Omitted preferences remain unchanged.
+  Returns the current state of the previously requested data export identified by `exportId`.
 
   — request body:
 
-  ```json
-  {
-    "applicationLanguage": "en",
-    "timezone": "Europe/Sofia",
-    "measurementUnits": "metric"
-  }
-  ```
-
-  Unsupported browser capabilities are reported by the client as unavailable and are not sent as if enabled.
+  The request has no JSON body.
 
   — response body:
 
   ```json
   {
-    "applicationLanguage": "en",
-    "timezone": "Europe/Sofia",
-    "measurementUnits": "metric"
+    "exportId": "export_123",
+    "status": "ready",
+    "downloadUrl": "https://api.example.com/temporary-download/export_123"
   }
   ```
 
-  The response contains the normalized saved preference values.
+  `status` is `pending`, `ready`, `failed`, or `expired`. `downloadUrl` is present only while a completed export is available and remains authenticated, short-lived, and backend-issued.
 
   — relevant errors/status codes:
 
-  Authorization failures and field-validation failures use the shared error envelope with the applicable HTTP status code. Field-validation details are returned separately from transport errors.
+  Authorization, unknown or inaccessible export, expired export, and export-processing failures use the shared error envelope with the applicable HTTP status code.
+
+- `DELETE /api/v1/users/me`
+
+  Submits the Settings page's Delete account action after explicit confirmation and any recent-authentication step required by the backend. This is not an ordinary preference update.
+
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "status": "deletion_pending"
+  }
+  ```
+
+  After acceptance, the frontend clears authentication state and the complete `UserStore` snapshot. It must not optimistically claim deletion before the backend accepts the request.
+
+  — relevant errors/status codes:
+
+  Missing recent authentication, authorization failure, conflicting account state, and deletion-processing failures use the shared error envelope with the applicable HTTP status code.
+
+Reset/Clear/Show Password controls and the avatar preview are local UI actions.

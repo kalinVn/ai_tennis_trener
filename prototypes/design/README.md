@@ -82,26 +82,21 @@ also confirmed that all 10 original HTML pages changed only shared asset paths
 and the extraction of their page-scoped CSS. Tests used simulated browser
 viewports, not physical devices or other browser engines.
 
-Profile contains four independent forms inside Personal Information, Tennis
-Profile, Physical Information and Account Overview. Training Goals fields belong
-to Tennis Profile. Each panel validates and saves only its own values in memory;
-Reset Changes restores that panel's last saved values (initial values before its
-first save). Reloading clears demo saves. Account Overview retains read-only
-details with the same panel actions. Avatar selection and reset are scoped to
-Personal Information; no profile data or images are uploaded.
+Profile contains one form inside Personal Information. It validates and saves
+its own values in memory; Reset Changes restores the last saved values (initial
+values before the first save). Reloading clears demo saves. Avatar selection and
+reset are scoped to Personal Information; no profile data or images are uploaded.
 
-Profile form isolation verified in Chromium on 2026-09-28: four forms and action
-pairs, independent save/reset baselines, panel-scoped validation, avatar restore,
-and collapse/expand with no horizontal overflow at 1440×900, 414×896 and 896×414.
-All existing field and option definitions were preserved.
+Profile form isolation was originally verified in Chromium on 2026-09-28 before
+the Profile consolidation. The remaining Personal Information form preserves its
+panel-scoped validation, avatar restore, and collapse/expand behavior.
 
-Settings uses eight independent panel forms, each with Save Settings and Reset
+Settings uses three independent panel forms, each with Save Settings and Reset
 Fields actions using Profile's shared button classes and action spacing. Both
 pages use `setupPanelForm` in `app.js` for panel-local validation, in-memory saves
-and resets to the last saved values (initial values before saving). Settings
-resets also synchronize the audio volume label within its panel. The password
-form retains Change password, Clear fields and Show passwords: Save Settings
-runs its existing demo check without saving credentials, and Reset Fields clears
+and resets to the last saved values (initial values before saving). The password
+form retains Change password, Clear fields and Show passwords: Save Settings runs
+its existing demo check without saving credentials, and Reset Fields clears
 passwords and restores hidden-password mode. Privacy action feedback stays in
 its own panel. No settings are sent to a server or persisted across reloads.
 

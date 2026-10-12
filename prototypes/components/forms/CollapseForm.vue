@@ -25,7 +25,7 @@ defineProps({
 </template>
 
 <style scoped>
-/* Container styles from Profile's Tennis Profile section. */
+/* Container styles from Profile's collapsible form section. */
 .collapse-form {
   box-sizing: border-box;
   min-width: 0;

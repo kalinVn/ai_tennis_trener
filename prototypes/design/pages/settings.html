@@ -35,38 +35,10 @@
       <div class="settings-intro">
         <div class="eyebrow">PREFERENCES</div>
         <h1>Settings</h1>
-        <p>Customize your coaching, training experience, devices, notifications and privacy.</p>
+        <p>Manage account security, notifications, privacy and personal data.</p>
       </div>
 
       <div class="settings-stack">
-        <details class="panel settings-section" open>
-          <summary>
-            <div><h2 id="account-heading">Account &amp; Language</h2><p>Regional preferences, account access and security.</p></div>
-          </summary>
-          <form id="account-settings-form" class="settings-body" aria-labelledby="account-heading">
-            <div class="settings-grid form-grid">
-              <div class="field"><label for="app-language">Application language</label>
-                <select id="app-language" name="app_language"><option value="en">English</option><option value="bg">Bulgarian</option><option value="es">Spanish</option><option value="fr">French</option></select>
-              </div>
-              <div class="field"><label for="timezone">Time zone</label>
-                <select id="timezone" name="timezone"><option value="Europe/Sofia">Europe/Sofia (EET/EEST)</option><option value="Europe/London">Europe/London</option><option value="Europe/Berlin">Europe/Berlin</option><option value="America/New_York">America/New_York</option></select>
-              </div>
-              <div class="field"><label for="measurement">Measurement units</label>
-                <select id="measurement" name="measurement_units"><option value="metric">Metric (km, kg, cm)</option><option value="imperial">Imperial (mi, lb, ft)</option></select>
-              </div>
-              <div class="field"><label for="date-format">Date format</label>
-                <select id="date-format" name="date_format"><option value="dd-mm-yyyy">DD/MM/YYYY</option><option value="mm-dd-yyyy">MM/DD/YYYY</option><option value="yyyy-mm-dd">YYYY-MM-DD</option></select>
-              </div>
-              <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="two_factor"> <span>Enable two-factor authentication<small>Prototype field; authentication is not configured here.</small></span></label></div>
-            </div>
-          <div class="profile-actions">
-              <button class="btn primary" type="submit">Save Settings</button>
-              <button class="btn ghost" type="reset">Reset Fields</button>
-            </div>
-            <p class="callout" role="status" aria-live="polite" hidden></p>
-          </form>
-        </details>
-
         <details class="panel settings-section" id="password-section">
           <summary>
             <div><h2 id="password-heading">Account Security · Change Password</h2><p>Update your sign-in password.</p></div>
@@ -99,87 +71,6 @@
               <button class="btn primary" type="submit">Save Settings</button>
               <button class="btn ghost" type="reset">Reset Fields</button>
             </div>
-          </form>
-        </details>
-
-        <details class="panel settings-section" open>
-          <summary>
-            <div><h2 id="training-heading">Training Preferences</h2><p>Tailor recommendations to your tennis practice.</p></div>
-          </summary>
-          <form id="training-settings-form" class="settings-body" aria-labelledby="training-heading">
-            <div class="settings-grid form-grid">
-              <div class="field"><label for="skill-level">Playing level</label>
-                <select id="skill-level" name="skill_level"><option value="beginner">Beginner</option><option value="intermediate" selected>Intermediate</option><option value="advanced">Advanced</option><option value="competitive">Competitive</option></select>
-              </div>
-              <div class="field"><label for="dominant-hand">Dominant hand</label>
-                <select id="dominant-hand" name="dominant_hand"><option value="right">Right-handed</option><option value="left">Left-handed</option><option value="ambidextrous">Ambidextrous</option></select>
-              </div>
-              <div class="field"><label for="backhand">Backhand type</label>
-                <select id="backhand" name="backhand_type"><option value="two">Two-handed</option><option value="one">One-handed</option><option value="both">Both</option></select>
-              </div>
-              <div class="field"><label for="playing-style">Preferred playing style</label>
-                <select id="playing-style" name="playing_style"><option value="baseline">Baseline</option><option value="all_court">All-court</option><option value="serve_volley">Serve-and-volley</option><option value="unsure">Not sure yet</option></select>
-              </div>
-              <div class="field"><label for="session-length">Default session length</label>
-                <select id="session-length" name="session_length_minutes"><option value="15">15 minutes</option><option value="30" selected>30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option><option value="90">90 minutes</option></select>
-              </div>
-              <div class="field"><label for="training-frequency">Weekly training target</label>
-                <select id="training-frequency" name="weekly_training_target"><option value="1">1 session</option><option value="2">2 sessions</option><option value="3" selected>3 sessions</option><option value="4">4 sessions</option><option value="5">5+ sessions</option></select>
-              </div>
-              <div class="field"><label for="focus">Primary training focus</label>
-                <select id="focus" name="primary_focus"><option value="forehand">Forehand</option><option value="backhand">Backhand</option><option value="serve">Serve</option><option value="footwork">Footwork</option><option value="consistency" selected>Consistency</option><option value="all">All strokes</option></select>
-              </div>
-              <div class="field"><label for="intensity">Training intensity</label>
-                <select id="intensity" name="intensity"><option value="light">Light</option><option value="moderate" selected>Moderate</option><option value="intense">Intense</option></select>
-              </div>
-              <div class="field wide"><label for="goals">Personal training goals</label>
-                <textarea id="goals" name="training_goals" placeholder="For example: improve forehand timing and footwork..."></textarea>
-              </div>
-            </div>
-          <div class="profile-actions">
-              <button class="btn primary" type="submit">Save Settings</button>
-              <button class="btn ghost" type="reset">Reset Fields</button>
-            </div>
-            <p class="callout" role="status" aria-live="polite" hidden></p>
-          </form>
-        </details>
-
-        <details class="panel settings-section">
-          <summary><div><h2 id="audio-heading">AI Coach &amp; Audio</h2><p>Voice guidance, timing, detail and spoken feedback.</p></div></summary>
-          <form id="audio-settings-form" class="settings-body" aria-labelledby="audio-heading"><div class="settings-grid form-grid">
-            <div class="field"><label for="feedback">Audio feedback</label><select id="feedback" name="feedback_mode"><option value="short">Short cues</option><option value="detailed">Detailed instructions</option><option value="off">Off</option></select></div>
-            <div class="field"><label for="coach-language">Coach language</label><select id="coach-language" name="coach_language"><option value="en">English</option><option value="bg">Bulgarian</option><option value="es">Spanish</option></select></div>
-            <div class="field"><label for="coach-voice">Coach voice</label><select id="coach-voice" name="coach_voice"><option value="voice_a">Voice A</option><option value="voice_b">Voice B</option><option value="voice_c">Voice C</option></select><small>Placeholder voices for future TTS integration.</small></div>
-            <div class="field"><label for="cue-frequency">Cue frequency</label><select id="cue-frequency" name="cue_frequency"><option value="minimal">Minimal</option><option value="balanced" selected>Balanced</option><option value="frequent">Frequent</option></select></div>
-            <div class="field"><label for="volume">Coach volume: <output id="volume-value">70%</output></label><input id="volume" name="coach_volume" type="range" min="0" max="100" value="70"></div>
-            <div class="field"><label for="speech-rate">Speech speed</label><select id="speech-rate" name="speech_speed"><option value="slow">Slow</option><option value="normal" selected>Normal</option><option value="fast">Fast</option></select></div>
-            <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="live_cues" checked><span>Real-time coaching cues<small>Allow guidance during approach and preparation.</small></span></label></div>
-            <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="post_stroke_feedback" checked><span>Post-stroke analysis<small>Include technique feedback after each stroke.</small></span></label></div>
-            <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="spoken_summary"><span>Spoken session summary<small>Read out highlights at the end of training.</small></span></label></div>
-          </div><div class="profile-actions">
-              <button class="btn primary" type="submit">Save Settings</button>
-              <button class="btn ghost" type="reset">Reset Fields</button>
-            </div>
-            <p class="callout" role="status" aria-live="polite" hidden></p>
-          </form>
-        </details>
-
-        <details class="panel settings-section">
-          <summary><div><h2 id="devices-heading">Camera &amp; Devices</h2><p>Video capture, preferred positioning and microphone.</p></div></summary>
-          <form id="devices-settings-form" class="settings-body" aria-labelledby="devices-heading"><div class="settings-grid form-grid">
-            <div class="field"><label for="camera-angle">Preferred camera angle</label><select id="camera-angle" name="camera_angle"><option value="behind">Behind player</option><option value="side">Side view</option><option value="front">Front view</option></select></div>
-            <div class="field"><label for="camera-device">Camera device</label><select id="camera-device" name="camera_device"><option value="system">System default</option><option value="external">External camera (demo)</option></select><small>Live device discovery will be added with the backend/front-end integration.</small></div>
-            <div class="field"><label for="video-resolution">Video resolution</label><select id="video-resolution" name="video_resolution"><option value="720p">720p</option><option value="1080p" selected>1080p</option><option value="4k">4K (if supported)</option></select></div>
-            <div class="field"><label for="frame-rate">Target frame rate</label><select id="frame-rate" name="frame_rate"><option value="30">30 FPS</option><option value="60" selected>60 FPS</option><option value="120">120 FPS (if supported)</option></select></div>
-            <div class="field"><label for="mic">Microphone</label><select id="mic" name="microphone"><option value="system">System default</option><option value="none">Disabled</option></select></div>
-            <div class="field"><label for="audio-output">Audio output</label><select id="audio-output" name="audio_output"><option value="system">System default</option><option value="headphones">Headphones (demo)</option></select></div>
-            <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="camera_mirror"><span>Mirror camera preview</span></label></div>
-            <div class="field wide"><label class="settings-toggle"><input type="checkbox" name="show_pose" checked><span>Show pose and racket overlay<small>Display detected joints and racket position in the training view.</small></span></label></div>
-          </div><div class="profile-actions">
-              <button class="btn primary" type="submit">Save Settings</button>
-              <button class="btn ghost" type="reset">Reset Fields</button>
-            </div>
-            <p class="callout" role="status" aria-live="polite" hidden></p>
           </form>
         </details>
 
@@ -217,22 +108,7 @@
           </form>
         </details>
 
-        <details class="panel settings-section">
-          <summary><div><h2 id="billing-heading">Subscription &amp; Billing</h2><p>Payment preferences and Stripe subscription management.</p></div></summary>
-          <form id="billing-settings-form" class="settings-body" aria-labelledby="billing-heading"><div class="settings-grid form-grid">
-            <div class="field"><label for="billing-currency">Preferred display currency</label><select id="billing-currency" name="billing_currency"><option value="EUR">EUR (€)</option><option value="USD">USD ($)</option><option value="GBP">GBP (£)</option></select></div>
-            <div class="field"><label for="invoice-email">Invoice email</label><input id="invoice-email" name="invoice_email" type="email" placeholder="alex@example.com"></div>
-            <div class="field wide"><p>Payment methods, invoices and billing details should be managed through Stripe's hosted checkout or customer portal. Do not store card numbers or CVC in this prototype.</p></div>
-            <div class="field wide"><a class="btn" href="subscription.html">View subscription</a></div>
-          </div><div class="profile-actions">
-              <button class="btn primary" type="submit">Save Settings</button>
-              <button class="btn ghost" type="reset">Reset Fields</button>
-            </div>
-            <p class="callout" role="status" aria-live="polite" hidden></p>
-          </form>
-        </details>
-
-        <p class="settings-note">Visual prototype only: settings are not saved to a server. Device and payment options are illustrative.</p>
+        <p class="settings-note">Visual prototype only: settings are not saved to a server.</p>
       </div>
     </main>
   </div>
@@ -265,15 +141,11 @@
     passwordNote.hidden = false;
   });
   // Page-only interactions. No backend or persistent storage in this prototype.
-  const volume = document.getElementById('volume');
-  const volumeValue = document.getElementById('volume-value');
-  volume.addEventListener('input', () => { volumeValue.value = volume.value + '%'; });
   document.querySelectorAll('.settings-section form').forEach(form => {
     const isPasswordForm = form.id === 'password-settings-form';
     setupPanelForm(form, {
       onSave: isPasswordForm ? () => document.getElementById('change-password').click() : undefined,
       afterReset: () => {
-        if (form.contains(volume)) volumeValue.value = volume.value + '%';
         if (isPasswordForm) passwordFields.forEach(field => { field.type = 'password'; });
       }
     });

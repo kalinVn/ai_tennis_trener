@@ -79,9 +79,9 @@
 - description: `Follow the Dashboard prototype directly for all page content, sections, containers, text, and visual structure, implemented as page-level DOM/layout. Do not introduce page-specific shared components or extract static sections into reusable components. Keep Session History available as defined in the prototype. Each returned session row opens Session Review using its server-supplied session id. Sidebar and top header remain provided by the Authentication Layout and are not part of the page sections.`
 - required shared components: None
 - required feature components: None
-- data contract: `GET /api/v1/dashboard`; example response shape is in [integration contract examples](integration-contracts.md#dashboard-profile-and-settings-data).
+- data contract: initial Dashboard aggregates and History items come from `GET /api/v1/user-data`; see [authenticated application data](integration-contracts.md#authenticated-application-data-and-persisted-user-updates). The page does not issue a separate initial Dashboard request.
 - states: loading, empty, success, recoverable error, unavailable.
-- dependencies: None
+- dependencies: `UserStore`
 
 
 ### History
@@ -89,12 +89,12 @@
 - Route: `/history`
 - Layout: `Authentication Layout`
 - Example Prototype: `design/pages/history.html`
-- description: `Follow the History HTML/design prototype for all sections and page-level elements. Use the existing shared BaseTable component for the session/history table. All other headings, descriptions, controls, containers, filters, surrounding layout, and visual elements remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
+- description: `Follow the History HTML/design prototype for all sections and page-level elements. Use the existing shared BaseTable component for the collapsible Training Sessions table, showing only Date, Duration, Status, and a Review Session action linked to /sessions/:sessionId. Keep pagination at the bottom of the section. All other headings, descriptions, controls, containers, filters, surrounding layout, and visual elements remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
 - required shared components: `BaseTable`
 - required feature components: None
-- data contract: `GET /api/v1/training/sessions`; example pagination and response shape are in [integration contract examples](integration-contracts.md#session-history-session-review-and-progress-data).
+- data contract: the initial collection comes from `UserStore.sessionHistory`, populated by `GET /api/v1/user-data`. `GET /api/v1/training/sessions` remains for pagination or explicit refresh and writes its result back to that store section; see [integration contract examples](integration-contracts.md#session-history-and-session-review).
 - states: loading, empty, success, recoverable error, unavailable.
-- dependencies: `TrainingHistoryStore`
+- dependencies: `UserStore`
 
 ### Session Review
 
@@ -106,9 +106,9 @@
 - access: Authenticated; the backend authorizes access to the requested session.
 - route parameters: required `sessionId` opaque identifier. Reject malformed identifiers and show not-found/unauthorized states without leaking whether another user's session exists.
 - navigation destination: Session rows on History and Dashboard link to this route using their returned session ids. Session Review is not a top-level sidebar item; History remains the active navigation section.
-- data contract: `GET /api/v1/training/sessions/{sessionId}/review`; see [frontend integration contract examples](integration-contracts.md#session-history-session-review-and-progress-data).
+- data contract: `GET /api/v1/training/sessions/{sessionId}/review`; see [frontend integration contract examples](integration-contracts.md#session-history-and-session-review).
 - visual references: [History](../../prototypes/design/pages/history.html) and [Training Session Card](../../prototypes/design/components/training-session-card.html). These provide visual cues only; they do not establish data or behavior beyond this entry.
-- state owner: `frontend/src/stores/TrainingHistoryStore.ts`; data access: `frontend/src/services/sessionService.ts`.
+- state owner: `frontend/src/stores/UserStore.ts`; data access: `frontend/src/services/sessionService.ts`. Route-specific review loading must not create another authoritative history store.
 - states: loading, not found/unauthorized, success, partial/insufficient data, recoverable error, unavailable.
 
 ### Progress
@@ -118,25 +118,25 @@
 - route: `/progress`
 - name: `progress`
 - layout: `Authentication Layout`
-- access: Authenticated; the backend authorizes progress data.
-- route parameters: None. Load the backend-provided default range. Do not add date-range controls until a product requirement calls for them.
+- access: Authenticated.
+- route parameters: None. Do not add date-range controls until a product requirement and an approved data contract call for them.
 - navigation destination: Authenticated sidebar item `Progress`, placed after History. Compact Dashboard progress summaries may link here.
-- data contract: `GET /api/v1/progress` using its backend default range; see [frontend integration contract examples](integration-contracts.md#session-history-session-review-and-progress-data).
+- data contract: No Progress endpoint or persisted Progress store section is currently defined.
 - visual references: [Dashboard](../../prototypes/design/pages/dashboard.html) and [Charts & Progress](../../prototypes/design/components/charts-progress.html). These are partial visual references; they do not authorize fabricated metrics or charts.
-- state owner: `frontend/src/stores/ProgressStore.ts`; data access: `frontend/src/services/progressService.ts`.
+- state owner: No persisted Progress store section or data service is currently defined.
 - states: loading, empty/insufficient data, success, recoverable error, unavailable.
 
 ### Application State Matrix
 
 | Surface | Loading | Empty / partial | Error / unavailable | Success owner |
 | --- | --- | --- | --- | --- |
-| Dashboard | Dashboard request pending | No sessions/focus is an honest empty state | Retry dashboard request; preserve shell | Server response |
-| History | Session list pending | Empty list is successful | Retry current cursor; preserve filters | Server response |
+| Dashboard | Unified user-data request pending | No sessions is an honest empty state | Retry authenticated application initialization; preserve shell | `UserStore.dashboard` and `UserStore.sessionHistory` |
+| History | Unified initialization or later-page request pending | Empty initial list is successful | Retry initialization, current cursor, or explicit refresh as applicable | `UserStore.sessionHistory` |
 | Session Review | Review request pending | Insufficient supported result is labeled | Safe not-found/unauthorized; retry recoverable failures | Server-authorized review response |
-| Progress | Progress request pending | `insufficient_data` or no measurements | Retry same range | Server response; focus is never generated in browser |
+| Progress | No API request is currently defined | Unsupported or insufficient data is shown honestly | No Progress API retry is defined | No persisted Progress owner is defined |
 | Training | Camera/transport/analysis transitions shown separately | Waiting for first supported result | Camera and transport failures remain distinct | Backend analysis/session events |
-| Subscription / Checkout | Subscription or checkout verification pending | No active plan is distinct from unknown state | Retry server/provider state | Backend-verified billing response |
-| Profile / Settings | Load/save pending | Optional values can be empty | Retain last confirmed values and user edits | Successful server save |
+| Subscription / Checkout | Unified initialization or checkout verification pending | No active plan is distinct from unknown state | Retry initialization or server/provider verification | `UserStore.subscription` plus backend-verified checkout refreshes |
+| Profile / Settings | Unified initialization or section save pending | Optional values can be empty | Retain last confirmed store values and unsaved user edits | Normalized section response written to `UserStore` |
 | Authentication | Session lookup/request pending | Signed out is distinct from lookup failure | Field/challenge/session errors shown | Backend session/auth response |
 
 Recovery behavior and shared error semantics are detailed in [integration contract examples](integration-contracts.md#page-state-and-recovery-matrix).
@@ -149,20 +149,20 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Use one PaymentStatusCard implementation for the payment pending, success, failed, and cancelled return-state presentations; do not duplicate the card structure. Change plan, Manage billing, and payment-status actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
 - required shared components: `PaymentCardPlan`, `BillingDetailsCard`
 - required feature components: `PaymentStatusCard`
-- data contract: `GET /api/v1/billing/subscription` and provider-hosted customer portal; see [integration contract examples](integration-contracts.md#checkout-and-billing).
+- data contract: initial subscription data come from `GET /api/v1/user-data`. Checkout verification, plan changes, and the provider-hosted customer portal remain dedicated operations; see [integration contract examples](integration-contracts.md#checkout-and-billing).
 - states: loading, no active subscription, active, pending change, payment pending, payment success after backend verification, payment failed, payment cancelled, recoverable error, unavailable.
-- dependencies: None
+- dependencies: `UserStore`
 
 ### Profile
-- purpose: `Allow authenticated users to view and manage their profile and account information.`
+- purpose: `Allow authenticated users to view and manage their personal profile information.`
 - Route: `/profile`
 - Layout: `Authentication Layout`
 - Example Prototype: `design/pages/profile.html`
 - name: `profile`
-- description: `Follow the referenced Profile HTML prototype for the page title, secondary text, section titles, secondary descriptions, fields, labels, buttons/actions, and all other page-level content. The four collapsible sections are Personal Information, Tennis Profile (including Training Goals), Physical Information, and Account Overview; each uses the existing CollapseForm component. The Profile page component owns and creates the data/configuration for each section, deriving its title, secondary description, all fields and their labels and relevant configuration (including types, options, validation constraints, and read-only attributes), buttons/actions, and any additional content directly from the prototype. Supply each CollapseForm instance from this page-owned configuration through its existing title/description props and page-rendered default/footer slots for fields, actions, and other content. Profile-specific values, configuration, form handling, and actions remain in the Profile page; CollapseForm stays generic and reusable. Do not create separate components for individual Profile sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the prototype. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
+- description: `Follow the referenced Profile HTML prototype for the page title, secondary text, and the remaining Personal Information section, which uses the existing CollapseForm component. The Profile page component owns and creates the section's data/configuration, deriving its title, secondary description, fields, labels, relevant configuration, buttons/actions, and any additional content directly from the prototype. Supply the CollapseForm instance through its existing title/description props and page-rendered default/footer slots. Profile-specific values, configuration, form handling, and actions remain in the Profile page; CollapseForm stays generic and reusable. Do not create additional Profile section components unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the prototype. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
 - required shared components: `CollapseForm`
 - required feature components: None
-- data contract: `GET/PATCH /api/v1/users/me`; example ownership and response handling are in [integration contract examples](integration-contracts.md#dashboard-profile-and-settings-data).
+- data contract: initial Personal Information data come from `GET /api/v1/user-data`. The dedicated Personal Information `PATCH` endpoint replaces the normalized `UserStore.personalInformation` section. See [authenticated application data and persisted user updates](integration-contracts.md#authenticated-application-data-and-persisted-user-updates).
 - states: loading, loaded, validation error, save pending, recoverable error, unavailable.
 - dependencies: `UserStore`
 
@@ -172,10 +172,10 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - Layout: `Authentication Layout`
 - Example Prototype: `design/pages/settings.html`
 - name: `settings`
-- description: `Follow the referenced Settings HTML prototype as the source of truth for the page title, secondary text, all collapsible sections, and all other page-level content. Each collapsible section uses the existing shared CollapseForm component. The Settings page owns and creates each section's data/configuration directly from the prototype. Pass only the section title/header and secondary title/description through the existing title and description props. Define and render all section-specific fields, labels, selects, controls, buttons, actions, and other body content in the Settings page, supplying that content through CollapseForm's default slot and its footer slot where appropriate. Field configuration, values, validation, form handling, and action behavior remain owned by the Settings page; do not pass a field schema to CollapseForm or move Settings-specific content or behavior into it. Keep CollapseForm generic and reusable. Do not create separate components for individual Settings sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the Settings prototype. Do not invent fields, controls, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
+- description: `Follow the referenced Settings HTML prototype as the source of truth for the page title, secondary text, and the remaining Account Security · Change Password, Notifications, and Privacy & Data sections. Each collapsible section uses the existing shared CollapseForm component. The Settings page owns and creates each section's data/configuration directly from the prototype. Pass only the section title/header and secondary title/description through the existing title and description props. Define and render all section-specific fields, labels, selects, controls, buttons, actions, and other body content in the Settings page, supplying that content through CollapseForm's default slot and its footer slot where appropriate. Field configuration, values, validation, form handling, and action behavior remain owned by the Settings page; do not pass a field schema to CollapseForm or move Settings-specific content or behavior into it. Keep CollapseForm generic and reusable. Do not create separate components for individual Settings sections unless explicitly required elsewhere. Implement all remaining page-level elements directly as DOM/layout matching the prototype. Do not invent fields, controls, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
 - required shared components: `CollapseForm`
 - required feature components: None
-- data contract: `GET/PATCH /api/v1/users/me/preferences`; example ownership and response handling are in [integration contract examples](integration-contracts.md#dashboard-profile-and-settings-data).
+- data contract: initial Notifications and Privacy & Data settings come from `GET /api/v1/user-data`. Each independently saved persisted group uses its dedicated `PATCH` endpoint; Change Password, data export, and account deletion remain separate actions. See [authenticated application data and persisted user updates](integration-contracts.md#authenticated-application-data-and-persisted-user-updates).
 - states: loading, loaded, validation error, save pending, recoverable error, unavailable.
 - dependencies: `UserStore`
 

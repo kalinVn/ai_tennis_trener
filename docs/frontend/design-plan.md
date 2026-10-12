@@ -14,7 +14,7 @@ Status: historical draft; not an approved current implementation plan. Button an
 - Shared rules: `claude/rules/frontend/frontend-design-system.md`.
 - Existing application: `frontend/index.html` contains only `test 2`. No Vue source, package manifest, application tests, or backend application files were found in the inspected repository. Existing uncommitted content must be preserved when implementation begins.
 - The available `codex/workflows/` files concern infrastructure; none is needed for this design-only task. Any later infrastructure change must load its relevant workflow first.
-- Use Vue 3, JavaScript, Vue Router, and Vite. The frontend specification explicitly overrides the general AGENTS.md TypeScript default. Retain Pinia for shared session state under the repository stack agreement; do not add another state library. Keep feature state local where practical.
+- Use Vue 3, JavaScript, Vue Router, and Vite. The frontend specification explicitly overrides the general AGENTS.md TypeScript default. Retain Pinia under the repository stack agreement; do not add another state library. `UserStore` is the single authoritative frontend store for persisted authenticated application data, while unsaved drafts and transient UI/device state stay local.
 - Affected domains: public UI, authentication UI/session navigation, dashboard, training/media/analysis transport, session review/history, progress, subscription UI, and account preferences. Backend inference, coaching decisions, identity authority, persistence, and billing authority remain external dependencies.
 
 ## Design Foundation
@@ -82,8 +82,8 @@ The orchestrator selects implementation skills from the page requirements and de
 | Progress / AuthenticationLayout | Supported trends, improvement areas, next recommended focus; unavailable or insufficient-history explanation | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | ProgressInsights | Progress data, measurement definitions, time range, evidence/confidence; no invented scores or projections |
 | Pricing / AuthenticationLayout | Available Starter, Performance and Pro plans with parent-owned selection actions | Button, PaymentCardPlan, PageHeader, NavigationItem, Dialog | None | authoritative plan definitions, prices and plan-selection destination |
 | Subscription / AuthenticationLayout | Available plans, current plan, comparison, subscription actions, protected checkout and its result states | Button, PaymentCardPlan, BillingDetailsCard, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | PaymentStatusCard, CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
-| Profile / AuthenticationLayout | Supported personal and tennis information; view/edit, validation, saving, saved/error feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | ProfileEditor | profile schema, writable fields, update contract |
-| Settings / AuthenticationLayout | Supported application, camera, coaching, privacy and notification preferences; save/result feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | SettingsEditor | supported settings schema, persistence and browser capability handling |
+| Profile / AuthenticationLayout | Supported personal information; view/edit, validation, saving, saved/error feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | ProfileEditor | personal-information schema, writable fields, update contract |
+| Settings / AuthenticationLayout | Account security, privacy and notification settings; save/result feedback and data-management actions | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | SettingsEditor | supported notification/privacy schemas, persistence and security/data-management action contracts |
 
 Page composition must not introduce additional project-specific component names beyond the specification's list. Compact feature variants are reuse of those components, not new feature components. Authentication forms remain page composition of shared fields and buttons.
 
@@ -127,7 +127,7 @@ The following legacy feature list requires revalidation against the current spec
 | SessionHistoryList | Sessions and review links / History, compact Dashboard | Session identifiers, summaries and dates, loading/empty/error state; paging only if supported |
 | ProgressInsights | Trends, improvement areas, next supported focus / Progress, compact Dashboard | Supported measurements, ranges, history sufficiency, confidence and backend focus; no local coaching generation |
 | CheckoutFlow | Checkout start and success/cancel/failure/recovery states / Subscription | Backend checkout request/result, provider redirect, backend verification of final state; no card data in application code |
-| ProfileEditor | View/update supported personal and tennis details / Profile | Authorized profile schema, validation, writable fields, save result |
+| ProfileEditor | View/update supported personal details / Profile | Authorized personal-information schema, validation, writable fields, save result |
 | SettingsEditor | View/update supported preferences / Settings | Authorized settings schema, browser capability state, validation and save result |
 
 Prefer provider-hosted checkout for the initial implementation; no custom payment modal is required. Use the existing Subscription route for return states if the backend/provider contract supports it. A redirect query string alone must never establish payment success.

@@ -13,19 +13,15 @@ test('training lifecycle documents create, complete, and abandon request and res
 
   for (const field of [
     'analysisWebSocketUrl',
-    'feedbackEventIds',
-    'lastContiguousFeedbackSequence',
-    'finalFeedbackSequence',
     'completedAt',
     'endedAt',
   ]) assert.match(contracts, new RegExp(`"${field}"`))
 
   assert.match(contracts, /The request has no JSON body/)
-  assert.match(contracts, /FEEDBACK_CATCH_UP_REQUIRED/)
-  assert.match(contracts, /Reconnecting an already active session keeps the same `sessionId`/)
+  assert.match(contracts, /Reconnection for the same active session retains the same `sessionId`/)
   assert.match(contracts, /operation is idempotent/i)
   assert.match(contracts, /WebSocket message 1 \(text\):\s+JSON frame metadata/)
   assert.match(contracts, /WebSocket message 2 \(binary\):\s+<raw JPEG bytes for that frame>/)
-  assert.match(contracts, /socket\.send\(jpegBlob\)/)
-  assert.match(contracts, /not Base64-encoded or placed in a JSON field/)
+  assert.match(contracts, /The JPEG is binary, not Base64 or a JSON field/)
+  assert.match(contracts, /Metadata and binary payload form an ordered pair/)
 })

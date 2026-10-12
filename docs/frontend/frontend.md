@@ -150,6 +150,30 @@ Backend communication, API access, and external integration logic should be plac
 
 ---
 
+## Authenticated Application Data and Global Store
+
+`UserStore` is the single global source of truth for persisted user-specific application data after authentication. `AuthStore` may own access-token and authentication workflow state, but it must not keep a second authoritative copy of the user profile or application data.
+
+The authenticated initialization flow is:
+
+1. Login, MFA verification, or OAuth establishes the authenticated application session and provides the short-lived access token.
+2. The frontend immediately calls `GET /api/v1/user-data` once with that authenticated session.
+3. `UserStore` atomically stores the complete response: account and personal information, subscription, Dashboard aggregates, the initial History collection, and persisted Settings groups.
+4. Dashboard, Profile, Settings, Subscription, History, the authenticated layout, and other authenticated consumers read their initial server data from `UserStore`. Route entry must not trigger redundant initial-load GET requests for data already present in that snapshot.
+5. Dedicated endpoints remain available only where the operation is independently necessary: History pagination or explicit refresh, Session Review detail, checkout verification, customer-portal creation, and other action-specific operations.
+6. Each successful Profile or Settings update returns the normalized persisted section. `UserStore` replaces that corresponding section immediately; the page does not keep a separate authoritative server copy.
+7. Logout, terminal authentication failure, or accepted account deletion clears the complete `UserStore` snapshot as well as authentication state.
+
+Pages may own validation state, pending state, error messages, and unsaved form drafts. Those local drafts are not server truth. Components receive store-backed values through their owning page or feature and do not independently fetch or cache the same initial data.
+
+Dashboard reuses `sessionHistory` rather than maintaining duplicate recent-session records.
+
+Camera and microphone availability, permissions, discovered device identifiers, current physical-device selection, audio-output routing, and other runtime browser capabilities remain local device state.
+
+The unified user-data response and every section-specific update contract are defined in [Authenticated application data and persisted user updates](integration-contracts.md#authenticated-application-data-and-persisted-user-updates).
+
+---
+
 ## Feature Requirements
 
 ### Camera
@@ -204,6 +228,8 @@ Credentials, session validation, and authorization authority remain the responsi
 
 - When Login returns an MFA challenge, show only the methods offered for that `challengeId`, submit the selected verification method/code, and create authenticated frontend state only after successful verification.
 
+- After authentication succeeds, load the unified authenticated application data before treating protected page data as ready. A successful authentication response alone does not populate Dashboard, Profile, Settings, Subscription, History, or Progress.
+
 - Display the sign-in UI whenever authentication is required.
 
 - Send authentication requrequestsests to the backend.
@@ -239,6 +265,8 @@ Credentials, session validation, and authorization authority remain the responsi
 ### Subscription
 
 The frontend owns the user-facing subscription and checkout flow. Exact request, response, verified status, and payment-data boundaries are defined in [Frontend Integration Contract Examples — Checkout and billing](integration-contracts.md#checkout-and-billing); they are not duplicated here.
+
+The Subscription page reads its initial plan and billing presentation from `UserStore.subscription`. It does not issue a separate initial status request. Dedicated billing endpoints remain responsible for checkout creation, customer-portal creation, and backend-verified checkout-return refreshes.
 
 - When the user starts a subscription checkout, the frontend sends a request to the backend. The backend creates a Stripe Checkout Session and returns the Stripe-hosted checkout URL. The frontend then redirects the user to the Stripe Checkout page.
 
@@ -297,13 +325,13 @@ Frontend recovery behavior follows these orchestration rules:
 
 | Surface | Empty / insufficient data | Recoverable failure | Unavailable / disconnected | Frontend recovery |
 | --- | --- | --- | --- | --- |
-| Dashboard | Show an honest empty state when no sessions or supported focus exist | Offer retry without inventing data | Preserve the shell and explain that data cannot be loaded | Retry the dashboard request; keep Training and History navigation available |
-| History | Treat an empty session list as successful | Preserve the current cursor and offer retry | Explain that history is unavailable | Retry the current list request without inventing rows |
+| Dashboard | Show an honest empty state when no sessions or supported focus exist | Offer retry without inventing data | Preserve the shell and explain that data cannot be loaded | Retry unified user-data initialization; keep Training and History navigation available when the stored snapshot is usable |
+| History | Treat an empty initial session list as successful | Preserve the current cursor and offer retry | Explain that history is unavailable | Read the initial collection from `UserStore`; use the dedicated list endpoint only for pagination or explicit refresh and write its result back to the store |
 | Session Review | Use safe not-found/unauthorized/insufficient states | Preserve the session route and offer retry | Explain that review is unavailable | Retry or return to History |
-| Progress | Show `insufficient_data` or no measurements honestly | Preserve the selected range and offer retry | Explain that progress data is unavailable | Retry the same range; never generate focus locally |
+| Progress | Show `insufficient_data` or no measurements honestly | Preserve the selected range and offer retry | Explain that progress data is unavailable | Read initial data from `UserStore`; an explicit range/refresh request replaces the store section, and focus is never generated locally |
 | Training | Treat no analysis data as waiting, not a zero-valued result | Stop frame sending after transport failure and expose reconnect/stop | Distinguish camera/device failure from analysis disconnect | Retry only through a user-visible action and retain the active `sessionId` |
-| Subscription / Checkout | Distinguish no active subscription from unknown status | Preserve the selected plan and offer retry | Explain billing/provider unavailability | Re-fetch backend state; never infer payment success from a redirect |
-| Profile / Settings | Keep optional empty values empty | Preserve last confirmed values and user input | Keep the local page usable while identifying unavailable persistence | Retry load/save and never claim an unsuccessful save |
+| Subscription / Checkout | Distinguish no active subscription from unknown status | Preserve the selected plan and offer retry | Explain billing/provider unavailability | Use the initial `UserStore` section; re-fetch backend status for checkout verification and write it back to the store, never infer payment success from a redirect |
+| Profile / Settings | Keep optional empty values empty | Preserve last confirmed store values and unsaved form input | Keep the local page usable while identifying unavailable persistence | Retry the section save; replace only the corresponding `UserStore` section with the normalized success response and never claim an unsuccessful save |
 | Authentication | Distinguish standard sign-in from an explicit challenge | Preserve non-secret fields and field errors | Keep authentication unknown when lookup/refresh is unavailable | Retry lookup/request; clear secrets after terminal failure |
 
 A `401 Unauthorized` starts the documented refresh/sign-in recovery flow when appropriate; a `403 Forbidden` remains an authorization failure and does not log the user out. Network failure alone never proves logout, successful completion, or successful payment. Sensitive transient values are cleared on logout, challenge expiry, or terminal authentication failure.
