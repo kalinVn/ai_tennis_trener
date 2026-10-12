@@ -112,6 +112,9 @@ The required shared components are:
 - BillingDetailsCard
 - BaseModal
 - TextButton
+- RecaptchaField
+- SocialAuthButton
+- SocialAuthButtons
 
 Each shared visual pattern uses one reusable implementation across pages. Generic modal infrastructure and lightweight text actions are shared across features rather than reimplemented by individual pages. [components.md](components.md) is the authoritative source for shared component contracts, states, behavior, accessibility, styling, and prototype references. Pricing and Subscription use the shared PaymentCardPlan implementation; BillingDetailsCard presents the separate billing panel. Checkout retains its distinct PerformanceCard summary.
 
@@ -123,13 +126,14 @@ Feature components are project- or feature-specific UI components, distinct from
 
 - `HomePageInfoSection` — existing Home headline, description, CTA links and feature cards.
 - `HomePageVideoSlider` — interactive Home video and illustrative AI tennis-analysis preview.
-- `LoginForm` — dedicated Login form UI and prototype-only authentication feedback.
-- `RegisterForm` — dedicated registration form UI and prototype-only validation feedback.
+- `LoginForm` — dedicated Login form UI using the shared RecaptchaField and SocialAuthButtons, with prototype-only authentication feedback.
+- `RegisterForm` — dedicated registration form UI using the shared RecaptchaField and SocialAuthButtons, with prototype-only validation feedback.
 - `CookiePrivacyPolicy` — the only public cookie/privacy feature component mounted by the application shell across public and authenticated pages. It composes `PrivacyChoicesBanner`, `CookiePreferencesContent`, `CookiePolicyContent`, and `PrivacyPolicyContent`, uses the shared `BaseModal` and `TextButton`, and delegates state/persistence to its local `useCookieConsent` composable. Consent is independent from authentication and survives navigation, refresh, login, and logout.
 - `FeatureCard` — presents a numbered product feature with a title and description.
 - `PerformanceCard` — existing Checkout order summary with description, price, billing note and back link, distinct from the selectable Pricing/Subscription plan card.
 - `PaymentInformationCard` — reusable Checkout card presenting disabled sample payment fields from page-supplied display props; never collects raw card data.
 - `OrderSummaryCard` — reusable Checkout card presenting order amounts, notes, and actions from page-supplied props; emits the checkout action for the page to handle.
+- `PaymentStatusCard` — shared Subscription/Checkout return-state presentation for pending, success, failed, and cancelled visual states; it performs no payment or subscription logic.
 - `CameraPreviewModal` — displays the live training camera stream, microphone and analysis controls, and backend feedback.
 - `TrainingCamera` — requests camera and microphone access, handles permission errors, and opens the camera preview modal.
 
@@ -159,7 +163,7 @@ The frontend may perform lightweight frame capture, resizing, throttling, or for
 
 ### Analysis Client
 
-The frontend sends supported input to the backend and receives structured analysis state and results through the backend transport contract. The proposed versioned WebSocket envelope, frame metadata, result handling, stop, error, and reconnect behavior is specified in [integration contract examples](integration-contracts.md#training-session-and-analysis-transport). No browser inference or fabricated results are allowed.
+The frontend first creates the authenticated training session through the REST lifecycle contract, then uses the backend-issued short-lived WebSocket URL for live analysis. Normal completion submits the received contiguous feedback set; early exit abandons the same session as incomplete. The session endpoints, proposed versioned WebSocket envelope, frame metadata, result handling, stop, error, and reconnect behavior are specified in [integration contract examples](integration-contracts.md#training-session-and-analysis-transport). Reconnect keeps the same session identity and does not create a second session. No browser inference or fabricated results are allowed.
 
 ### Audio Output
 
@@ -188,44 +192,67 @@ Receive stroke-specific feedback from the backend for individual strokes.
 
 ### Authentication
 
-The proposed cookie-backed session, login/registration, multi-factor challenge, OAuth redirect, logout, expiry, and error shapes are specified in [integration contract examples](integration-contracts.md) and must follow the requirements defined under `Feature Requirements → Authentication`. These examples keep credentials and authorization authority on the backend.
+The authentication requirements are defined below .
 
-- Provide login and logout functionality.
+The corresponding technical frontend/backend API contracts for cookie-backed sessions, login and registration, multi-factor authentication, OAuth redirects, logout, session expiry, and authentication error responses are defined in [integration contract examples](integration-contracts.md) under `Authentication and application sessions`.
 
-- Display the authentication UI when the user needs to sign in.
+Credentials, session validation, and authorization authority remain the responsibility of the backend.
 
-- Validate required form fields before sending authentication requests.
+- Provide token-based authentication with login, logout, access-token refresh, and multi-factor verification flows.
 
-- Send authentication requests to the backend.
+- Display the sign-in UI whenever authentication is required.
 
-- Store and use the authenticated session state returned by the backend.
+- Send authentication requrequestsests to the backend.
 
-- Keep the user authenticated while the session remains valid.
+- Store the short-lived JWT access token in application memory and use it for authenticated API requests.
 
-- Update the application navigation immediately after login or logout.
+- Store the refresh token as a HttpOnly, Secure, SameSite cookie managed by the browser and inaccessible to frontend JavaScript.
 
-- Prevent unauthenticated users from accessing protected pages.
+- Keep the user authenticated while a valid access token is available.
 
-- Redirect unauthenticated users to the login flow when they request a protected page.
+- When the access token expires, attempt to obtain a new access token through the backend refresh endpoint.
 
-- Preserve the originally requested page and return the user to it after successful login.
 
-- Redirect already authenticated users away from authentication pages when appropriate.
+- Display clear user-facing errors for invalid credentials, failed authentication requests, failed multi-factor verification, and authentication states that require the user to sign in again.
 
-- Display clear errors for invalid credentials, failed authentication requests, and expired sessions.
+- If an authenticated API request returns 401 Unauthorized, attempt token refresh when appropriate.
 
-- Clear the local authentication state when the user logs out or the session expires.
+- If the refresh succeeds, retry the original request once with the new access token.
 
-- Keep frontend authentication logic limited to forms, session state, routing, and user-facing states.
+- If the refresh token is invalid, expired, revoked, or reused, clear the local authentication state and redirect the user to the login flow.
 
-- Keep authentication authority, credential verification, token validation, permissions, and security rules on the backend.
+- Treat 403 Forbidden as an authorization failure for an authenticated user and do not treat it as logout or authentication expiration.
+
+- Clear the access token and local authentication state when the user logs out or when authentication can no longer be renewed.
+
+- Treat temporary network failures during authentication or token refresh as an unavailable state rather than immediately treating the user as signed out.
+
+- Keep frontend authentication logic limited to authentication forms, access-token state, routing, multi-factor and verification UI flows, and user-facing authentication states.
+
+- Keep credential verification, JWT issuance and validation, refresh-token rotation and revocation, multi-factor verification, authorization permissions, and security rules on the backend.
+
 
 ### Subscription
 
-The frontend owns plan presentation, subscription interaction, and starting and completing a secure checkout flow through provider-hosted checkout or the payment provider's protected payment fields. It sends checkout requests to the backend and presents user-facing success, cancellation, payment-failure, and recoverable-error states. Proposed billing endpoint and verification shapes are in [integration contract examples](integration-contracts.md#checkout-and-billing).
+The frontend owns the user-facing subscription and checkout flow.
+The integration contracts referenced here define the subscription and checkout contracts between the frontend and backend for subscriptions
+[integration contract examples](integration-contracts.md#Checkout-and-billing).
 
-The frontend must never store or process raw card data. The backend and payment provider remain responsible for creating and confirming transactions and handling sensitive payment data.
+- When the user starts a subscription checkout, the frontend sends a request to the backend. The backend creates a Stripe Checkout Session and returns the Stripe-hosted checkout URL. The frontend then redirects the user to the Stripe Checkout page.
 
+- The payment is completed on Stripe's hosted page, not inside the application.
+
+- After the payment flow finishes, Stripe redirects the user back to the application's configured success or cancellation page.
+
+- The redirect to the success page must not be treated as final proof that the payment has been confirmed. Stripe also sends a webhook event directly to the backend. The backend verifies the webhook, processes the payment result, and updates the authoritative subscription state in the database.
+
+- When the user returns to the success page, the frontend requests the current subscription status from the backend.
+
+- Because the Stripe webhook and browser redirect can happen at nearly the same time, the backend may temporarily return a `pending` status. The frontend should display a pending state and retry the subscription-status request until the backend reports a final state such as `active`, `paid`, or `failed`.
+
+- The frontend is responsible for displaying user-facing states such as checkout in progress, payment confirmation pending, successful activation, cancellation, payment failure, and recoverable network errors.
+
+- The frontend must never store or process raw card data. Stripe and the backend remain responsible for payment processing, webhook verification, transaction confirmation, and maintaining the authoritative subscription state.
 ---
 
 ## Frontend / Backend Boundary
@@ -275,8 +302,13 @@ Use [Frontend Project Structure](frontend-project-structure.md) as the authorita
 Inspect the existing prototypes only as organization and ownership guidance:
 
 - [Prototype components](../../prototypes/components/) show the current shared and feature component families.
-- [Visual page prototypes](../../prototypes/design/pages/) show page-level composition, while [Vue page examples](../../prototypes/pages/) and the existing [Home](../../prototypes/home/), [Pricing](../../prototypes/pricing/), [Subscription](../../prototypes/subscription/), [Checkout](../../prototypes/checkout/), and [Training](../../prototypes/training/) entry directories show current page wiring examples.
+
+- [Visual page prototypes](../../prototypes/design/pages/) show page-level composition, while [Vue page examples](../../prototypes/pages/) and the existing [Home](../../prototypes/home/), [Pricing](../../prototypes/pricing/).
+
+[Subscription](../../prototypes/subscription/), [Checkout](../../prototypes/checkout/), and [Training](../../prototypes/training/) entry directories show current page wiring examples.
+
 - [Prototype composables](../../prototypes/composables/), [stores](../../prototypes/stores/), and [services](../../prototypes/services/) show existing behavior, state, and communication boundaries where examples are present.
+
 - The [Home Page Video Slider](../../prototypes/components/sliders/home-page-video-slider/) is the reference for a complex component that owns substantial internal logic and several supporting files. Its current organization includes a Vue component, multiple supporting JavaScript classes/files, controller and lifecycle logic, rendering and animation logic, configuration, component-specific styles, a local [README](../../prototypes/components/sliders/home-page-video-slider/README.md), and related [tests](../../prototypes/tests/home-page-video-slider.test.js).
 
 Use these references to understand practical grouping and ownership, not as files to copy blindly. A simple component may remain one `.vue` file when that is sufficient; only components with genuine internal complexity should group multiple supporting files with a clear owner. Component-specific logic and styles may stay grouped with that owner when allowed by the authoritative structure.

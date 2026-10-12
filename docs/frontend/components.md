@@ -248,9 +248,19 @@ Presentational card for a numbered feature, title, and description. The parent s
 - Vue component: [FeatureCard.vue](../../prototypes/components/cards/FeatureCard.vue)
 - Visual reference: [feature-card.html](../../prototypes/design/components/cards/feature-card.html)
 
+### RecaptchaField
+
+Shared verification-field presentation used by both LoginForm and RegisterForm. The prototype exposes an accessible required checkbox through `v-model`, shows a reCAPTCHA-style label, and explicitly identifies itself as a visual prototype.
+
+Production must replace the prototype confirmation with a provider-issued, short-lived token and send that token with the authentication request. The backend must verify the token, intended action, hostname, expiry, and provider result before processing Login or Register; the checkbox state is never a security signal.
+
+- Vue component prototype: [RecaptchaField.vue](../../prototypes/components/fields/RecaptchaField.vue)
+- Visual design prototype: [recaptcha-field.html](../../prototypes/design/components/fields/recaptcha-field.html)
+- Page placements: [Login](../../prototypes/design/pages/login.html) and [Register](../../prototypes/design/pages/register.html)
+
 ### LoginForm
 
-Dedicated login form containing an email field, password field, primary Login action, and Create Account navigation to the Register page. It also presents visual-only `Login with Google`, `Login with Facebook`, and `Login with Apple` buttons, each with its provider icon. Social actions do not start OAuth and the prototype does not authenticate or retain credentials.
+Dedicated login form containing an email field, password field, shared RecaptchaField, primary Login action, and Create Account navigation to the Register page. It composes SocialAuthButtons for Google, Facebook, and Apple. The prototype reports the selected provider without starting OAuth, authenticating, or retaining credentials.
 
 - Vue component prototype: [LoginForm.vue](../../prototypes/components/forms/LoginForm.vue)
 - Page prototype: [LoginPage.vue](../../prototypes/pages/LoginPage.vue)
@@ -258,11 +268,37 @@ Dedicated login form containing an email field, password field, primary Login ac
 
 ### RegisterForm
 
-Dedicated registration form containing first name, surname, email, phone, password, confirm-password, and required terms/privacy agreement fields. It provides the primary Create Account action and an existing-account Login link. The prototype performs only same-form password confirmation feedback; it does not create an account, submit credentials, or implement OTP/MFA.
+Dedicated registration form containing first name, surname, email, phone, password, confirm-password, required terms/privacy agreement, and the shared RecaptchaField. It provides the primary Create Account action, an existing-account Login link, and SocialAuthButtons for Google, Facebook, and Apple. Social registration requires the terms/privacy checkbox first. The prototype performs only same-form password confirmation and visual feedback; it does not create an account, submit credentials, issue a provider token, start OAuth, or implement OTP/MFA.
 
 - Vue component prototype: [RegisterForm.vue](../../prototypes/components/forms/RegisterForm.vue)
 - Page prototype: [RegisterPage.vue](../../prototypes/pages/RegisterPage.vue)
 - Runnable design prototype: [register.html](../../prototypes/design/pages/register.html)
+
+### SocialAuthButtons
+
+Shared Google, Facebook, and Apple authentication actions used by LoginForm and RegisterForm. It renders one SocialAuthButton per provider. The parent owns the OAuth start behavior and error state.
+
+`SocialAuthButton` props:
+
+- `provider` (required): `google`, `facebook`, or `apple`; selects the label and provider icon.
+- `actionLabel`: leading label such as `Login` or `Continue`; defaults to `Continue`.
+- `disabled`: disables the individual action.
+- `loading`: disables the button, exposes its busy state, and changes the label to the provider connection state.
+- event: `click(provider)`.
+
+`SocialAuthButtons` props:
+
+- `actionLabel`: forwarded to all three buttons.
+- `disabled`: disables the group.
+- `pendingProvider`: empty or one of the three provider keys; marks that provider busy and disables the other actions.
+- event: `select(provider)`.
+
+Production maps each selection to `POST /api/v1/auth/oauth/{provider}/start` and navigates only to the backend-returned provider authorization URL. Provider callbacks and token exchange are backend-owned; no provider secret or provider token belongs in this component.
+
+- Vue button component: [SocialAuthButton.vue](../../prototypes/components/forms/SocialAuthButton.vue)
+- Vue component prototype: [SocialAuthButtons.vue](../../prototypes/components/forms/SocialAuthButtons.vue)
+- Visual design prototype: [social-auth-buttons.html](../../prototypes/design/components/buttons/social-auth-buttons.html)
+- Page placements: [Login](../../prototypes/design/pages/login.html) and [Register](../../prototypes/design/pages/register.html)
 
 ### TopNav
 
@@ -405,6 +441,23 @@ Emits `action` without a payload via the shared secondary Button. The Subscripti
 
 Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/cards/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. The Compare public pricing link stays in the Subscription page and points to `pricing.html`.
 
+### PaymentStatusCard
+
+`PaymentStatusCard` is the single presentational component for Subscription payment-return states. It reuses the existing Subscription panel, pill, typography, Button, spacing, radius, width, and responsive behavior rather than defining separate pending, success, failed, and cancelled card structures.
+
+| Prop | Type / default | Display responsibility |
+| --- | --- | --- |
+| `status` | Required: `pending`, `success`, `failed`, `cancelled` | Selects the corresponding status label, heading, explanatory copy, note, action label, and restrained semantic pill color. |
+
+Emits `action` without a payload when the shared primary/secondary action Button is activated. The parent owns retry, navigation, status refresh, or any later integration. The optional `secondary-action` slot accepts parent-owned navigation such as Back to Subscription. The component performs no request, redirect, payment verification, subscription mutation, or persistence.
+
+The visual `success` state represents an already backend-verified successful outcome; it must never be inferred from a browser redirect or query parameter in production. The prototype query parameter selects only which visual design to preview.
+
+- Vue component: [PaymentStatusCard.vue](../../prototypes/components/cards/PaymentStatusCard.vue)
+- Design prototype: [payment-status-card.html](../../prototypes/design/components/cards/payment-status-card.html)
+- Prototype mount: [payment-status/main.js](../../prototypes/payment-status/main.js)
+- Entry page: [subscription.html](../../prototypes/design/pages/subscription.html), whose Payment status prototypes section links all four states.
+
 ### CollapseForm
 
 Reusable collapsible form container based on the Tennis Profile section in [Profile](../../prototypes/design/pages/profile.html). `title` is required; `description` is optional. Native `<details>` starts expanded and owns only its local collapse/expand UI state, including keyboard interaction and the plus/minus indicator.
@@ -432,7 +485,7 @@ The modal accepts `stream`, `endpoint`, and optional `analysisFps` (default 5). 
 
 [useVideoAnalysis.js](../../prototypes/composables/useVideoAnalysis.js) owns a single paced capture/resize/JPEG loop (default maximum width 640px, 5 FPS; configurable up to 10 FPS), result/error state, and cancellation. [trainingTransport.js](../../prototypes/services/trainingTransport.js) owns WebSocket connection, bounded sending, message reception, and disconnect. No browser inference or fabricated coaching is performed. Stop Video Analysis stops only analysis; Return to Training, Escape, device loss, or unmount stop analysis and all camera/microphone tracks.
 
-No backend-approved production transport contract exists yet. The proposed frontend-facing example is binary JPEG frames sent to a configured WebSocket endpoint and versioned JSON messages returned; see [integration contract examples](integration-contracts.md#training-session-and-analysis-transport). The inspected prototype currently uses binary JPEG frames and JSON `{ type, payload }` messages as visual/behavioral guidance only. It accepts events including `stroke_analysis`, `player_feedback`, `ball_position`, `player_position`, `pose_analysis`, `training_instruction`, and `analysis_error`. Feedback text uses `payload.text` or `payload.message`; explicitly low-confidence text is withheld. The host/backend must provide authentication and validate this prototype contract before real integration. No endpoint is hardcoded; without one, only camera/microphone preview is available.
+No backend-approved production transport contract exists yet. The proposed frontend-facing lifecycle creates the training session before analysis, uses only the short-lived WebSocket URL returned by the backend, completes with the contiguous feedback set, and abandons early exits as incomplete; see [integration contract examples](integration-contracts.md#training-session-and-analysis-transport). The proposed live transport sends binary JPEG frames and receives versioned JSON messages. The inspected prototype currently uses binary JPEG frames and JSON `{ type, payload }` messages as visual/behavioral guidance only. It accepts events including `stroke_analysis`, `player_feedback`, `ball_position`, `player_position`, `pose_analysis`, `training_instruction`, and `analysis_error`. Feedback text uses `payload.text` or `payload.message`; explicitly low-confidence text is withheld. The host/backend must provide authentication and validate this prototype contract before real integration. No endpoint is hardcoded; without one, only camera/microphone preview is available.
 
 For production Vue/behavior separation, place the modal view at `frontend/src/components/training/CameraPreviewModal.vue` and its existing inline UI behavior in `frontend/src/composables/useCameraPreviewModal.ts`: dialog lifecycle, media attachment/detachment, microphone mute, feedback derivation, scroll restoration and closure. This is a planned extraction of inspected behavior, not an existing file or new feature. Keep capture/cancellation in `frontend/src/composables/useVideoAnalysis.ts`, transport in `frontend/src/services/trainingTransport.ts`, and camera acquisition/track ownership in `frontend/src/composables/useCameraSession.ts`. The modal requests track release through that owner on close/device loss/unmount; it does not independently stop the same tracks again. The feature forwards results to session state and the existing overlay slot. These mappings define responsibility without adding business logic to any Button.
 

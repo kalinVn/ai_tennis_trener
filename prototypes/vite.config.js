@@ -37,7 +37,10 @@ export default defineConfig({
       camera: root + '/prototypes/design/components/camera-preview.html',
       baseModal: root + '/prototypes/design/components/modals.html',
       textButton: root + '/prototypes/design/components/buttons/text-button.html',
+      paymentStatus: root + '/prototypes/design/components/cards/payment-status-card.html',
       cookiePrivacySpecimen: root + '/prototypes/design/components/cookie-consent-banner.html',
+      recaptchaField: root + '/prototypes/design/components/fields/recaptcha-field.html',
+      socialAuthButtons: root + '/prototypes/design/components/buttons/social-auth-buttons.html',
       cookiePrivacyApp: root + '/prototypes/components/features/CookiePrivacyPolicy/mountCookiePrivacyPolicy.js',
     }, output: {
       entryFileNames: chunk => chunk.name === 'cookiePrivacyApp' ? 'assets/cookiePrivacyApp.js' : 'assets/[name]-[hash].js',

@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Payment Status · Tennis AI Coach</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .payment-status-prototype__nav { display: flex; flex-wrap: wrap; gap: 10px; margin: 24px 0 30px; }
+    .payment-status-prototype__nav .btn[aria-current="page"] { border-color: var(--accent); color: var(--accent); }
+    .payment-status-prototype__note { width: min(820px, 100%); margin-top: 18px; }
+    @media (max-width: 530px) { .payment-status-prototype__nav { display: grid; } .payment-status-prototype__nav .btn { width: 100%; } }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="../../pages/dashboard.html"><span class="logo">AI</span>Coach</a>
+    <div class="side-links">
+      <a href="../../pages/dashboard.html">Dashboard</a>
+      <a href="../../pages/training.html">Training</a>
+      <a href="../../pages/history.html">History</a>
+      <a href="../../pages/subscription.html" aria-current="page">Subscription</a>
+      <a href="../../pages/profile.html">Profile</a>
+      <a href="../../pages/settings.html">Settings</a>
+    </div>
+    <p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authentication Layout · demo</p>
+  </aside>
+  <div class="app-main">
+    <header class="app-top">
+      <span class="eyebrow" style="margin:0">Tennis AI Coach / Subscription</span>
+      <div class="flex"><span class="muted">Artur Bortnik · demo user</span><a class="btn small" href="../../pages/index.html">Log out</a></div>
+    </header>
+    <main class="app-content">
+      <div class="eyebrow">ACCOUNT / BILLING</div>
+      <h1>Subscription</h1>
+      <p>Payment status design states using the existing subscription layout and visual system.</p>
+      <nav class="payment-status-prototype__nav" aria-label="Payment status prototypes">
+        <a class="btn small" data-payment-status-link="pending" href="?status=pending">Payment pending</a>
+        <a class="btn small" data-payment-status-link="success" href="?status=success">Payment success</a>
+        <a class="btn small" data-payment-status-link="failed" href="?status=failed">Payment failed</a>
+        <a class="btn small" data-payment-status-link="cancelled" href="?status=cancelled">Payment cancelled</a>
+      </nav>
+      <div id="payment-status-root"><p class="callout">Open this prototype through the Vite development server to render the Vue component.</p></div>
+    </main>
+  </div>
+</div>
+<script src="../../app.js"></script>
+<script type="module" src="../../../payment-status/main.js"></script>
+</body>
+</html>

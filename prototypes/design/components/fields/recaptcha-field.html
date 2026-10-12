@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>RecaptchaField · Tennis AI Coach Library</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    body{padding:32px 24px}.recaptcha-demo{width:min(420px,100%);margin:auto}.recaptcha-field{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:78px;padding:12px 14px;border:1px solid #c9c9c9;border-radius:4px;background:#f9f9f9;color:#1f1f1f}.recaptcha-field label{display:flex;align-items:center;gap:12px;color:#1f1f1f;font-size:15px}.recaptcha-field input{width:28px;height:28px;margin:0;accent-color:#1a73e8}.recaptcha-brand{display:grid;justify-items:center;color:#555;line-height:1.05}.recaptcha-mark{color:#1a73e8;font-size:28px}.recaptcha-brand strong{font-size:11px}.recaptcha-brand small{margin-top:3px;font-size:9px}.recaptcha-note{margin:6px 0 0;font-size:11px}
+  </style>
+</head>
+<body class="prototype-library">
+  <main class="recaptcha-demo">
+    <div class="eyebrow"><a href="../../index.html">← Prototype catalog</a></div>
+    <h1>RecaptchaField</h1>
+    <p>Shared visual verification field used by Login and Register.</p>
+    <div class="recaptcha-field">
+      <label for="recaptcha-demo"><input id="recaptcha-demo" type="checkbox" required><span>I'm not a robot</span></label>
+      <span class="recaptcha-brand" aria-hidden="true"><span class="recaptcha-mark">↻</span><strong>reCAPTCHA</strong><small>Privacy · Terms</small></span>
+    </div>
+    <p class="recaptcha-note">Visual prototype. Production must use a provider token verified by the backend.</p>
+  </main>
+</body>
+</html>

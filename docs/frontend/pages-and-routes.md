@@ -28,8 +28,8 @@
 - layout: `Public Layout`
 - Example Prototype: `design/pages/login.html`
 - name: `login`
-- description: `Dedicated public authentication page. Render the LoginForm with email and password fields, a primary Login action, a Create Account link to Register, and visual-only Google, Facebook, and Apple login buttons with their provider icons. Authentication and OAuth authority remain on the backend; the prototype does not create a session or start an OAuth flow.`
-- required shared components: `Button`
+- description: `Dedicated public authentication page. Render the LoginForm with email and password fields, the shared RecaptchaField immediately before the primary Login action, a Create Account link to Register, and the shared SocialAuthButtons for Google, Facebook, and Apple. Authentication, OAuth, and reCAPTCHA verification authority remain on the backend; the prototype does not create a session, start an OAuth flow, or issue a real reCAPTCHA token.`
+- required shared components: `Button`, `RecaptchaField`, `SocialAuthButtons`
 - required feature components: `LoginForm`
 - dependencies: None
 
@@ -39,10 +39,12 @@
 - layout: `Public Layout`
 - Example Prototype: `design/pages/register.html`
 - name: `register`
-- description: `Dedicated public registration page. Render the RegisterForm with first name, surname, email, phone, password, confirm-password, and terms/privacy agreement fields, plus a primary Create Account action and an existing-account link to Login. The prototype does not create an account or implement OTP/MFA.`
-- required shared components: `Button`
+- description: `Dedicated public registration page. Render the RegisterForm with first name, surname, email, phone, password, confirm-password, terms/privacy agreement, and the shared RecaptchaField immediately before the primary Create Account action, plus SocialAuthButtons for Google, Facebook, and Apple and an existing-account link to Login. Social registration requires legal consent before its backend OAuth start request. The prototype does not create an account, issue a real reCAPTCHA token, start OAuth, or implement OTP/MFA.`
+- required shared components: `Button`, `RecaptchaField`, `SocialAuthButtons`
 - required feature components: `RegisterForm`
-- dependencies: None
+- data contract: `POST /api/v1/auth/register` with the form's first name, surname, email, phone, password, legal consent, and provider reCAPTCHA token; confirm password is client-only. A successful `201 Created` response returns the created public user fields and an email-verification-required state; see [integration contract examples](integration-contracts.md#authentication-and-application-session).
+- states: idle, validation error, reCAPTCHA required, submit pending, verification required, conflict, recoverable error, unavailable.
+- dependencies: `AuthStore`
 
 ### Training
 - purpose: `Primary page for real-time training where the user records strokes, sees instant analysis, and receives guidance.`
@@ -53,7 +55,9 @@
 - description: `Follow the referenced Training HTML prototype for the page title, secondary text, section titles, descriptions, fields, labels, buttons/actions, and all other page-level content. The current prototype contains the camera preview/entry area and Coaching Cue, Connection, and Session panels; it contains no collapsible form sections, so do not invent any. Where the referenced prototype contains collapsible form sections, use the existing CollapseForm component. The Training page component owns and creates each such form configuration, deriving its title, secondary description, fields, labels, relevant field configuration, buttons/actions, and other required content directly from that prototype. Supply the corresponding CollapseForm instances through their existing title/description props and page-rendered default/footer slots; Training-specific data, configuration, form handling, and actions belong to the page, while CollapseForm remains generic and reusable. Implement all remaining elements directly as page-level DOM/layout matching the prototype; do not extract static sections into new components. Keep the shared Button for Start Training near the camera preview. Preserve the existing camera/full-screen training modal or camera training flow, reusing its implementation without duplicate camera logic or a second training flow. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
 - required shared components: `Button`; `CollapseForm` only for collapsible form sections present in the referenced prototype (none in the current prototype).
 - required feature components: None
-- dependencies: None
+- data contract: Create the session with `POST /api/v1/training/sessions` before connecting to the backend-issued analysis WebSocket. Finish normally with `POST /api/v1/training/sessions/{sessionId}/complete`; use `POST /api/v1/training/sessions/{sessionId}/abandon` for cancellation or early exit. Reconnect keeps the same session id. See [integration contract examples](integration-contracts.md#training-session-and-analysis-transport).
+- states: idle, creating session, ready, connecting, live, reconnecting, completing, complete, abandoning, incomplete, recoverable error, unavailable.
+- dependencies: `AuthStore`, `TrainingSessionStore`
 
 ### Pricing
 - purpose: `Pricing page, presents the available subscription plans and helps users choose the right plan`
@@ -142,11 +146,11 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - Route: `/subscription`
 - Layout: `Authentication Layout`
 - Example Prototype: `design/pages/subscription.html`
-- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Change plan and Manage billing actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
+- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Use one PaymentStatusCard implementation for the payment pending, success, failed, and cancelled return-state presentations; do not duplicate the card structure. Change plan, Manage billing, and payment-status actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
 - required shared components: `PaymentCardPlan`, `BillingDetailsCard`
-- required feature components: None
+- required feature components: `PaymentStatusCard`
 - data contract: `GET /api/v1/billing/subscription` and provider-hosted customer portal; see [integration contract examples](integration-contracts.md#checkout-and-billing).
-- states: loading, no active subscription, active, pending change, recoverable error, unavailable.
+- states: loading, no active subscription, active, pending change, payment pending, payment success after backend verification, payment failed, payment cancelled, recoverable error, unavailable.
 - dependencies: None
 
 ### Profile

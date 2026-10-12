@@ -17,6 +17,7 @@ function component(path, bindings = {}) {
 const Button = component('../design/components/buttons/Button.vue', { useButtonController })
 const PaymentCardPlan = component('../components/cards/PaymentCardPlan.vue', { Button })
 const BillingDetailsCard = component('../components/cards/BillingDetailsCard.vue', { Button })
+const PaymentStatusCard = component('../components/cards/PaymentStatusCard.vue', { Button })
 const node = type => ({ type, props: {}, children: [], text: '', parent: null })
 const renderer = Vue.createRenderer({
   createElement: node, createText: text => ({ ...node('#text'), text }),
@@ -86,4 +87,39 @@ test('Pricing navigates to Register while Subscription retains its demo actions'
     }
     app.unmount()
   }
+})
+
+test('PaymentStatusCard reuses one component for all four visual-only states', () => {
+  const states = {
+    pending: ['Payment pending', 'Check status again'],
+    success: ['Payment successful', 'View subscription'],
+    failed: ['Payment failed', 'Try again'],
+    cancelled: ['Payment cancelled', 'Return to checkout'],
+  }
+
+  for (const [status, expected] of Object.entries(states)) {
+    const root = node('root')
+    let actions = 0
+    const app = renderer.createApp({
+      setup: () => () => Vue.h(PaymentStatusCard, { status, onAction: () => actions++ }),
+    })
+    app.mount(root)
+    const article = all(root).find(n => n.type === 'article')
+    assert.match(article.props.class, new RegExp(`payment-status-card--${status}`))
+    for (const value of expected) assert.match(text(root), new RegExp(value))
+    const action = all(root).find(n => n.type === 'button')
+    action.props.onClick({ type: 'click' })
+    assert.equal(actions, 1)
+    app.unmount()
+  }
+})
+
+test('Subscription links every payment status to the shared design prototype', () => {
+  const subscription = readFileSync(new URL('../design/pages/subscription.html', import.meta.url), 'utf8')
+  const prototype = readFileSync(new URL('../design/components/cards/payment-status-card.html', import.meta.url), 'utf8')
+  for (const status of ['pending', 'success', 'failed', 'cancelled']) {
+    assert.match(subscription, new RegExp(`payment-status-card\\.html\\?status=${status}`))
+    assert.match(prototype, new RegExp(`\\?status=${status}`))
+  }
+  assert.match(prototype, /payment-status\/main\.js/)
 })

@@ -1,6 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 import Button from '../../design/components/buttons/Button.vue'
+import RecaptchaField from '../fields/RecaptchaField.vue'
+import SocialAuthButtons from './SocialAuthButtons.vue'
 
 defineProps({
   loginHref: { type: String, default: 'login.html' },
@@ -8,6 +10,8 @@ defineProps({
 
 const password = ref('')
 const confirmPassword = ref('')
+const legalConsentAccepted = ref(false)
+const recaptchaVerified = ref(false)
 const message = ref('')
 
 function submitRegistration() {
@@ -15,9 +19,22 @@ function submitRegistration() {
     message.value = 'Passwords must match.'
     return
   }
+  if (!recaptchaVerified.value) {
+    message.value = 'Complete the reCAPTCHA check before creating an account.'
+    return
+  }
   password.value = ''
   confirmPassword.value = ''
+  recaptchaVerified.value = false
   message.value = 'Prototype only. No account was created and no details were sent.'
+}
+
+function previewSocialRegistration(provider) {
+  if (!legalConsentAccepted.value) {
+    message.value = 'Accept the Terms of Service and Privacy Policy before continuing.'
+    return
+  }
+  message.value = `${provider} registration is a visual prototype only. No OAuth flow was started.`
 }
 </script>
 
@@ -54,12 +71,18 @@ function submitRegistration() {
           <input id="register-confirm-password" v-model="confirmPassword" name="confirm_password" type="password" autocomplete="new-password" placeholder="Repeat your password" minlength="12" required />
         </div>
         <label class="agreement wide" for="register-agreement">
-          <input id="register-agreement" name="agreement" type="checkbox" required />
+          <input id="register-agreement" v-model="legalConsentAccepted" name="agreement" type="checkbox" required />
           <span>I agree to the Terms of Service and Privacy Policy.</span>
         </label>
+        <div class="wide">
+          <RecaptchaField id="register-recaptcha" v-model="recaptchaVerified" />
+        </div>
       </div>
       <Button class="auth-submit" type="submit">Create Account</Button>
     </form>
+
+    <div class="auth-divider"><span>or continue with</span></div>
+    <SocialAuthButtons action-label="Continue" @select="previewSocialRegistration" />
 
     <p v-if="message" class="auth-status" role="status" aria-live="polite">{{ message }}</p>
     <p class="auth-switch">Already have an account? <a :href="loginHref">Login</a></p>
@@ -79,6 +102,8 @@ input:focus-visible, a:focus-visible { outline: 2px solid var(--accent2, #65e8ff
 .agreement { display: flex; align-items: flex-start; gap: 11px; color: var(--text, #f4f7f5); }
 .agreement input { width: 16px; height: 16px; margin: 3px 0 0; accent-color: var(--accent, #b7ff4a); }
 .auth-submit { width: 100%; margin-top: 22px; }
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 24px 0 16px; color: var(--muted, #a8b5ae); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+.auth-divider::before, .auth-divider::after { content: ''; height: 1px; flex: 1; background: var(--border, rgba(255,255,255,.12)); }
 .auth-status { margin: 18px 0 0; padding: 12px 14px; border: 1px solid rgba(183,255,74,.38); border-radius: 12px; background: #1a3021; font-size: 13px; }
 .auth-switch { margin: 22px 0 0; text-align: center; font-size: 14px; }
 .auth-switch a { color: var(--accent, #b7ff4a); font-weight: 700; }

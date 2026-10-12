@@ -17,6 +17,7 @@
     .auth-static-socials{display:grid;gap:10px}
     .auth-static-socials .btn{gap:10px}
     .auth-static-socials svg{width:20px;height:20px;flex:0 0 20px}
+    .recaptcha-static{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:78px;margin-bottom:18px;padding:12px 14px;border:1px solid #c9c9c9;border-radius:4px;background:#f9f9f9;color:#1f1f1f}.recaptcha-static label{display:flex;align-items:center;gap:12px;color:#1f1f1f;font-size:15px}.recaptcha-static input{width:28px;height:28px;margin:0;accent-color:#1a73e8}.recaptcha-static__brand{display:grid;justify-items:center;color:#555;line-height:1.05}.recaptcha-static__mark{color:#1a73e8;font-size:28px}.recaptcha-static__brand strong{font-size:11px}.recaptcha-static__brand small{margin-top:3px;font-size:9px}.recaptcha-static-note{margin:-12px 0 18px;font-size:11px}
     .auth-static-switch{margin:22px 0 0;text-align:center;font-size:14px}
     .auth-static-switch a{color:var(--accent);font-weight:700}
     @media(max-width:530px){.auth-static-main{padding:30px 0 50px}.auth-static-card{padding:24px 18px}}
@@ -44,6 +45,11 @@
               <label for="login-password-static">Password</label>
               <input id="login-password-static" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
             </div>
+            <div class="recaptcha-static">
+              <label for="login-recaptcha-static"><input id="login-recaptcha-static" name="recaptcha_confirmation" type="checkbox" required><span>I'm not a robot</span></label>
+              <span class="recaptcha-static__brand" aria-hidden="true"><span class="recaptcha-static__mark">↻</span><strong>reCAPTCHA</strong><small>Privacy · Terms</small></span>
+            </div>
+            <p class="recaptcha-static-note">Visual prototype. Production must use a provider token verified by the backend.</p>
             <button class="btn primary" type="submit">Login</button>
           </form>
           <div class="auth-static-divider"><span>or continue with</span></div>
