@@ -161,44 +161,48 @@ Backend communication, API access, and external integration logic should be plac
 
 The frontend may perform lightweight frame capture, resizing, throttling, or formatting for transport. It must not perform computer-vision inference.
 
-### Analysis Client
+### Training / Live Analysis Workflow
 
-The frontend first creates the authenticated training session through the REST lifecycle contract, then uses the backend-issued short-lived WebSocket URL for live analysis. Normal completion submits the received contiguous feedback set; early exit abandons the same session as incomplete. The session endpoints, proposed versioned WebSocket envelope, frame metadata, result handling, stop, error, and reconnect behavior are specified in [integration contract examples](integration-contracts.md#training-session-and-analysis-transport). Reconnect keeps the same session identity and does not create a second session. No browser inference or fabricated results are allowed.
+The frontend orchestrates live training in this order without performing computer-vision inference, stroke recognition, coaching decisions, or Text-to-Speech itself:
+
+1. The user starts training and the frontend creates an authenticated session. See [Training session endpoints — `POST /api/v1/training/sessions`](integration-contracts.md#training-session-endpoints).
+2. The response supplies the authoritative `sessionId` and short-lived `analysisWebSocketUrl`; the frontend opens that backend-issued URL and never constructs an analysis host itself.
+3. Camera capture and frame sampling begin only when the training session and socket state permit them.
+4. For each selected frame, the frontend sends the JSON metadata message and then its matching binary JPEG without interleaving another frame pair. See [Live analysis WebSocket — Client-to-server frame message](integration-contracts.md#client-to-server-frame-message).
+5. The backend receives frames over time, performs temporal analysis, and decides internally when enough evidence exists to identify and evaluate a completed stroke. The frontend does not impose a fixed frame count or infer stroke boundaries.
+6. The backend assigns the stroke's `strokeId` and `strokeNumber` and may return one or more `player_feedback` events. See [Live analysis WebSocket — Server-to-client `player_feedback` message](integration-contracts.md#server-to-client-player_feedback-message).
+7. The frontend validates the event's active `sessionId`, displays supported coaching text, and never fabricates missing observations or advice.
+8. When audio is enabled and `audioUrl` is present, the frontend plays that temporary backend-generated resource. It does not generate provider-side TTS, upload coaching audio, or treat temporary audio as persistent session history. Text remains the canonical feedback.
+9. If the socket disconnects, the frontend stops sending frames and presents an explicit disconnected state. A user-visible retry follows the active-session connection rules and does not silently create a new session.
+10. Normal stop ends capture immediately, prevents later frame sends, sends the documented `stop_analysis` message, and completes the session. Early exit abandons the session as incomplete. Socket close, permission loss, or transport failure becomes an explicit unavailable/disconnected state rather than silently starting a new session. See [Training session endpoints](integration-contracts.md#training-session-endpoints) and [Live analysis WebSocket](integration-contracts.md#live-analysis-websocket).
 
 ### Audio Output
 
-The proposed `coaching_audio` event shape, instruction priority, optional authenticated audio resource, and playback failure boundary are specified in [integration contract examples](integration-contracts.md#training-session-and-analysis-transport).
-
-- Receive audio playback commands through the `Analysis Client`.
-- Play coaching audio when requested by the backend.
-- Start, stop, pause, resume, or interrupt audio playback when required.
-- Prevent multiple coaching audio messages from overlapping.
-- PQueue audio coaching instructions to play sequentially, without interrupting earlier messages.
-- Handle audio playback failures and unavailable audio resources.
-- Keep audio playback logic separate from backend communication and analysis logic.
-- Release audio playback resources when they are no longer needed.
-
+- Play optional `audioUrl` resources delivered with current-session `player_feedback` when audio is enabled.
+- Queue playback so coaching clips do not overlap, and allow current playback to stop when training ends or newer product rules require replacement.
+- Treat unavailable, expired, or failed audio playback as local UI state; it does not change textual feedback or analysis/session truth.
+- Release playback resources when they are no longer needed.
 
 ### Coaching Feedback
 
-- Receive coaching feedback data through the `Analysis Client`.
-- Process feedback for the current training session.
-- Display short coaching messages or status information immediately when critical, or queue them to align with the training flow when non-urgent.
-Receive stroke-specific feedback from the backend for individual strokes.
-- Receive successful-stroke information from the backend when available.
-- Receive detected-mistake information from the backend when available.
-- Receive coaching recommendations from the backend during the active training session.
-- May receive the completed training summary and collected session feedback from the backend when the training session is completed.
+- Process only feedback for the active training session and preserve its backend-issued stroke identity and number.
+- Display backend-supplied successful-stroke, detected-mistake, and recommendation text without generating coaching advice in the browser.
+- Present incomplete, low-confidence, and disconnected states honestly.
+- Use the backend's canonical completed-session summary for History and Session Review.
 
 ### Authentication
 
 The authentication requirements are defined below .
 
-The corresponding technical frontend/backend API contracts for cookie-backed sessions, login and registration, multi-factor authentication, OAuth redirects, logout, session expiry, and authentication error responses are defined in [integration contract examples](integration-contracts.md) under `Authentication and application sessions`.
+The technical request/response definitions are in [Frontend Integration Contract Examples — Authentication and application session](integration-contracts.md#authentication-and-application-session), including the OAuth start/callback endpoints, `POST /api/v1/auth/login`, `POST /api/v1/auth/register`, `POST /api/v1/auth/challenges/{challengeId}/verify`, `POST /api/v1/auth/refresh`, and `POST /api/v1/auth/logout`. This section owns the frontend sequence and UI behavior; it does not repeat those schemas.
 
 Credentials, session validation, and authorization authority remain the responsibility of the backend.
 
 - Provide token-based authentication with login, logout, access-token refresh, and multi-factor verification flows.
+
+- For OAuth, request the backend-owned provider authorization URL, navigate to it, and handle the validated callback outcome after the backend completes provider exchange. Never expose provider tokens or secrets in frontend state or URLs.
+
+- When Login returns an MFA challenge, show only the methods offered for that `challengeId`, submit the selected verification method/code, and create authenticated frontend state only after successful verification.
 
 - Display the sign-in UI whenever authentication is required.
 
@@ -234,9 +238,7 @@ Credentials, session validation, and authorization authority remain the responsi
 
 ### Subscription
 
-The frontend owns the user-facing subscription and checkout flow.
-The integration contracts referenced here define the subscription and checkout contracts between the frontend and backend for subscriptions
-[integration contract examples](integration-contracts.md#Checkout-and-billing).
+The frontend owns the user-facing subscription and checkout flow. Exact request, response, verified status, and payment-data boundaries are defined in [Frontend Integration Contract Examples — Checkout and billing](integration-contracts.md#checkout-and-billing); they are not duplicated here.
 
 - When the user starts a subscription checkout, the frontend sends a request to the backend. The backend creates a Stripe Checkout Session and returns the Stripe-hosted checkout URL. The frontend then redirects the user to the Stripe Checkout page.
 
@@ -290,6 +292,21 @@ The Training page may prioritize larger screens but must provide a safe and unde
 ## Required Application States
 
 Applicable pages and features must define initial, loading, empty, success, validation, recoverable error, unavailable, and disconnected states. The page-by-page matrix and recovery behavior are defined in [pages-and-routes.md](pages-and-routes.md#application-state-matrix); example data and transport distinctions are in [integration-contracts.md](integration-contracts.md). In particular, distinguish empty from unavailable, signed-out from session-check failure, and partial analysis from a complete result.
+
+Frontend recovery behavior follows these orchestration rules:
+
+| Surface | Empty / insufficient data | Recoverable failure | Unavailable / disconnected | Frontend recovery |
+| --- | --- | --- | --- | --- |
+| Dashboard | Show an honest empty state when no sessions or supported focus exist | Offer retry without inventing data | Preserve the shell and explain that data cannot be loaded | Retry the dashboard request; keep Training and History navigation available |
+| History | Treat an empty session list as successful | Preserve the current cursor and offer retry | Explain that history is unavailable | Retry the current list request without inventing rows |
+| Session Review | Use safe not-found/unauthorized/insufficient states | Preserve the session route and offer retry | Explain that review is unavailable | Retry or return to History |
+| Progress | Show `insufficient_data` or no measurements honestly | Preserve the selected range and offer retry | Explain that progress data is unavailable | Retry the same range; never generate focus locally |
+| Training | Treat no analysis data as waiting, not a zero-valued result | Stop frame sending after transport failure and expose reconnect/stop | Distinguish camera/device failure from analysis disconnect | Retry only through a user-visible action and retain the active `sessionId` |
+| Subscription / Checkout | Distinguish no active subscription from unknown status | Preserve the selected plan and offer retry | Explain billing/provider unavailability | Re-fetch backend state; never infer payment success from a redirect |
+| Profile / Settings | Keep optional empty values empty | Preserve last confirmed values and user input | Keep the local page usable while identifying unavailable persistence | Retry load/save and never claim an unsuccessful save |
+| Authentication | Distinguish standard sign-in from an explicit challenge | Preserve non-secret fields and field errors | Keep authentication unknown when lookup/refresh is unavailable | Retry lookup/request; clear secrets after terminal failure |
+
+A `401 Unauthorized` starts the documented refresh/sign-in recovery flow when appropriate; a `403 Forbidden` remains an authorization failure and does not log the user out. Network failure alone never proves logout, successful completion, or successful payment. Sensitive transient values are cleared on logout, challenge expiry, or terminal authentication failure.
 
 Do not present fabricated analysis, session, progress, or subscription data as real.
 

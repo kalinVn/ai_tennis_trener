@@ -30,7 +30,7 @@ Authentication values have separate purposes and are not interchangeable:
 - `recaptchaToken` is a short-lived anti-abuse proof obtained from the reCAPTCHA provider for the email/password Login or Register submission. The backend verifies it once and does not use it as an application session token.
 - OAuth `code` and `state` belong only to the Google, Facebook, or Apple redirect/callback flow. The provider sends them to the backend callback; they are not Login form fields.
 - `challengeId` identifies a short-lived Login MFA challenge after the password and reCAPTCHA step succeeds. It contains no OTP and grants no session by itself.
-- `accessToken` authorizes application API calls and remains in frontend memory.
+- `accessToken` authorizes application API calls through the `Authorization: Bearer <accessToken>` header.
 - The refresh token is an application-session credential stored only in a Secure, HttpOnly, SameSite cookie.
 
 Example endpoints:
@@ -61,7 +61,7 @@ Example endpoints:
   }
   ```
 
-  The backend validates `provider`, permits only an internal allowlisted `returnTo`, creates short-lived OAuth state and PKCE values plus an OIDC nonce where supported, stores them in a Secure, HttpOnly, SameSite cookie, and returns a provider authorization URL. The frontend then navigates the browser to that URL. It never sends the password form or a provider client secret to Google, Facebook, or Apple.
+  The backend validates `provider`, permits only an internal allowlisted `returnTo`, creates short-lived OAuth state and PKCE values plus an OIDC nonce where supported, stores them in a Secure, HttpOnly, SameSite cookie, and returns a provider authorization URL. The password form and provider client secrets are never transmitted to Google, Facebook, or Apple by frontend code.
 
   ```json
   {
@@ -71,7 +71,7 @@ Example endpoints:
 
 - `GET /api/v1/auth/oauth/{provider}/callback` receives the provider's authorization code and state. The backend validates state, exchanges the code directly with the selected provider, validates the provider response and verified-email signal, and reads the permitted identity claims such as provider subject, name, and email. Provider access and ID tokens stay on the backend and are never placed in application URLs or browser storage.
 
-  For `login`, the backend signs in the already-linked identity. For `register`, it creates or safely links the account only after the required legal consent; ambiguous email matches require an explicit account-linking flow rather than automatic linking. On success it issues the normal Secure refresh cookie and redirects to the validated internal callback page. The frontend obtains its short-lived application access token through the normal refresh endpoint. Cancelled, denied, invalid-state, provider-error, and account-link-required outcomes use explicit safe status codes without placing tokens or raw provider errors in the redirect URL.
+  For `login`, the backend signs in the already-linked identity. For `register`, it creates or safely links the account only after the required legal consent; ambiguous email matches require an explicit account-linking flow rather than automatic linking. On success it issues the normal Secure refresh cookie and redirects to the validated internal callback page. Cancelled, denied, invalid-state, provider-error, and account-link-required outcomes use explicit safe status codes without placing tokens or raw provider errors in the redirect URL.
 
 
 - `POST /api/v1/auth/login`
@@ -104,8 +104,6 @@ Example endpoints:
 
   A long-lived refresh token is issued separately as an `HttpOnly`, `Secure`, `SameSite` cookie and is never exposed to frontend JavaScript.
 
-  The frontend keeps the access token in application memory and sends it with protected API requests using `Authorization: Bearer <accessToken>`.
-
   If multi-factor authentication is required, the endpoint returns a challenge instead of tokens, for example:
 
   ```json
@@ -121,7 +119,7 @@ Example endpoints:
 
   Invalid credentials return `401 Unauthorized`.
 
-  When Login returns an MFA challenge, `POST /api/v1/auth/challenges/{challengeId}/verify` completes that Login challenge.
+  `POST /api/v1/auth/challenges/{challengeId}/verify` completes the identified Login MFA challenge.
 
   — request body:
 
@@ -178,7 +176,7 @@ Example endpoints:
   }
   ```
 
-  The backend rotates the refresh token on every successful use, invalidates the previous value, and sends the replacement in a new Secure, HttpOnly, SameSite cookie. The frontend keeps the returned access token only in application memory. Missing, invalid, expired, revoked, or reused refresh tokens return `401 Unauthorized` without an access token.
+  The backend rotates the refresh token on every successful use, invalidates the previous value, and sends the replacement in a new Secure, HttpOnly, SameSite cookie. Missing, invalid, expired, revoked, or reused refresh tokens return `401 Unauthorized` without an access token.
 
 - `POST /api/v1/auth/logout`
   — request:
@@ -190,7 +188,7 @@ Example endpoints:
   Content-Length: 0
   ```
 
-  The request has no JSON body. The browser sends the refresh-token cookie automatically, together with the required CSRF proof. The frontend clears its in-memory access token regardless of the server result.
+  The request has no JSON body. The browser sends the refresh-token cookie automatically, together with the required CSRF proof.
 
   Successful logout returns:
 
@@ -247,14 +245,9 @@ For Login and Register, `recaptchaToken` is a short-lived provider token, not th
 
 - Protected API endpoints require the access token in the HTTP header `Authorization: Bearer <accessToken>`. The backend validates the JWT signature, expiration time, issuer/audience where applicable, and required authorization claims before processing the request.
 
-- Google, Facebook, and Apple sign-in use the backend-owned OAuth start/callback flows above. After successful provider authentication, the backend issues the same application session used by password authentication. The frontend handles redirect, pending, cancelled, denied, account-link-required, and recoverable failure states and never handles provider client secrets or provider tokens.
+- Google, Facebook, and Apple sign-in use the backend-owned OAuth start/callback contracts above and issue the same application session used by password authentication. Provider client secrets and provider tokens are never exposed to frontend code.
 
-A protected request returning `401 Unauthorized` means that the access token is missing, invalid, or expired. When appropriate, the frontend first attempts `POST /api/v1/auth/refresh`. If refresh succeeds, it retries the original request once with the new access token. If refresh fails, the frontend clears its local authentication state and returns to the Login page while preserving a validated internal `returnTo`.
-
-A `403 Forbidden` response means that the user is authenticated but does not have permission to perform the requested operation and must not be treated as logged out.
-
-A network failure while calling `/auth/refresh` is treated as authentication status `unavailable`, not immediately as signed out.
-A protected request returning `401` clears local session state and returns to the Login page while preserving a validated internal `returnTo`. A `403` is an authorization failure and must not be treated as logged out. A session lookup network failure is `unavailable`, not signed out.
+`401 Unauthorized` means that the access token is missing, invalid, or expired. `403 Forbidden` means that the authenticated principal lacks permission. These meanings are part of the HTTP contract; frontend recovery and navigation behavior are defined in `frontend.md`.
 
 ## Training session and analysis transport
 
@@ -262,7 +255,7 @@ A protected request returning `401` clears local session state and returns to th
 
 - `POST /api/v1/training/sessions`
 
-  Creates a new training session for the currently authenticated user. The frontend calls this endpoint when the user starts a new training session, before opening the analysis WebSocket and before sending camera frames. The authenticated user comes from the current access token, so the frontend does not send a `userId`.
+  Creates a new training session for the authenticated user. The authenticated principal comes from the access token; the request contains no `userId`.
 
   — request:
 
@@ -286,7 +279,7 @@ A protected request returning `401` clears local session state and returns to th
 
   `sessionId` uniquely identifies this training session. `status: "ready"` means that the session was created successfully and is ready for live analysis. `analysisWebSocketUrl` is a short-lived authenticated WebSocket URL generated by the backend.
 
-  After receiving the response, the frontend opens the returned WebSocket URL and only then begins sending camera frames. It must not construct its own analysis WebSocket URL. Reconnecting an already active session keeps the same `sessionId` and must not silently create another session.
+  `analysisWebSocketUrl` is backend-issued and must not be replaced with a client-constructed or untrusted host. Reconnection for the same active session retains the same `sessionId`.
 
 - `POST /api/v1/training/sessions/{sessionId}/complete`
 
@@ -297,24 +290,10 @@ A protected request returning `401` clears local session state and returns to th
   ```http
   POST /api/v1/training/sessions/{sessionId}/complete HTTP/1.1
   Authorization: Bearer <accessToken>
-  Content-Type: application/json
+  Content-Length: 0
   ```
 
-  — request body:
-
-  ```json
-  {
-    "feedbackEventIds": [
-      "server-event-id-1",
-      "server-event-id-2"
-    ],
-    "lastContiguousFeedbackSequence": 2
-  }
-  ```
-
-  `feedbackEventIds` contains the stable server-issued IDs of the feedback events received for this training session. `lastContiguousFeedbackSequence` is the highest sequence for which the frontend has every feedback event from sequence `1` through that value without gaps.
-
-  The backend verifies that the session belongs to the authenticated user, verifies that the supplied events belong to that session, safely handles duplicate IDs, and confirms that the frontend has received the complete contiguous feedback stream. If required feedback is missing, the backend does not silently complete the session; it returns the documented `FEEDBACK_CATCH_UP_REQUIRED` error so the frontend can recover the missing feedback and retry.
+  The request has no JSON body. The backend verifies that the session belongs to the authenticated user and finalizes the feedback and summary already associated with that session.
 
   — response body:
 
@@ -323,7 +302,6 @@ A protected request returning `401` clears local session state and returns to th
     "sessionId": "session_123",
     "status": "complete",
     "completedAt": "2026-10-12T09:00:00Z",
-    "finalFeedbackSequence": 2,
     "summary": {
       "successfulStrokes": 1,
       "detectedMistakes": 0,
@@ -332,11 +310,11 @@ A protected request returning `401` clears local session state and returns to th
   }
   ```
 
-  After successful completion, the backend finalizes and persists the canonical session result for History and Session Review. The operation is idempotent for the same training session and the same valid feedback-event set.
+  A successful response means the canonical session result has been finalized and persisted for History and Session Review. The operation is idempotent for the same training session.
 
 - `POST /api/v1/training/sessions/{sessionId}/abandon`
 
-  Ends an active training session as incomplete when the user cancels, exits early, or otherwise stops before the normal finalization flow. The URL identifies the session that must be abandoned.
+  Ends the identified active training session with `status: "incomplete"` instead of completing it.
 
   — request:
 
@@ -358,11 +336,13 @@ A protected request returning `401` clears local session state and returns to th
   }
   ```
 
-  The backend marks the session as incomplete instead of complete. It may still appear in History with `status: "incomplete"`, but the UI must not present it as successfully completed. The operation is idempotent: repeating it for an already abandoned session leaves it incomplete and does not create another session.
+  The incomplete result may be returned by History but is never equivalent to a completed session. The operation is idempotent: repeating it for an already abandoned session leaves it incomplete and does not create another session.
 
 ### Live analysis WebSocket
 
 The authenticated WebSocket URL is short-lived and issued by the backend; the frontend does not construct it from an untrusted host. The example wire protocol sends JSON frame metadata immediately before the matching binary JPEG message:
+
+#### Client-to-server frame message
 
 ```json
 {
@@ -375,23 +355,26 @@ The authenticated WebSocket URL is short-lived and issued by the backend; the fr
 }
 ```
 
-The JSON above is the first WebSocket message for one frame. It does not contain the image data. Immediately after it, the frontend sends a second WebSocket message containing the raw JPEG bytes:
+Field contract:
+
+- `type` is required and equals `frame`.
+- `frameId` is a required opaque identifier for this transmitted frame.
+- `capturedAt` is the required UTC ISO-8601 capture timestamp.
+- `mimeType` is required and equals `image/jpeg` for this protocol version.
+- `width` and `height` are required positive integer pixel dimensions of the encoded image.
+
+The metadata is the first WebSocket message for one frame and contains no image bytes. The immediately following message contains the matching raw JPEG bytes:
 
 ```text
 WebSocket message 1 (text):   JSON frame metadata
 WebSocket message 2 (binary): <raw JPEG bytes for that frame>
 ```
 
-Conceptually, the send sequence is:
+The JPEG is binary, not Base64 or a JSON field. Metadata and binary payload form an ordered pair; another frame's metadata must not be interleaved between them.
 
-```js
-socket.send(JSON.stringify(frameMetadata))
-socket.send(jpegBlob)
-```
+Frames are analysis inputs and do not individually imply a feedback event. Stroke-level feedback may be returned through the message below; backend aggregation and stroke-completion detection are not part of this wire contract.
 
-`jpegBlob` is the image itself, produced from the camera frame by `canvas.toBlob(..., "image/jpeg", ...)`. It is sent as binary data and is not Base64-encoded or placed in a JSON field. WebSocket preserves message order, so the backend associates the binary message with the metadata message immediately before it. The client must not interleave another frame's metadata between this pair.
-
-The backend consumes and aggregates successive frame pairs for the active session. Frames are analysis input, not individual feedback events. The backend determines when a stroke has finished, evaluates the completed stroke from the aggregated evidence, and only then sends a versioned `player_feedback` event. The frontend does not infer stroke boundaries, combine per-frame results into feedback, or create coaching text locally.
+#### Server-to-client `player_feedback` message
 
 Server-to-client text messages use a versioned envelope. A completed-stroke feedback event uses server-issued identities and contains only supported feedback:
 
@@ -399,128 +382,437 @@ Server-to-client text messages use a versioned envelope. A completed-stroke feed
 {
   "version": 1,
   "type": "player_feedback",
-  "sessionId": "…",
+  "sessionId": "session_123",
   "payload": {
-    "eventId": "…",
-    "sequence": 43,
-    "strokeId": "…",
-    "kind": "successful_stroke|detected_mistake|recommendation",
-    "occurredAt": "…",
+    "strokeId": "stroke_42",
+    "strokeNumber": 12,
+    "kind": "detected_mistake",
+    "occurredAt": "2026-10-12T09:00:00Z",
     "confidence": 0.91,
-    "text": "Prepare earlier before contact.",
-    "audioUrl": "https://api.example.com/temporary-audio/…"
+    "text": "Contact the ball earlier.",
+    "audioUrl": "https://api.example.com/temporary-audio/event_45"
   }
 }
 ```
 
-`strokeId` identifies the completed stroke to which this feedback belongs. `confidence` is in `[0, 1]`, and `text` is backend-generated, safe user-facing feedback for that completed stroke. `audioUrl` is optional. When audio is useful, the backend generates it temporarily from `text` through Text-to-Speech and returns an authenticated, short-lived URL. The backend does not keep the generated audio as a permanent training asset or part of the canonical feedback record. The frontend only plays the returned audio; it does not generate, upload, persist, or treat audio playback as analysis/session truth. An unavailable or failed audio playback leaves the text feedback and session state unchanged.
+Field contract:
 
-`sequence` is a positive, monotonically increasing integer scoped only to one training session's **feedback event stream**. It starts at `1`, is never reused, and remains identical when an event is replayed. It is not a frame sequence, frame count, stroke number, or count of completed strokes. Multiple frames may contribute to one completed stroke and one feedback event, and a completed stroke does not imply any particular `sequence` value beyond its feedback ordering.
+- `version` is required and equals `1`, the current WebSocket schema version.
+- `type` is required and equals `player_feedback`.
+- `sessionId` is required and identifies the active training session.
 
-`eventId`, `sequence`, `strokeId`, `kind`, `occurredAt`, `confidence`, and `text` form the stable feedback content used for replay and reconciliation. `eventId` is stable across replay. The optional expiring `audioUrl` is transient delivery metadata: it is excluded from stable-content equality and canonical summaries, and replay may omit it or provide a newly issued temporary URL. The frontend stores events by `eventId`, ignores an exact duplicate with the same stable sequence and content, treats a conflicting duplicate as a protocol error, and tracks supported successful strokes, mistakes, and recommendations without inventing any.
+- `payload.strokeId` is a required opaque, server-generated identifier for one detected tennis stroke. Feedback events for the same stroke use the same `strokeId`; different strokes use different identifiers.
+- `payload.strokeNumber` is a required positive ordinal assigned by the backend to the detected stroke within the training session. It starts at `1` and increases for each newly detected stroke; it is not a frame number or frame count.
+- `payload.kind` is required and is one of `successful_stroke`, `detected_mistake`, or `recommendation`.
+- `payload.occurredAt` is a required UTC ISO-8601 timestamp associated with the feedback/stroke event.
+- `payload.confidence` is a required number from `0` to `1` expressing the backend's confidence in this stroke-level result.
+- `payload.text` is optional human-readable coaching feedback. When present, it is the canonical persisted coaching content.
+- `payload.audioUrl` is optional. When present, it is an authenticated, temporary, expiring URL for backend-generated Text-to-Speech audio corresponding to `text`. Permanent generated-audio persistence is not guaranteed; audio may be regenerated later from persisted text.
 
-`frameId` remains only in the client-to-server frame metadata so the transport can identify the metadata/JPEG pair. It is not included in aggregated `player_feedback`, replayed feedback, or the persisted canonical session summary.
+`strokeId`, `strokeNumber`, `kind`, `occurredAt`, `confidence`, and `text` form the stable feedback content for the completed stroke. The optional `audioUrl` is transient delivery metadata, is excluded from canonical summaries, and may be omitted or newly issued when the feedback is retrieved later.
 
-Other server message types remain `analysis_started`, `analysis_unavailable`, `analysis_error`, and `session_status`.
+`frameId` remains only in the client-to-server frame metadata so the transport can identify the metadata/JPEG pair. It is not included in aggregated `player_feedback` or the persisted canonical session summary.
 
-### Feedback ordering, replay, and catch-up
+Other valid server message discriminators are `analysis_started`, `analysis_unavailable`, `analysis_error`, and `session_status`; their payload schemas require backend confirmation before use.
 
-The following fixture contract is authoritative for frontend planning and tests until backend/product owners either adopt it or replace it with a versioned equivalent:
+#### Client-to-server `stop_analysis` message
 
-1. The client tracks `lastContiguousFeedbackSequence`, not merely the largest sequence observed. Sequence `n` advances that cursor only after every event from `1` through `n` is present. A later event is held in a bounded buffer while a gap exists and is not included in completion.
-2. After reconnecting with a new backend-issued WebSocket URL for the same active `sessionId`, the client sends:
-
-```json
-{ "version": 1, "type": "resume_session", "sessionId": "…", "afterFeedbackSequence": 42 }
-```
-
-3. The server snapshots the replay high-water mark and responds with `replay_started`, replays the missing `player_feedback` events in strict sequence order, and finishes with `replay_complete`:
-
-```json
-{ "version": 1, "type": "replay_started", "sessionId": "…", "afterFeedbackSequence": 42, "throughFeedbackSequence": 57 }
-{ "version": 1, "type": "player_feedback", "sessionId": "…", "payload": { "eventId": "…", "sequence": 43, "strokeId": "…", "kind": "recommendation", "occurredAt": "…", "confidence": 0.91, "text": "…" } }
-{ "version": 1, "type": "replay_complete", "sessionId": "…", "throughFeedbackSequence": 57 }
-```
-
-The server does not interleave newer live feedback before `replay_complete`; subsequent live events continue at `58` or higher. A replay with no missing events still sends both boundary messages with equal `afterFeedbackSequence` and `throughFeedbackSequence`. Receiving a sequence greater than `lastContiguousFeedbackSequence + 1` triggers the same `resume_session` request from the current contiguous cursor. The client uses bounded exponential backoff for transport retries and a bounded out-of-order buffer; exceeding either bound presents an explicit incomplete/disconnected state rather than dropping the gap.
-
-The server may also send `{ "version": 1, "type": "feedback_checkpoint", "sessionId": "…", "latestFeedbackSequence": 57 }`. The checkpoint contains no feedback data; it lets the client determine whether its contiguous cursor is current. `replay_complete.throughFeedbackSequence` is the required checkpoint after every reconnect.
-
-If replay is no longer available, the server returns:
+Analysis stop uses this message:
 
 ```json
-{ "version": 1, "type": "replay_unavailable", "sessionId": "…", "reason": "retention_expired|session_closed", "reviewAvailable": true }
+{ "version": 1, "type": "stop_analysis", "sessionId": "…" }
 ```
 
-The client then loads `GET /api/v1/training/sessions/{sessionId}/review`, whose persisted events include their original `eventId` and `sequence`, and rebuilds the same contiguous set. Persisted review events do not depend on a temporary `audioUrl`; replay or review may omit audio or provide a newly issued temporary URL without changing feedback identity or ordering. If neither replay nor a complete canonical review is available, feedback remains explicitly incomplete and the client does not claim successful completion.
-
-On completion the client sends the contiguous event IDs and cursor in the request above. If the server has persisted a later sequence or detects any missing identity, it rejects the request with HTTP `409` and the shared error code `FEEDBACK_CATCH_UP_REQUIRED`:
-
-```json
-{
-  "error": {
-    "code": "FEEDBACK_CATCH_UP_REQUIRED",
-    "message": "Feedback catch-up is required before completion.",
-    "retryable": true,
-    "details": {
-      "resumeAfterFeedbackSequence": 42,
-      "expectedThroughFeedbackSequence": 57
-    }
-  }
-}
-```
-
-The client performs replay or canonical-review reconciliation and retries the idempotent completion request. The server never silently accepts an incomplete event set. `GET /api/v1/training/sessions/{sessionId}/review` returns the persisted events, their stable identities and sequences, and the canonical summary. If the backend instead owns completion without a client event handoff, it must explicitly adopt that alternative and return the same canonical review data.
-
-The client sends `{ "version": 1, "type": "stop_analysis", "sessionId": "…" }` before closing the socket. Stop aborts capture immediately and prevents any later frame sends. Socket close, tab suspension, permission loss, and recoverable errors transition to explicit unavailable/disconnected states. Reconnect is allowed only while the session is active, uses backend-issued credentials, keeps the same `sessionId`, and follows the feedback resume protocol above; it must not silently create a second session. The inspected prototype's binary JPEG/WebSocket events remain visual/behavioral reference, not an approved production schema.
+`version` is the schema version, `type` is the `stop_analysis` discriminator, and `sessionId` identifies the active session. After accepting it, the server must not treat later frame messages as part of active analysis. The binary JPEG/WebSocket schemas remain proposed contracts requiring backend adoption or versioned replacement.
 
 ## Session History, Session Review, and Progress data
 
-- `GET /api/v1/training/sessions?cursor={opaqueCursor}&limit={1..50}` returns `{ "items": [{ "id": "…", "startedAt": "…", "durationSeconds": 0, "status": "complete|incomplete", "summary": null }], "nextCursor": null }`.
-- `GET /api/v1/training/sessions/{sessionId}/review` returns the authorized session summary, persisted server-issued feedback events, their canonical successful-stroke/mistake/recommendation summary, supported metrics, and optional key moments. Each measurement includes a value, unit, time range, and provenance/confidence as defined by the server. Missing evidence is `null` with an availability reason; the UI does not infer a result.
-- `GET /api/v1/progress` returns the backend-selected default range. An optional `from` and `to` pair of ISO dates may be supplied only if a later product requirement adds a range control. It returns `{ "range": { "from": "…", "to": "…" }, "measurements": [], "focus": null, "availability": "insufficient_data" }`. Supported measurements include stable identifiers, display labels, units, time buckets, and server-computed values. `focus` is backend-provided or null; frontend code does not generate coaching advice.
+### Session History
 
-History, Review, and Progress distinguish loading, empty, success, partial/insufficient-data, recoverable-error, and unavailable states. A successful empty result is not an error. Stale cached values, if later supported, must be labeled and must not replace a more recent server result.
+- `GET /api/v1/training/sessions?cursor={opaqueCursor}&limit={1..50}`
+
+  Returns the authenticated user's training sessions. `cursor` is an optional opaque pagination cursor. `limit` is optional and must be an integer from `1` to `50`.
+
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "items": [
+      {
+        "id": "session_123",
+        "startedAt": "2026-10-12T08:30:00Z",
+        "durationSeconds": 1800,
+        "status": "complete",
+        "summary": null
+      }
+    ],
+    "nextCursor": null
+  }
+  ```
+
+  `status` is either `complete` or `incomplete`. `nextCursor` is `null` when there is no next page.
+
+  — relevant errors/status codes:
+
+  Authorization failures and invalid query parameters use the shared error envelope with the applicable HTTP status code.
+
+### Session Review
+
+- `GET /api/v1/training/sessions/{sessionId}/review`
+
+  Returns the authorized review for the training session identified by `sessionId`, including persisted server-issued feedback, the canonical successful-stroke/mistake/recommendation summary, supported measurements, and optional key moments.
+
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "sessionId": "session_123",
+    "status": "complete",
+    "summary": {
+      "successfulStrokes": 1,
+      "detectedMistakes": 1,
+      "recommendations": [
+        "Contact the ball earlier."
+      ]
+    },
+    "feedbackEvents": [
+      {
+        "strokeId": "stroke_42",
+        "strokeNumber": 12,
+        "kind": "detected_mistake",
+        "occurredAt": "2026-10-12T09:00:00Z",
+        "confidence": 0.91,
+        "text": "Contact the ball earlier.",
+        "audioUrl": null
+      }
+    ],
+    "measurements": [],
+    "keyMoments": []
+  }
+  ```
+
+  Each supported measurement includes its value, unit, time range, and server-defined provenance/confidence. Missing evidence is `null` with an availability reason. `keyMoments` is optional. A persisted review does not depend on a temporary `audioUrl`; it may be `null` or omitted.
+
+  — relevant errors/status codes:
+
+  Authorization failures, an unknown or inaccessible `sessionId`, and unavailable review data use the shared error envelope with the applicable HTTP status code.
+
+### Progress Data
+
+- `GET /api/v1/progress`
+
+  Returns progress data for the backend-selected default range. Optional `from` and `to` query parameters, when supported, are ISO dates and must be supplied together.
+
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "range": {
+      "from": "2026-09-12",
+      "to": "2026-10-12"
+    },
+    "measurements": [],
+    "focus": null,
+    "availability": "insufficient_data"
+  }
+  ```
+
+  Supported measurements include stable identifiers, display labels, units, time buckets, and server-computed values. `focus` is backend-provided or `null`.
+
+  — relevant errors/status codes:
+
+  Authorization failures and invalid or incomplete date ranges use the shared error envelope with the applicable HTTP status code.
 
 ## Checkout and billing
 
 The frontend sends plan identifiers, never amounts or card credentials, to the backend:
 
-- `POST /api/v1/billing/checkout-sessions` with `{ "planId": "performance", "returnPath": "/subscription" }` returns `{ "checkoutUrl": "https://provider.example/…", "checkoutSessionId": "…" }`.
+- `POST /api/v1/billing/checkout-sessions`
 
-- `GET /api/v1/billing/checkout-sessions/{checkoutSessionId}` returns a server-verified state: `pending`, `succeeded`, `cancelled`, `failed`, or `expired`, with safe display text. Query parameters or browser redirects alone never prove payment success.
+  Creates a provider-hosted checkout session for the selected plan. `returnPath` must be a validated internal application path.
 
-- `POST /api/v1/subscriptions/checkout `— фронтендът праща избрания planId, бекендът създава Stripe Checkout Session и връща checkoutUrl.
+  — request body:
 
-- `GET /api/v1/subscriptions/status` — success страницата пита бекенда какъв е реалният статус: примерно pending, active, paid, failed.
+  ```json
+  {
+    "planId": "performance",
+    "returnPath": "/subscription"
+  }
+  ```
 
-- `POST /api/v1/stripe/webhook` — това е backend-only endpoint, който Stripe вика директно. Фронтендът не го вика.
+  — response body:
 
-The provider hosts payment fields and receives card data. The backend verifies provider callbacks/webhooks idempotently and remains the source of truth. The frontend handles redirect pending, return verification, cancellation, payment failure, expiration, network recovery, and unavailable billing without storing or transmitting raw card data.
+  ```json
+  {
+    "checkoutUrl": "https://provider.example/…",
+    "checkoutSessionId": "checkout_123"
+  }
+  ```
+
+  — relevant errors/status codes:
+
+  Invalid plans, invalid return paths, authorization failures, and provider failures use the shared error envelope with the applicable HTTP status code.
+
+- `GET /api/v1/billing/checkout-sessions/{checkoutSessionId}`
+
+  Returns the backend-verified state of the checkout session identified by `checkoutSessionId`. Query parameters or browser redirects alone never prove payment success.
+
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "status": "pending",
+    "displayText": "Payment confirmation is pending."
+  }
+  ```
+
+  `status` is one of `pending`, `succeeded`, `cancelled`, `failed`, or `expired`. `displayText` is safe to display to the user.
+
+  — relevant errors/status codes:
+
+  Authorization failures, an unknown or inaccessible `checkoutSessionId`, and provider availability failures use the shared error envelope with the applicable HTTP status code.
+
+- `POST /api/v1/subscriptions/checkout`
+
+  Creates a provider-hosted checkout session for the selected `planId`.
+
+  — request body:
+
+  ```json
+  {
+    "planId": "performance"
+  }
+  ```
+
+  — response body:
+
+  ```json
+  {
+    "checkoutUrl": "https://provider.example/…"
+  }
+  ```
+
+  — relevant errors/status codes:
+
+  Invalid plans, authorization failures, and provider failures use the shared error envelope with the applicable HTTP status code.
+
+- `GET /api/v1/subscriptions/status`
+
+  Returns the authenticated user's authoritative subscription status.
+
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "status": "pending"
+  }
+  ```
+
+  Supported status values include `pending`, `active`, `paid`, and `failed`.
+
+  — relevant errors/status codes:
+
+  Authorization and subscription-status lookup failures use the shared error envelope with the applicable HTTP status code.
+
+- `POST /api/v1/stripe/webhook`
+
+  This is a backend-only endpoint called directly by Stripe. The frontend never calls it.
+
+  — request body:
+
+  The body is the provider-defined event payload accompanied by Stripe's signature metadata. Its schema is intentionally not duplicated in this frontend-facing contract.
+
+  — response body:
+
+  No response body is consumed by the frontend. Provider acknowledgement and error responses are part of the backend/Stripe integration contract.
+
+  — relevant errors/status codes:
+
+  The backend verifies the provider signature and processes accepted events idempotently. Invalid signatures and duplicate or failed event processing are handled entirely by the backend.
+
+The provider hosts payment fields and receives card data. Raw card data must not be transmitted to or stored by the frontend application. Provider callbacks/webhooks are backend-verified and idempotent; browser redirects and query parameters are not payment confirmation.
 
 ## Contract adoption
 
-Backend and product owners must confirm endpoint names, required fields, units, bounds, retention, authentication, rate limits, idempotency, feedback-event provenance and completion handoff, and error mappings before connecting live services. Until then, frontend tests may use fixtures matching these examples, and the UI must label prototype/sample content honestly.
+Backend and product owners must confirm endpoint names, required fields, units, bounds, retention, authentication, rate limits, idempotency, feedback-event provenance, session completion, and error mappings before connecting live services. Until then, frontend contract tests may use fixtures matching these proposed examples.
 
 ## Dashboard, profile, and settings data
 
-- `GET /api/v1/dashboard` returns server-authorized overview data: `{ "recentSessions": [], "progressSummary": null, "nextFocus": null }`. Each item retains its source id and timestamp. Empty collections are valid; the client does not derive a recommendation from raw metrics.
-- `GET /api/v1/users/me` returns editable profile fields and read-only account fields separately. `PATCH /api/v1/users/me` accepts only the backend-declared writable fields and returns the normalized saved representation plus field validation errors when applicable.
-- `GET /api/v1/users/me/preferences` returns the user's persisted settings. `PATCH /api/v1/users/me/preferences` accepts only declared preference fields and returns the saved values. Unsupported browser capabilities are reported by the client as unavailable and are not sent as if enabled.
+All endpoints in this section require the authenticated application session and use the shared error envelope. Profile and preferences update endpoints return field validation separately from transport errors.
 
-All three use the shared error envelope and authenticated session. Update actions are disabled while pending, preserve the last confirmed server values on recoverable failure, and report field validation separately from transport failure.
+### Dashboard Data
 
-## Page state and recovery matrix
+- `GET /api/v1/dashboard`
 
-| Surface | Empty / insufficient data | Recoverable failure | Unavailable / disconnected | Recovery |
-| --- | --- | --- | --- | --- |
-| Dashboard | No sessions or supported focus; show an honest empty state | Keep no unsaved data; show retry | Keep the page shell and explain data cannot be loaded | Retry dashboard request; links to Training and History remain available |
-| History | Empty session list | Preserve current page/cursor and offer retry | Explain history is unavailable | Retry current list request; do not invent rows |
-| Session Review | Unknown, unauthorized, or no review result uses the documented safe not-found/insufficient state | Show retry while preserving the session route | Explain the review service is unavailable | Retry review request; return to History is always available |
-| Progress | `insufficient_data` or no measurements | Preserve selected range and offer retry | Explain progress data is unavailable | Retry the same range; no client-generated focus |
-| Training | No analysis data is a waiting state, not a zero-valued result | Stop sending when transport fails; show reconnect/stop controls | Distinguish camera permission/device failure from analysis disconnect | User-initiated retry/reconnect; never restart capture or create a session silently |
-| Subscription / Checkout | No active subscription is distinct from unknown subscription | Preserve selected plan and show retry | Explain billing/provider availability | Re-fetch server state; verify checkout outcome through the backend |
-| Profile / Settings | Empty optional values remain empty | Preserve last confirmed values and field input; show validation/errors | Keep local page usable while noting settings are unavailable | Retry load/save; never claim unsaved changes succeeded |
-| Authentication | No challenge means standard flow; challenge state is explicit | Preserve non-secret form values and field errors | Keep auth status unknown until session lookup succeeds | Retry session lookup or request; clear passwords after terminal auth failure |
+  Returns server-authorized overview data for the authenticated user's Dashboard. Each returned item retains its source identifier and timestamp. Empty collections are valid, and the client does not derive a recommendation from raw metrics.
 
-A server `401` triggers the authentication flow; `403` remains an authorization error. Network failure never implies logout or successful completion. Clear sensitive transient values on logout, challenge expiry, or terminal authentication failure.
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "recentSessions": [],
+    "progressSummary": null,
+    "nextFocus": null
+  }
+  ```
+
+  `progressSummary` and `nextFocus` are backend-provided or `null` when the corresponding supported data is unavailable.
+
+  — relevant errors/status codes:
+
+  Authorization and Dashboard-data availability failures use the shared error envelope with the applicable HTTP status code.
+
+### Profile Data
+
+- `GET /api/v1/users/me`
+
+  Returns the authenticated user's editable profile fields and read-only account fields separately.
+
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "editable": {
+      "firstName": "Alex",
+      "lastName": "Morgan",
+      "displayName": "Alex",
+      "phone": "+359881234567"
+    },
+    "readOnly": {
+      "id": "user_123",
+      "email": "player@example.com",
+      "emailVerified": true
+    }
+  }
+  ```
+
+  The backend declares which profile fields are writable. Read-only account fields must not be copied into update requests.
+
+  — relevant errors/status codes:
+
+  Authorization and profile-data availability failures use the shared error envelope with the applicable HTTP status code.
+
+- `PATCH /api/v1/users/me`
+
+  Updates only the supplied backend-declared writable profile fields. Omitted writable fields remain unchanged.
+
+  — request body:
+
+  ```json
+  {
+    "firstName": "Alex",
+    "lastName": "Morgan",
+    "displayName": "Alex",
+    "phone": "+359881234567"
+  }
+  ```
+
+  — response body:
+
+  ```json
+  {
+    "editable": {
+      "firstName": "Alex",
+      "lastName": "Morgan",
+      "displayName": "Alex",
+      "phone": "+359881234567"
+    },
+    "readOnly": {
+      "id": "user_123",
+      "email": "player@example.com",
+      "emailVerified": true
+    }
+  }
+  ```
+
+  The response contains the normalized saved representation. Unsupported or read-only fields are not accepted as writable profile data.
+
+  — relevant errors/status codes:
+
+  Authorization failures and field-validation failures use the shared error envelope with the applicable HTTP status code. Field-validation details are returned separately from transport errors.
+
+### Settings Data
+
+- `GET /api/v1/users/me/preferences`
+
+  Returns the authenticated user's persisted application preferences.
+
+  — request body:
+
+  The request has no JSON body.
+
+  — response body:
+
+  ```json
+  {
+    "applicationLanguage": "en",
+    "timezone": "Europe/Sofia",
+    "measurementUnits": "metric"
+  }
+  ```
+
+  Only backend-declared preferences are returned as persisted settings. Browser capability and device availability remain client-observed state.
+
+  — relevant errors/status codes:
+
+  Authorization and preferences-data availability failures use the shared error envelope with the applicable HTTP status code.
+
+- `PATCH /api/v1/users/me/preferences`
+
+  Updates only the supplied backend-declared preference fields. Omitted preferences remain unchanged.
+
+  — request body:
+
+  ```json
+  {
+    "applicationLanguage": "en",
+    "timezone": "Europe/Sofia",
+    "measurementUnits": "metric"
+  }
+  ```
+
+  Unsupported browser capabilities are reported by the client as unavailable and are not sent as if enabled.
+
+  — response body:
+
+  ```json
+  {
+    "applicationLanguage": "en",
+    "timezone": "Europe/Sofia",
+    "measurementUnits": "metric"
+  }
+  ```
+
+  The response contains the normalized saved preference values.
+
+  — relevant errors/status codes:
+
+  Authorization failures and field-validation failures use the shared error envelope with the applicable HTTP status code. Field-validation details are returned separately from transport errors.
