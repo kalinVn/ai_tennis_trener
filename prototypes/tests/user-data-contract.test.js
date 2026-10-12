@@ -20,3 +20,34 @@ test('authenticated initialization consistently uses GET user-data with bearer a
     assert.doesNotMatch(source, /\/api\/v1\/users\/me\/application-data/)
   }
 })
+
+test('personal information response fields stay synchronized across GET user-data and PATCH', () => {
+  const canonicalFields = [
+    'firstName',
+    'lastName',
+    'username',
+    'displayName',
+    'email',
+    'emailVerified',
+    'phoneCountryCode',
+    'phone',
+    'phoneVerified',
+    'dateOfBirth',
+    'country',
+    'city',
+    'bio',
+  ]
+
+  const getResponseMatch = contracts.match(/### Get user data[\s\S]*?— response body:\s*```json\s*([\s\S]*?)```/)
+  assert.ok(getResponseMatch, 'GET user-data response example is present')
+  const getResponse = JSON.parse(getResponseMatch[1])
+
+  const patchMatch = contracts.match(/- `PATCH \/api\/v1\/users\/me\/personal-information`[\s\S]*?— request body:\s*```json\s*([\s\S]*?)```[\s\S]*?— response body:\s*```json\s*([\s\S]*?)```/)
+  assert.ok(patchMatch, 'Personal Information PATCH request and response examples are present')
+  const patchRequest = JSON.parse(patchMatch[1])
+  const patchResponse = JSON.parse(patchMatch[2])
+
+  assert.deepEqual(Object.keys(getResponse.personalInformation), canonicalFields)
+  assert.deepEqual(Object.keys(patchResponse), canonicalFields)
+  assert.deepEqual(Object.keys(patchRequest), canonicalFields.filter(field => !['emailVerified', 'phoneVerified'].includes(field)))
+})

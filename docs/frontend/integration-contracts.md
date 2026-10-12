@@ -894,7 +894,7 @@ All endpoints in this section require the authenticated application session and 
 
 ### Security and data-management actions
 
-- `PATCH /api/v1/users/me/password`
+- `PATCH /api/v1/users/save-password`
 
   Changes the authenticated user's password as a separate security action. Password values are never stored in `UserStore` or any other persistent frontend state.
 
