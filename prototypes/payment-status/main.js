@@ -24,7 +24,7 @@ if (target) {
       return { handleAction, message, status }
     },
     template: `<PaymentStatusCard :status="status" @action="handleAction">
-      <template #secondary-action><a class="btn" href="../../pages/subscription.html">Back to Subscription</a></template>
+      <template #secondary-action><a class="btn" href="../subscription/subscription.html">Back to Subscription</a></template>
     </PaymentStatusCard>
     <p v-if="message" class="callout payment-status-prototype__note" role="status">{{ message }}</p>`,
   }).mount(target)

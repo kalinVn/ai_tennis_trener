@@ -7,6 +7,7 @@ defineProps({
   subtotal: { type: String, required: true },
   tax: { type: String, required: true },
   total: { type: String, required: true },
+  paymentStatus: { type: String, required: true },
   note: { type: String, required: true },
   actionLabel: { type: String, required: true },
   cancelLabel: { type: String, required: true },
@@ -26,6 +27,7 @@ const emit = defineEmits(['complete'])
         <tr><th scope="row">Subtotal</th><td>{{ subtotal }}</td></tr>
         <tr><th scope="row">Tax</th><td>{{ tax }}</td></tr>
         <tr><th scope="row">Demo total</th><td><strong class="accent">{{ total }}</strong></td></tr>
+        <tr><th scope="row">Status</th><td><span class="pill">{{ paymentStatus }}</span></td></tr>
       </tbody>
     </table>
     <p class="settings-note">{{ note }}</p>

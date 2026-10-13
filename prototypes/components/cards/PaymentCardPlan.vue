@@ -46,14 +46,14 @@ const emit = defineEmits(['action'])
 }
 .payment-plan-card--selected { outline: 2px solid #b7ff4a80; }
 .payment-plan-card > .button, .payment-plan-card__status { align-self: flex-start; }
-/* Pricing's existing compact hierarchy; Subscription retains its current-plan layout. */
-:global(.pricing) .payment-plan-card__selected-label { order: 0; }
-:global(.pricing) .payment-plan-card__name { order: 1; margin: 0 0 10px; font-size: 21px; line-height: 1.55; letter-spacing: normal; }
-:global(.pricing) .payment-plan-card__price { order: 2; margin: 0; color: #b7ff4a; font-size: 43px; line-height: 1.55; letter-spacing: normal; }
-:global(.pricing) .payment-plan-card__period { font-size: 13.3333px; }
-:global(.pricing) .payment-plan-card__features { order: 3; margin: 0; color: #a8b5ae; }
-:global(.pricing) .payment-plan-card__description { order: 3; }
-:global(.pricing) .payment-plan-card > .button { order: 4; width: 100%; }
+/* Subscription plan-grid compact hierarchy; Subscription retains its current-plan layout. */
+:global(.plan-grid) .payment-plan-card__selected-label { order: 0; }
+:global(.plan-grid) .payment-plan-card__name { order: 1; margin: 0 0 10px; font-size: 21px; line-height: 1.55; letter-spacing: normal; }
+:global(.plan-grid) .payment-plan-card__price { order: 2; margin: 0; color: #b7ff4a; font-size: 43px; line-height: 1.55; letter-spacing: normal; }
+:global(.plan-grid) .payment-plan-card__period { font-size: 13.3333px; }
+:global(.plan-grid) .payment-plan-card__features { order: 3; margin: 0; color: #a8b5ae; }
+:global(.plan-grid) .payment-plan-card__description { order: 3; }
+:global(.plan-grid) .payment-plan-card > .button { order: 4; width: 100%; }
 .payment-plan-card__status {
   box-sizing: border-box;
   display: inline-block;

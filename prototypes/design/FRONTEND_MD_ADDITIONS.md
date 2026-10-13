@@ -25,7 +25,8 @@ The dashboard is a page within Authentication Layout, not necessarily a separate
 | `/training` | `prototypes/design/pages/training.html` | Authentication |
 | `/training` (in-page modal) | `prototypes/design/pages/camera.html` | Camera Preview Modal |
 | `/history` | `prototypes/design/pages/history.html` | Authentication |
-| `/subscription` | `prototypes/design/pages/subscription.html` | Authentication |
+| `/subscription` | `prototypes/design/components/subscription/subscription.html` | Authentication |
+| `/checkout` | `prototypes/design/components/checkout/checkout.html` | Authentication |
 | `/profile` | `prototypes/design/pages/profile.html` | Authentication |
 | `/settings` | `prototypes/design/pages/settings.html` | Authentication |
 

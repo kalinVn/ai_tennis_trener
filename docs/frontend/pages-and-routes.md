@@ -130,8 +130,8 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - purpose: `allows the user to view their current subscription plan, manage billing details, and change or upgrade their subscription.`
 - Route: `/subscription`
 - Layout: `Authentication Layout`
-- Example Prototype: `design/pages/subscription.html`
-- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Change plan and Manage billing belong to the page; preserve informational demo messages. Compare pricing remains a page-level link to the authenticated Pricing page. Do not add payment-status prototype controls to this page.`
+- Example Prototype: `design/components/subscription/subscription.html`
+- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Subscription Plan Card and the Billing or Plan Management Card. Before a plan is selected, render the larger shared PaymentCardPlan with No selected plan, no price, no status label, no selected styling, and a clear explanation that training services require selecting a plan. Use BillingDetailsCard for the existing billing panel. Change plan reveals the same Starter, Performance, and Pro PaymentCardPlan options used by Pricing, with Performance marked Most popular. Manage billing remains page-owned. Do not add a separate Compare pricing button or payment-status prototype controls to this page.`
 - required shared components: `PaymentCardPlan`, `BillingDetailsCard`
 - required feature components: None
 - data contract: initial subscription data come from `GET /api/v1/user/data`. Checkout verification, plan changes, and the provider-hosted customer portal remain dedicated operations; see [integration contract examples](integration-contracts.md#checkout-and-billing).
@@ -180,11 +180,11 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 
 - Route: `/checkout`
 - Layout: `Authentication Layout`
-- Example Prototype: `design/pages/checkout.html`
+- Example Prototype: `design/components/checkout/checkout.html`
 - name: `checkout`
-- description: `The Checkout page contains two main sections: a left section with the existing Checkout PerformanceCard and PaymentInformationCard components stacked vertically, and a right section with an OrderSummaryCard component. Start through the provider-hosted checkout contract, verify every return state with the backend, and retain pending/cancelled/failed/expired/recoverable-error states.`
+- description: `The Checkout page contains a selected-plan PerformanceCard with Pay with Stripe and Pay with PayPal actions underneath. The right-hand area renders backend-verified pending/cancelled/failed/expired states through PaymentStatusCard; after verified success it replaces the status card with OrderSummaryCard showing the Performance plan, price, and Paid status. It contains no Payment Information section and never collects raw card details.`
 - required shared components: None
-- required feature components: `PerformanceCard`, `PaymentInformationCard`, `OrderSummaryCard`
+- required feature components: `PerformanceCard`, `OrderSummaryCard`, `PaymentStatusCard`
 - data contract: provider-hosted checkout start and server-verified return; see [integration contract examples](integration-contracts.md#checkout-and-billing).
 - states: pending, succeeded only after backend verification, cancelled, failed, expired, recoverable error, unavailable.
 - dependencies: `CheckoutStore`

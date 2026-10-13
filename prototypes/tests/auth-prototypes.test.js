@@ -132,17 +132,11 @@ test('public authentication navigation targets dedicated prototype pages', () =>
   }
 })
 
-test('pricing uses the same authentication layout shell as profile and settings', () => {
-  const pricing = read('design/pages/pricing.html')
-  assert.match(pricing, /class="app-shell"/)
-  assert.match(pricing, /class="sidebar"/)
-  assert.match(pricing, /class="app-top"/)
-  assert.match(pricing, /Authentication Layout/)
-  assert.doesNotMatch(pricing, /class="public-nav"/)
-  assert.doesNotMatch(pricing, /class="public-footer"/)
-  assert.match(pricing, /checkout\.html/)
-
+test('authenticated navigation omits the removed Pricing page', () => {
+  assert.equal(existsSync(new URL('../design/pages/pricing.html', import.meta.url)), false)
   const authenticatedNavigation = read('design/components/navigation/authenticated-navigation.html')
-  assert.match(authenticatedNavigation, /pages\/pricing\.html/)
+  assert.doesNotMatch(authenticatedNavigation, /pricing/i)
+  assert.match(authenticatedNavigation, /subscription\/subscription\.html/)
+  assert.match(authenticatedNavigation, /checkout\/checkout\.html/)
   assert.doesNotMatch(authenticatedNavigation, /\/progress/)
 })

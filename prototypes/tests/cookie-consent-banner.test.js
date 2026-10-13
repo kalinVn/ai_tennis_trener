@@ -104,9 +104,15 @@ test('the shared HTML shell mounts the Vue feature across both layout families',
   assert.match(shell, /direct-file preview fallback/)
   assert.match(read(feature + 'mountCookiePrivacyPolicy.js'), /CookiePrivacyPolicy/)
 
-  for (const page of ['index.html', 'features.html', 'pricing.html', 'login.html', 'register.html', 'dashboard.html', 'training.html', 'history.html', 'subscription.html', 'profile.html', 'settings.html', 'checkout.html', 'not-found.html']) {
+  for (const page of ['index.html', 'features.html', 'login.html', 'register.html', 'dashboard.html', 'training.html', 'history.html', 'profile.html', 'settings.html', 'not-found.html']) {
     assert.match(read(`design/pages/${page}`), /src="\.\.\/app\.js"/)
   }
+  for (const component of ['subscription', 'checkout']) {
+    assert.match(read(`design/components/${component}/${component}.html`), /src="\.\.\/\.\.\/app\.js"/)
+  }
+  assert.match(shell, /subscriptionPrototypeURL/)
+  assert.match(shell, /checkoutPrototypeURL/)
+  assert.match(shell, /checkoutLink\.href = checkoutPrototypeURL\.href/)
 
   assert.equal(existsSync(new URL('design/pages/cookie-policy.html', root)), false)
   assert.equal(existsSync(new URL('design/pages/privacy-policy.html', root)), false)

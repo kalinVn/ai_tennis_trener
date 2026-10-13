@@ -3,10 +3,15 @@ function showDemoNote(message){const n=document.getElementById('demo-note');if(n
 
 const prototypePagesURL = new URL('pages/', document.currentScript.src);
 const prototypeAppScriptURL = new URL(document.currentScript.src);
+const subscriptionPrototypeURL = new URL('components/subscription/subscription.html', prototypeAppScriptURL);
+const checkoutPrototypeURL = new URL('components/checkout/checkout.html', prototypeAppScriptURL);
+const isPrototypeApplicationPage = location.pathname.startsWith(prototypePagesURL.pathname) ||
+  location.pathname === subscriptionPrototypeURL.pathname ||
+  location.pathname === checkoutPrototypeURL.pathname;
 
 // The HTML prototypes share no single Vue root. Load the same public feature
 // entry from this common shell for every public/authenticated application page.
-if (location.protocol !== 'file:' && location.pathname.startsWith(prototypePagesURL.pathname)) {
+if (location.protocol !== 'file:' && isPrototypeApplicationPage) {
   const sourceEntry = new URL('../components/features/CookiePrivacyPolicy/mountCookiePrivacyPolicy.js', prototypeAppScriptURL).href;
   const buildEntry = new URL('../../assets/cookiePrivacyApp.js', prototypeAppScriptURL).href;
   import(sourceEntry).catch(() => import(buildEntry));
@@ -15,7 +20,7 @@ if (location.protocol !== 'file:' && location.pathname.startsWith(prototypePages
 // Every application page uses the same consent record and one native-dialog
 // modal for preferences and both policy views.
 (() => {
-  if (!location.pathname.startsWith(prototypePagesURL.pathname)) return;
+  if (!isPrototypeApplicationPage) return;
   // Vite/browser builds mount CookiePrivacyPolicy.vue. Keep this implementation
   // only as a direct-file preview fallback where bare Vue imports cannot run.
   if (location.protocol !== 'file:') return;
@@ -214,16 +219,11 @@ if (location.protocol !== 'file:' && location.pathname.startsWith(prototypePages
   syncBanner();
 })();
 
-// Sidebar links to Pricing and Checkout use the existing anchor navigation and styles.
+// The sidebar link to Checkout uses the existing anchor navigation and styles.
 const applicationLinks = document.querySelector('.app-shell .sidebar .side-links');
 if (applicationLinks) {
-  const pricingLink = document.createElement('a');
-  pricingLink.href = new URL('pricing.html', prototypePagesURL).href;
-  pricingLink.textContent = 'Pricing';
-  if (location.pathname === new URL(pricingLink.href).pathname) pricingLink.setAttribute('aria-current', 'page');
-  applicationLinks.append(pricingLink);
   const checkoutLink = document.createElement('a');
-  checkoutLink.href = new URL('checkout.html', prototypePagesURL).href;
+  checkoutLink.href = checkoutPrototypeURL.href;
   checkoutLink.textContent = 'Checkout';
   if (location.pathname === new URL(checkoutLink.href).pathname) checkoutLink.setAttribute('aria-current', 'page');
   applicationLinks.append(checkoutLink);

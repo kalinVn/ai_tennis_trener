@@ -83,18 +83,17 @@ start OAuth, or implement OTP/MFA.
 
 ## Checkout cards
 
-Open `/prototypes/design/pages/checkout.html` through the same Vite server to
-render `PerformanceCard`, `PaymentInformationCard`, and `OrderSummaryCard` in the
-existing Checkout layout. `checkout/main.js` owns the sample props and demo action
-feedback; the cards reuse the page stylesheet and contain no payment logic.
-Payment inputs remain disabled. Opening the HTML directly retains the original
-static design. The build also includes this Checkout entry; there are no separate
-card page prototypes.
+Open `/prototypes/design/components/checkout/checkout.html` through the same Vite
+server to render `PerformanceCard` and `OrderSummaryCard` in the Checkout layout.
+Its colocated `main.js` owns the sample props and demo action feedback; the cards
+reuse the page stylesheet and contain no payment logic. Checkout contains no raw
+payment fields. Opening the HTML directly retains the static design. The build
+also includes this Checkout entry.
 
 Checkout retains its distinct PerformanceCard order summary. Pricing and Subscription share the existing [PaymentCardPlan](../docs/frontend/components.md#paymentcardplan), with presentation-only selected styling. Subscription also uses [BillingDetailsCard](../docs/frontend/components.md#billingdetailscard).
 
 ## Pricing and Subscription cards
 
-Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry scripts mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing uses the Authentication Layout and its actions navigate to the protected Checkout prototype; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare pricing remains a page-level link to the authenticated Pricing prototype.
+Open `design/pages/pricing.html` or `design/components/subscription/subscription.html` through the Vite server. Their entry scripts mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing uses the Authentication Layout and its actions navigate to the protected Checkout prototype. On Subscription, Change plan reveals the Starter, Performance, and Pro cards in place; choosing one continues to the Checkout prototype. Manage billing retains its informational message. No real billing integration is present.
 
 Card design examples are `design/components/cards/payment-card-plan.html` (normal), `design/components/cards/payment-card-plan-selected.html` (selected state of the same component) and `design/components/cards/billing-details-card.html`. The build includes the Pricing and Subscription entries.

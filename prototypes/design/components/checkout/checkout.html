@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Checkout · Tennis AI Coach</title>
+  <link rel="stylesheet" href="../../style.css">
+  <style>
+    .payment-provider-icon { width: 22px; height: 22px; flex: 0 0 22px; border-radius: 5px; }
+    .payment-provider-action { display: inline-flex; align-items: center; justify-content: center; gap: 9px; }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="../../pages/dashboard.html"><span class="logo">AI</span>Coach</a>
+    <div class="side-links">
+      <a href="../../pages/dashboard.html">Dashboard</a>
+      <a href="../../pages/training.html">Training</a>
+      <a href="../../pages/history.html">History</a>
+      <a href="../subscription/subscription.html">Subscription</a>
+      <a href="../../pages/profile.html">Profile</a>
+      <a href="../../pages/settings.html">Settings</a>
+    </div>
+    <p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authentication Layout · demo</p>
+  </aside>
+  <div class="app-main">
+    <header class="app-top">
+      <span class="eyebrow" style="margin:0">Tennis AI Coach / Checkout</span>
+      <div class="flex">
+        <span class="muted">Alex Morgan · demo user</span>
+        <a class="btn small" href="../../pages/index.html">Log out</a>
+      </div>
+    </header>
+    <main class="app-content">
+      <div class="page-head">
+        <div class="eyebrow">ACCOUNT / CHECKOUT</div>
+        <h1>Checkout</h1>
+        <p>Review your plan before continuing to a hosted payment provider. This is a visual demo; no payment will be taken.</p>
+      </div>
+      <div class="two-col" id="checkout-cards-root">
+        <div class="stack">
+          <section class="panel" aria-labelledby="selected-plan-heading">
+            <span class="pill">Selected plan · demo</span>
+            <h2 id="selected-plan-heading" style="margin-top:16px">Performance</h2>
+            <p>Realtime coaching, richer insights and session review tools.</p>
+            <h3 class="accent">€19 <span class="muted">/ month</span></h3>
+            <p>Billing period: monthly. Illustrative pricing from the prototype.</p>
+            <a class="btn small" href="../subscription/subscription.html">Back to plans</a>
+            <div class="cta" aria-label="Payment provider">
+              <button class="btn primary payment-provider-action" type="button" onclick="selectPaymentProvider('Stripe')">
+                <svg class="payment-provider-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#635bff"/><text x="12" y="17" fill="#fff" font-size="14" font-weight="700" text-anchor="middle">S</text></svg>
+                <span>Pay with Stripe</span>
+              </button>
+              <button class="btn payment-provider-action" type="button" onclick="selectPaymentProvider('PayPal')">
+                <svg class="payment-provider-icon" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="5" fill="#0070e0"/><text x="12" y="17" fill="#fff" font-size="14" font-weight="700" text-anchor="middle">P</text></svg>
+                <span>Pay with PayPal</span>
+              </button>
+            </div>
+          </section>
+          <p id="selected-provider-note" class="settings-note" role="status" aria-live="polite" hidden></p>
+        </div>
+        <section id="fallback-payment-status" class="panel payment-status-card payment-status-card--pending" role="status" aria-live="polite">
+          <span class="pill payment-status-card__pill">Payment pending</span>
+          <h2>We are confirming your payment</h2>
+          <p>Your payment is still being verified. Keep this page open or check the status again shortly.</p>
+          <p class="settings-note">No subscription change is shown until payment confirmation is available.</p>
+          <div class="cta">
+            <button class="btn" type="button" onclick="showCheckoutSuccess()">Check status again</button>
+          </div>
+        </section>
+        <section id="fallback-order-summary" class="panel" aria-labelledby="order-heading" hidden>
+          <h2 id="order-heading">Order summary</h2>
+          <table class="data-table" style="min-width:0" aria-label="Order summary">
+            <tbody>
+              <tr><th scope="row">Plan</th><td>Performance</td></tr>
+              <tr><th scope="row">Billing period</th><td>Monthly</td></tr>
+              <tr><th scope="row">Subtotal</th><td>€19.00</td></tr>
+              <tr><th scope="row">Tax</th><td>Not calculated in demo</td></tr>
+              <tr><th scope="row">Demo total</th><td><strong class="accent">€19.00</strong></td></tr>
+              <tr><th scope="row">Status</th><td><span class="pill">Paid</span></td></tr>
+            </tbody>
+          </table>
+          <p class="settings-note">This success state represents a payment already verified by the backend. No card details are sent to or stored by this frontend.</p>
+          <div class="cta">
+            <a class="btn primary" href="../subscription/subscription.html">View subscription</a>
+            <a class="btn ghost" href="../subscription/subscription.html">Back to plans</a>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+<script src="../../app.js"></script>
+<script>
+  function selectPaymentProvider(provider) {
+    const note = document.getElementById('selected-provider-note')
+    note.textContent = `${provider} selected. The hosted payment session is pending in this prototype.`
+    note.hidden = false
+    document.getElementById('fallback-payment-status').hidden = false
+    document.getElementById('fallback-order-summary').hidden = true
+  }
+  function showCheckoutSuccess() {
+    document.getElementById('fallback-payment-status').hidden = true
+    document.getElementById('fallback-order-summary').hidden = false
+  }
+</script>
+<script type="module" src="main.js"></script>
+</body>
+</html>

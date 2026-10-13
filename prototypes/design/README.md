@@ -112,15 +112,17 @@ existing plan cards/demo behavior. The shared script links authenticated applica
 sidebars to this Pricing page using ordinary anchor navigation. Production routing
 must require authentication.
 
-Checkout is available at `pages/checkout.html` (the documented `/checkout` route)
-and last in the application sidebar. It uses the Authentication Layout,
-Performance plan (€19/month), order summary, disabled sample payment fields, a
-demo-only completion message, and links back to Pricing. No payment
-provider, network submission, card storage or subscription creation is involved.
+Checkout is available at `components/checkout/checkout.html` (the documented
+`/checkout` route). It uses the Authentication Layout and shows Pay with Stripe
+and Pay with PayPal below the selected Performance plan (€19/month). The right
+column shows the payment state until success, when it switches to an order
+summary containing the plan, price, and Paid status. It contains no Payment
+Information section or raw payment fields. The provider actions and verification
+remain visual prototype behavior; no real payment is processed.
 
 The standalone shared `PaymentStatusCard` design prototype remains available at
 `components/cards/payment-status-card.html`. Use its `status` query parameter
-with `pending`, `success`, `failed`, or `cancelled` to inspect all four visual
+with `pending`, `success`, `failed`, `cancelled`, or `expired` to inspect all five visual
 states. These presentation-only examples are not linked from Subscription and
 perform no payment or subscription operation.
 

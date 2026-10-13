@@ -20,5 +20,6 @@ defineProps({
     <h3 class="accent">{{ price }} <span class="muted">{{ period }}</span></h3>
     <p>{{ billingNote }}</p>
     <a class="btn small" :href="backHref">{{ backLabel }}</a>
+    <slot name="payment-actions" />
   </section>
 </template>

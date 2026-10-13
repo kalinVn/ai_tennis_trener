@@ -394,14 +394,14 @@ export type PaymentCardPlanEmits = {
 />
 ```
 
-Selection does not change plan data, price, subscription state or entitlement. It reproduces Pricing's existing `2px solid #b7ff4a80` outline, Most popular eyebrow and primary Button. Non-selected Pricing cards use a secondary Button. Subscription supplies `statusLabel="Active · demo"` and `actionLabel="Change plan"`; the status label is independent of `selected`. The existing `.pricing` container controls compact title/price/description ordering, while Subscription retains its current-plan hierarchy. These are presentation states of one component.
+Selection does not change plan data, price, subscription state or entitlement. It reproduces Pricing's existing `2px solid #b7ff4a80` outline, Most popular eyebrow and primary Button. Non-selected Pricing cards use a secondary Button. Subscription initially supplies `planName="No selected plan"` and `actionLabel="Change plan"` without a price, status label, or selected state. The existing `.pricing` container controls compact title/price/description ordering, while Subscription retains its larger initial-plan hierarchy. These are presentation states of one component.
 
 Emits `action` without a payload through a shared Button `click`. The page owns actions and data. Cards contain no callback prop, store access, backend request, price calculation or billing logic.
 
 - Vue implementation: [PaymentCardPlan.vue](../../prototypes/components/cards/PaymentCardPlan.vue).
 - Normal design prototype: [payment-card-plan.html](../../prototypes/design/components/cards/payment-card-plan.html).
 - Selected design prototype: [payment-card-plan-selected.html](../../prototypes/design/components/cards/payment-card-plan-selected.html). Both files illustrate the same shared Vue component; selected is a presentation state.
-- Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/subscription/main.js). The authenticated Pricing page owns plan selection and continues to the protected Checkout prototype; Subscription preserves the existing informational Change plan message.
+- Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/design/components/subscription/main.js). The authenticated Pricing page owns plan selection and continues to the protected Checkout prototype. Subscription reveals the same three plan cards after Change plan and continues a selected option to Checkout.
 
 ### BillingDetailsCard
 
@@ -441,15 +441,15 @@ Example usage keeps the two visible billing fields exactly as they appear in Sub
 
 Emits `action` without a payload via the shared secondary Button. The Subscription page owns the action and existing informational demo message. The component does not add billing address, invoices, card brand, last four digits, expiry, customer identifiers, or real integration because those fields are absent from the current Subscription UI.
 
-Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/cards/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. The Compare pricing link stays in the Subscription page and points to the authenticated `pricing.html` prototype.
+Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/cards/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. Subscription no longer renders a separate Compare pricing link because its Change plan action reveals the three pricing options directly.
 
 ### PaymentStatusCard
 
-`PaymentStatusCard` is the single presentational component for Subscription payment-return states. It reuses the existing Subscription panel, pill, typography, Button, spacing, radius, width, and responsive behavior rather than defining separate pending, success, failed, and cancelled card structures.
+`PaymentStatusCard` is the single presentational component for Checkout payment-return states. It reuses the existing panel, pill, typography, Button, spacing, radius, width, and responsive behavior rather than defining separate pending, success, failed, cancelled, and expired card structures.
 
 | Prop | Type / default | Display responsibility |
 | --- | --- | --- |
-| `status` | Required: `pending`, `success`, `failed`, `cancelled` | Selects the corresponding status label, heading, explanatory copy, note, action label, and restrained semantic pill color. |
+| `status` | Required: `pending`, `success`, `failed`, `cancelled`, `expired` | Selects the corresponding status label, heading, explanatory copy, note, action label, and restrained semantic pill color. |
 
 Emits `action` without a payload when the shared primary/secondary action Button is activated. The parent owns retry, navigation, status refresh, or any later integration. The optional `secondary-action` slot accepts parent-owned navigation such as Back to Subscription. The component performs no request, redirect, payment verification, subscription mutation, or persistence.
 
@@ -494,9 +494,9 @@ Run the Training prototype using [prototypes/README.md](../../prototypes/README.
 
 ### Checkout cards
 
-The [Checkout HTML prototype](../../prototypes/design/pages/checkout.html) remains the single page-level visual reference for its three Checkout feature cards. The Vue cards reuse its classes from [style.css](../../prototypes/design/style.css), preserving headings, spacing, fields, table structure, and actions. No separate card pages are required.
+The [Checkout HTML prototype](../../prototypes/design/components/checkout/checkout.html) is the visual reference for the selected-plan, status, and successful order-summary cards. Pay with Stripe and Pay with PayPal are placed under the selected plan. The right-hand area shows PaymentStatusCard until backend-verified success, then replaces it with OrderSummaryCard. Checkout contains no Payment Information section or raw payment fields.
 
-The existing prototype [Checkout entry](../../prototypes/checkout/main.js) mounts the Checkout plan-summary component and supplies all dynamic display values through props and owns the demo checkout action and feedback state. Cards contain no composables, fetching, store access, payment calculations, or page-level business logic. Static labels match the prototype. Use unique `headingId` / `idPrefix` values when rendering multiple instances.
+The colocated prototype [Checkout entry](../../prototypes/design/components/checkout/main.js) mounts the Checkout cards, supplies their dynamic display values through props, and owns the demo checkout action and feedback state. Cards contain no composables, fetching, store access, payment calculations, or page-level business logic. Static labels match the prototype.
 
 #### PerformanceCard
 
@@ -504,17 +504,11 @@ The existing prototype [Checkout entry](../../prototypes/checkout/main.js) mount
 
 Its existing required string props are `headingId`, `badge`, `plan`, `description`, `price`, `period`, `billingNote`, `backLabel`, and `backHref`. The page owns formatting and navigation destinations. It performs no billing calculation or transaction. Do not merge these props into PaymentCardPlan merely to reconcile the older proposed architecture.
 
-#### PaymentInformationCard
-
-[PaymentInformationCard.vue](../../prototypes/components/cards/PaymentInformationCard.vue) presents exactly the four disabled fields in Checkout: Cardholder name, Card number, Expiry date, and Security code.
-
-All props are required strings: `idPrefix`, `title`, `description`, `cardholderDisplay`, `cardNumberDisplay`, `expiryDisplay`, and `securityCodeDisplay`. Only demo or masked display values belong in these props. Inputs remain disabled; the card does not collect, emit, submit, or store payment credentials. Real checkout remains subject to the protected payment-provider integration specified by the project.
-
 #### OrderSummaryCard
 
-[OrderSummaryCard.vue](../../prototypes/components/cards/OrderSummaryCard.vue) presents the Plan, Billing period, Subtotal, Tax, and Demo total rows, explanatory note, Complete checkout action, Cancel link, and status message.
+[OrderSummaryCard.vue](../../prototypes/components/cards/OrderSummaryCard.vue) presents the Plan, Billing period, Subtotal, Tax, Demo total, and payment Status rows, plus an explanatory note and page-owned actions. Checkout renders it only after backend-verified success; the prototype displays `Paid`.
 
-Required string props: `headingId`, `title`, `plan`, `billingPeriod`, `subtotal`, `tax`, `total`, `note`, `actionLabel`, `cancelLabel`, and `cancelHref`. `statusMessage` is an optional string defaulting to empty. Amounts are supplied as formatted display strings. The action emits `complete` without a payload; the page handles it and supplies any resulting status message. Cancel follows `cancelHref`. The card performs no transaction or subscription logic.
+Required string props: `headingId`, `title`, `plan`, `billingPeriod`, `subtotal`, `tax`, `total`, `paymentStatus`, `note`, `actionLabel`, `cancelLabel`, and `cancelHref`. `statusMessage` is an optional string defaulting to empty. Amounts and status are supplied as formatted display strings. The action emits `complete` without a payload; the page handles it. Cancel follows `cancelHref`. The card performs no transaction or subscription logic.
 
 ### HomePageInfoSection
 

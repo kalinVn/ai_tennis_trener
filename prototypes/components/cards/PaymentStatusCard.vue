@@ -6,7 +6,7 @@ const props = defineProps({
   status: {
     type: String,
     required: true,
-    validator: value => ['pending', 'success', 'failed', 'cancelled'].includes(value),
+    validator: value => ['pending', 'success', 'failed', 'cancelled', 'expired'].includes(value),
   },
 })
 
@@ -41,6 +41,13 @@ const contentByStatus = {
     note: 'You can return to checkout whenever you are ready.',
     actionLabel: 'Return to checkout',
   },
+  expired: {
+    label: 'Payment session expired',
+    title: 'Start a new payment session',
+    description: 'The hosted payment session is no longer available and no payment was confirmed.',
+    note: 'Your selected plan is preserved so you can safely start again.',
+    actionLabel: 'Start again',
+  },
 }
 
 const content = computed(() => contentByStatus[props.status])
@@ -71,6 +78,7 @@ const content = computed(() => contentByStatus[props.status])
 .payment-status-card--pending .payment-status-card__pill { background: #3a3420; color: #ffc857; }
 .payment-status-card--failed .payment-status-card__pill { background: #3a2026; color: #ff6b7a; }
 .payment-status-card--cancelled .payment-status-card__pill { background: #24342b; color: #a8b5ae; }
+.payment-status-card--expired .payment-status-card__pill { background: #3a2d20; color: #f2b56b; }
 @media (max-width: 530px) {
   .payment-status-card__actions { display: grid; }
   .payment-status-card__actions :deep(.button),

@@ -131,9 +131,8 @@ Feature components are project- or feature-specific UI components, distinct from
 - `CookiePrivacyPolicy` — the only public cookie/privacy feature component mounted by the application shell across public and authenticated pages. It composes `PrivacyChoicesBanner`, `CookiePreferencesContent`, `CookiePolicyContent`, and `PrivacyPolicyContent`, uses the shared `BaseModal` and `TextButton`, and delegates state/persistence to its local `useCookieConsent` composable. Consent is independent from authentication and survives navigation, refresh, login, and logout.
 - `FeatureCard` — the single Features-page feature component for a numbered product feature with a title and description; it is not shared UI.
 - `PerformanceCard` — existing Checkout order summary with description, price, billing note and back link, distinct from the selectable Pricing/Subscription plan card.
-- `PaymentInformationCard` — reusable Checkout card presenting disabled sample payment fields from page-supplied display props; never collects raw card data.
 - `OrderSummaryCard` — reusable Checkout card presenting order amounts, notes, and actions from page-supplied props; emits the checkout action for the page to handle.
-- `PaymentStatusCard` — shared Checkout return-state presentation for pending, success, failed, and cancelled visual states; it performs no payment or subscription logic.
+- `PaymentStatusCard` — shared Checkout return-state presentation for pending, success, failed, cancelled, and expired visual states; it performs no payment or subscription logic.
 - `CameraPreviewModal` — displays the live training camera stream, microphone and analysis controls, and backend feedback.
 - `TrainingCamera` — requests camera and microphone access, handles permission errors, and opens the camera preview modal.
 

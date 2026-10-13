@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Subscription · Tennis AI Coach</title>
+  <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="../../pages/dashboard.html"><span class="logo">AI</span>Coach</a>
+    <div class="side-links">
+      <a href="../../pages/dashboard.html">Dashboard</a>
+      <a href="../../pages/training.html">Training</a>
+      <a href="../../pages/history.html">History</a>
+      <a href="subscription.html" aria-current="page">Subscription</a>
+      <a href="../../pages/profile.html">Profile</a>
+      <a href="../../pages/settings.html">Settings</a>
+    </div>
+    <p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authentication Layout · demo</p>
+  </aside>
+  <div class="app-main">
+    <header class="app-top">
+      <span class="eyebrow" style="margin:0">Tennis AI Coach / Subscription</span>
+      <div class="flex">
+        <span class="muted">Artur Bortnik · demo user</span>
+        <a class="btn small" href="../../pages/index.html">Log out</a>
+      </div>
+    </header>
+    <main class="app-content">
+      <div class="eyebrow">ACCOUNT / BILLING</div>
+      <h1>Subscription</h1>
+      <p>Manage the training plan and billing details (visual demo only).</p>
+      <div id="subscription-cards-root">
+        <div class="two-col">
+          <div class="panel">
+            <h2>No selected plan</h2>
+            <p>You cannot use the application's training services until you select a plan.</p>
+            <button class="btn" type="button" onclick="document.getElementById('subscription-plan-options-fallback').hidden = false">Change plan</button>
+          </div>
+          <div class="panel">
+            <h3>Billing details</h3>
+            <p>Next renewal: Oct 26, 2026 (illustrative).</p>
+            <p>Payment method: Not connected.</p>
+            <button class="btn" type="button" onclick="showDemoNote('Billing is a visual prototype only.')">Manage billing</button>
+          </div>
+        </div>
+        <section id="subscription-plan-options-fallback" class="section" aria-live="polite" hidden>
+          <h2>Choose a plan</h2>
+          <p>Select the subscription that best fits your training.</p>
+          <div class="plan-grid">
+            <article class="card price">
+              <h3>Starter</h3>
+              <strong>€9</strong><small>/month</small>
+              <p>Core analysis and training history.</p>
+              <a class="btn" style="width:100%" href="../checkout/checkout.html">Choose Starter</a>
+            </article>
+            <article class="card price featured">
+              <div class="eyebrow">Most popular</div>
+              <h3>Performance</h3>
+              <strong>€19</strong><small>/month</small>
+              <p>Realtime coaching, richer insights and session review tools.</p>
+              <a class="btn primary" style="width:100%" href="../checkout/checkout.html">Choose Performance</a>
+            </article>
+            <article class="card price">
+              <h3>Pro</h3>
+              <strong>€39</strong><small>/month</small>
+              <p>Advanced training insights and premium tools.</p>
+              <a class="btn" style="width:100%" href="../checkout/checkout.html">Choose Pro</a>
+            </article>
+          </div>
+        </section>
+      </div>
+      <p id="demo-note" class="callout" hidden style="margin-top:18px"></p>
+    </main>
+  </div>
+</div>
+<script src="../../app.js"></script>
+<script type="module" src="main.js"></script>
+</body>
+</html>
