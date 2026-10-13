@@ -9,7 +9,7 @@ if (target) {
     setup() {
       const plan = {
         planName: 'Performance plan', price: '€19', billingPeriod: 'month (example)',
-        description: 'Realtime coaching, richer insights and progress tools.',
+        description: 'Realtime coaching, richer insights and session review tools.',
         statusLabel: 'Active · demo', actionLabel: 'Change plan',
       }
       function changePlan() { window.showDemoNote('Plan change is not connected in this prototype.') }

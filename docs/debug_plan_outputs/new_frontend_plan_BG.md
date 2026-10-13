@@ -1,121 +1,239 @@
-# Доклад от debug изпълнението на frontend планирането
+# Debug Frontend Plan — Отчет за изпълнението
 
-## 1. Запис на изпълнението
+## Запис за изпълнението
 
-- Команда: `debug_frontend_plan`.
-- Спецификация: `docs/frontend/frontend.md`.
-- Дата на изпълнение: `2026-10-08`.
-- Резултат: `blocked`; независима валидация на плана: `invalid`; `validated_plan: null`.
-- Извиквания на валидатора: 1. Опити за корекция на плана: 0.
-- Валидаторът откри 2 грешки и 2 предупреждения. Липсващото авторитетно решение за feedback ordering/replay спира correction loop-а незабавно според `.codex/workflows/frontend-planning.md`; пропускът в card contract-а също остава в този отхвърлен draft.
-- Това изпълнение започна след промените по документацията в работното дърво. При планирането се записва само тази двойка доклади; промените в документацията бяха налични при старта.
-- Имплементация, промени по приложния код, инсталиране на зависимости, build и deployment са извън обхвата на това изпълнение и не са извършвани.
+- Команда: `debug_frontend_plan`
+- Контекст на изпълнението: повторно изпълнение по искане на потребителя след синхронизацията на frontend спецификациите; пълният план е генериран отново от текущите авторитетни източници и е независимо валидиран.
+- Изрично зададен път до спецификацията: `docs/frontend/frontend.md`
+- Резултат: `valid`
+- Извиквания на валидатора: `2`
+- Опити за корекция: `1`
+- Причина цикълът за корекции да спре: втората независима валидация върна `status: valid`, без грешки, едно non-blocking warning и точния непроменен коригиран план.
+- Начално състояние на repository-то: съдържаше съществуващите промени по frontend спецификациите, прототипите, тестовете и Claude-to-Codex синхронизацията, както и предишната двойка debug отчети. Тези промени не са създадени от настоящото debug изпълнение.
+- Данни за production frontend-а: `frontend/` съдържа само `frontend/index.html`, затова типът на frontend-а е `new`.
+- Проверка на локалните референции: всички локални Markdown връзки в основната и подпомагащите frontend спецификации сочат към съществуващи пътища.
+- Проверка на прототипите: каталогът, реферираните прототипи на страници/layout-и/компоненти и ownership директориите съществуват. Prototype source беше прегледан само за организацията, изрично разрешена от `docs/frontend/frontend.md`.
 
-### Източници и приоритет
+### Прегледани източници
 
-Прочетени са `AGENTS.md`, `.codex/commands/debug_frontend_plan.md`, `.codex/workflows/frontend-planning.md`, `.codex/rules/frontend-planning.md`, `.codex/skills/plan-new-frontend-design.md`, `.codex/skills/frontend-plan-validator.md`, `.codex/skills/frontend-project-structure.md` и `.codex/references/frontend-architecture.md` заедно с приложимите архитектурни препратки в `claude/skills/frontend-code-architect/`.
+- `AGENTS.md`
+- `.codex/commands/debug_frontend_plan.md`
+- `.codex/rules/frontend-planning.md`
+- `.codex/workflows/frontend-planning.md`
+- `.codex/skills/plan-new-frontend-design.md`
+- `.codex/skills/frontend-plan-validator.md`
+- `.codex/references/frontend-architecture.md`
+- `docs/frontend/frontend.md`
+- `docs/frontend/layouts.md`
+- `docs/frontend/pages-and-routes.md`
+- `docs/frontend/components.md`
+- `docs/frontend/integration-contracts.md`
+- `docs/frontend/frontend-project-structure.md`
+- `claude/rules/frontend/frontend-design-system.md`
+- Frontend архитектурните файлове, избрани от `.codex/references/frontend-architecture.md`
+- Организацията на prototype директории/файлове, избрана от секцията `Project Structure` на `docs/frontend/frontend.md`
 
-Прочетени са авторитетните продуктови източници `docs/frontend/frontend.md`, `docs/frontend/pages-and-routes.md`, `docs/frontend/components.md`, `docs/frontend/layouts.md` и `docs/frontend/integration-contracts.md`. Визуалните и поведенческите източници включват каталога и посочените page/component/layout/navigation прототипи под `prototypes/design/`, както и съответните Vue и composable примери под `prototypes/components/` и `prototypes/composables/`. Проверена е директорията `frontend/`; тя съдържа placeholder съдържание, а не установена application имплементация.
+### Приоритет на източниците и архитектурни доказателства
 
-Основните изисквания и изрично посочените авторитетни supporting документи имат предимство пред прототипите; специализираните navigation прототипи имат предимство пред вградените примери за навигация. Изходният код на прототипите показва визуално намерение и примерни поведения, а не production backend договор. Предложените integration примери са цел за планиране и frontend fixtures, а не доказателство за имплементирани endpoint-и или одобрение от backend екипа. Не е проверявано съответствие в рендериран браузър и не са изпълнявани имплементационни проверки.
+- `docs/frontend/frontend.md` и обявените от него подпомагащи спецификации управляват scope-а, routes, layouts, component contracts, integrations и placement.
+- Реферираните прототипи дават визуална посока и декларирани mappings; те не са production code.
+- Споделените design rules предоставят defaults с по-нисък приоритет.
+- Одобрената структура е плитка и базирана на отговорности и забранява frontend `modules/` feature-root слой.
+- Малките Cards/Fields семейства остават прости; Home Page Video Slider остава действително сложна локална система с един owner за всеки lifecycle/resource.
+- `AuthStore` притежава authentication workflow state, `UserStore` притежава atomic authenticated-data snapshot-а, feature stores притежават само transient workflows, services притежават external communication, а composables притежават reusable browser/UI lifecycles.
 
-## 2. План за имплементация на frontend-а
+## План за frontend имплементация
 
-### Тип на frontend-а
+> Статус: независимо валидиран. Това е точният непроменен план, върнат от успешната втора валидация.
 
-`new` — Vue приложението ще бъде създадено под `frontend/`; съществуващият placeholder ще се запази до отделно разрешена имплементация. Този план не създава файлове.
+# План за frontend имплементация
 
-### Структура на проекта
+## Тип на frontend-а
 
-Използвайте `docs/frontend/frontend-project-structure.md` като единствен източник за физическата структура на frontend-а. Този доклад не я дефинира повторно.
+```text
+new
+```
 
-### Layouts, routes, достъп и навигация
+Production Vue приложението не е изградено: `frontend/` в момента съдържа само `frontend/index.html`. Планирайте цялата имплементация под `frontend/`, без prototype code да се третира като production code.
 
-Имплементират се `PublicLayout` и `AuthenticationLayout` според `docs/frontend/layouts.md`. Login и registration остават interactions, хоствани от Public Layout, а не отделни routes. `AuthenticationLayout` притежава authenticated header/sidebar и празната page-content област. За изгледа и responsive поведението се използва специализираният authenticated navigation прототип.
+## Авторитет на източниците и scope
 
-| Път | Име | Страница | Layout | Достъп и параметри |
-| --- | --- | --- | --- | --- |
-| `/` | `home` | Home | Public Layout | Public |
-| `/features` | `feature` | Features | Public Layout | Public |
-| `/training` | `training` | Training | Authentication Layout | Authenticated |
-| `/pricing` | `pricing` | Pricing | Public Layout | Public |
-| `/dashboard` | `dashboard` | Dashboard | Authentication Layout | Authenticated |
-| `/history` | `history` | History | Authentication Layout | Authenticated |
-| `/sessions/:sessionId` | `session-review` | Session Review | Authentication Layout | Authenticated; изисква непрозрачен `sessionId`; server разрешава достъпа |
-| `/progress` | `progress` | Progress | Authentication Layout | Authenticated; няма path параметър |
-| `/subscription` | `subscription` | Subscription | Authentication Layout | Authenticated |
-| `/profile` | `profile` | Profile | Authentication Layout | Authenticated |
-| `/settings` | `settings` | Settings | Authentication Layout | Authenticated |
-| `/checkout` | `checkout` | Checkout | Authentication Layout | Authenticated |
-| `/not-found` | `not-found` | Not Found | Public Layout | Public; непознатите пътища се насочват тук |
+- Основна спецификация: `docs/frontend/frontend.md`.
+- Авторитетни подпомагащи спецификации: `docs/frontend/layouts.md`, `docs/frontend/pages-and-routes.md`, `docs/frontend/components.md`, `docs/frontend/integration-contracts.md` и `docs/frontend/frontend-project-structure.md`.
+- Визуален каталог и mappings: `prototypes/design/index.html`, `prototypes/design/pages/` и `prototypes/design/components/`; отделните public/authenticated navigation прототипи имат предимство пред по-стари embedded navigation примери.
+- Споделени design constraints: `claude/rules/frontend/frontend-design-system.md`.
+- Архитектурен контекст: отговорността на frontend-code-architect и референциите за ownership, lifecycle, placement и review, избрани от `.codex/references/frontend-architecture.md`.
+- Спецификациите имат предимство пред прототипите; прототипите имат предимство пред споделените design defaults. Backend contracts в `integration-contracts.md` са предложени и изискват backend потвърждение преди live integration.
+- Запазете Vue 3.5+ като документирания минимум, TypeScript, Vite, Pinia и Vue Router. Не имплементирайте backend authentication authority, computer vision, coaching decisions, TTS generation, payment processing или webhook handling в browser-а.
 
-Authenticated навигацията съдържа Dashboard, Training, History, Progress, Subscription, Profile, Settings и Checkout. Редовете за сесии в History и Dashboard водят към Session Review с върнатия от server session ID; Session Review е вложен в History и не е отделен елемент от основната навигация. В authenticated sidebar Progress е след History. Public навигацията показва Home, Training, Pricing и login dialog. По време на authentication се запазва валидирана вътрешна дестинация за връщане. Router guards подобряват само навигацията; backend authorization защитава всички данни и действия. Неуспешната проверка на сесията е unavailable, а не signed out; `401` и `403` остават различни.
+## Структура на проекта
 
-### Shared компоненти и композиция на страниците
+Използвайте плитката структура, базирана на отговорности, дефинирана от `docs/frontend/frontend-project-structure.md`; не добавяйте frontend `modules/` feature-root слой и не създавайте празни placeholders.
 
-- `Button` осигурява presentation, UI state и излъчване на `click`. Запазват се документираните варианти `primary`, `secondary`, `ghost`; размери `small`, `medium`; типове `button`, `submit`, `reset`; Boolean `disabled` и `loading`. Loading/disabled спират активацията. Няма callback prop, business logic или `to`/RouterLink поведение. Родителят притежава действията и навигацията.
-- Семейството shared fields включва `TextField`, `NumberField`, `SelectField`, `DateField`, според съществуващите field/composable конвенции. Запазват се parent-owned model стойности, native attributes, достъпни labels, `null` за празно числово поле, multiple selection и date string `YYYY-MM-DD` без timezone конверсия.
-- `CollapseForm` е generic контейнер с title/description и default/footer slots, с native expanded/collapsed UI state; няма renderer за form schema. Profile и Settings притежават конфигурацията на секциите, стойностите, валидацията и действията.
-- `TopNav` и `SidebarNav` запазват parent-owned линкове/current route и достъпното keyboard, focus, responsive drawer, Escape и cleanup поведение от съществуващите примери.
-- `BaseTable` визуализира подадени title, columns, rows, row key и cell slots. `FeatureCard` показва номерираното feature съдържание. Нито един от тях няма достъп до stores или services.
-- Един `PaymentCardPlan` се използва в Pricing и Subscription. Неговият `selected` prop променя само presentation; `statusLabel` независимо представя текущия абонамент. Родителят подава `planName`, форматиран `price`, optional `billingPeriod`, `description`/`features`, labels и обработва излъчените действия. `BillingDetailsCard` остава отделен billing panel само със съществуващите renewal и payment-method display полета. Checkout запазва отделните договори на `PerformanceCard`, `PaymentInformationCard` и `OrderSummaryCard`; disabled payment полетата приемат само sample/masked display текст и никога не събират данни за карта.
-- Home използва повторно потвърдения `HomePageInfoSection` и Vue slider entry. Slider controller, renderer, timeline, configuration, styles и media остават в owning feature. Controller координира; renderer притежава графичните ресурси; всяка timeline притежава времето си; всеки resource owner извършва cleanup еднократно. Прегледът на източника не доказва готовност на lifecycle за production.
-- Features използва повторно `FeatureCard` и `Button`; останалото съдържание на страницата остава page-level DOM. Dashboard, History, Subscription, Profile, Settings и Checkout следват page прототипите и конкретните composition правила в `pages-and-routes.md` и `components.md`.
+Специфично разположение за плана:
 
-### Integration договори и собственост
+- Route views: `frontend/src/pages/` за Home, Features, Login, Register, Training, Pricing, Dashboard, History, Session Review, Subscription, Profile, Settings, Not Found и Checkout.
+- Layout shells: `frontend/src/layouts/PublicLayout.vue` и `frontend/src/layouts/AuthenticationLayout.vue`.
+- Shared UI: поддиректории, базирани на отговорности, под `frontend/src/components/`, като се запазват component families като `buttons/`, `fields/`, `forms/`, `cards/`, `navigation/`, `tables/` и `modal/`.
+- Feature UI: фокусирани поддиректории под `frontend/src/components/` като `auth/`, `cookie-privacy/`, `features/`, `training/`, `checkout/` и `home/`; feature-specific файловете остават локални, докато реална повторна употреба не оправдае promotion.
+- Сложният Home slider остава cohesive директория под `frontend/src/components/home/home-page-video-slider/` със своя Vue owner, controller, renderer, timelines, configuration, component styles, local asset, README и focused tests. Запазете един owner за renderer/timeline/resource и idempotent asynchronous cleanup; не налагайте този multi-file pattern върху прости компоненти.
+- Reusable behavior: `frontend/src/composables/`, включително field behavior, Button UI behavior, authenticated initialization и camera/video/media lifecycle там, където са reusable. Дръжте feature-only behavior при неговия owner: `useCookieConsent.ts` остава до `CookiePrivacyPolicy` под `frontend/src/components/cookie-privacy/`, а slider-only collaborators остават със slider-а.
+- External communication: `frontend/src/services/` за authenticated HTTP client, auth, unified user-data, sessions/reviews, billing, browser media/provider boundaries и training WebSocket transport. Използвайте `frontend/src/proxy/` само ако е необходим реален adapter boundary.
+- Shared state: `frontend/src/stores/AuthStore.ts`, `UserStore.ts`, `TrainingSessionStore.ts` и `CheckoutStore.ts`. Избягвайте per-page копия на authoritative persisted data.
+- Router and guards: `frontend/src/router/`; runtime config, fixed values, helpers, integrations, directives, assets, global CSS/tokens и tests използват съответните одобрени top-level source директории.
+- `frontend/src/App.vue` монтира `CookiePrivacyPolicy` веднъж над двете layout families. Pages и layouts не трябва да го дублират.
 
-Използва се `docs/frontend/integration-contracts.md` като предложен пример за fixtures/API за authentication/session, training session lifecycle и versioned WebSocket analysis events, history/review/progress, dashboard/profile/settings, provider-hosted checkout и shared errors. Тези shapes са предложения, а не одобрени live backend interfaces. Frontend views и tests могат да бъдат планирани спрямо fixtures; live service интеграцията изисква потвърждение или адаптация от backend екипа.
+## Design основа
 
-- Authentication service управлява cookie-backed login/registration/session/logout, provider redirects, second-factor challenges, expiry и безопасна вътрешна дестинация за връщане. Backend притежава authentication authority, authorization, OAuth secret handling и валидността на сесията.
-- Training camera логиката притежава получените media tracks и избраното устройство. `useCameraSession.ts` изброява наличните `videoinput` устройства след permission, запазва избраното устройство за активния training flow и предоставя switch действие. Смяната първо придобива replacement stream, атомарно го прави авторитетен за preview/capture и след това освобождава предишния stream чрез този единствен track owner; при неуспех се запазва използваемият текущ stream или се отчита unavailable, когато няма такъв. Device-change обработката открива премахване на избраната камера и предлага изричен fallback/retry, без мълчаливо да сменя активния stream. Capture/resize/cancellation принадлежи на analysis composable; ограниченото WebSocket изпращане/приемане принадлежи на training transport service. Camera modal притежава dialog lifecycle, media attachment, local mute и визуализацията на feedback в съществуващия overlay slot, като иска освобождаването на tracks от camera owner-а. `TrainingSessionStore.ts` съхранява server-issued `player_feedback` events по `eventId`, игнорира duplicates, свързва ги с текущата session и следи само поддържаните successful-stroke, mistake и recommendation classifications. Completion изпраща събраните feedback event IDs; backend проверява ownership и връща canonical summary, което заменя всяка provisional client aggregation. Текущият прототип спира tracks както от `CameraPreviewModal.cleanup()`, така и от `useCameraSession.stopCamera()`; имплементацията трябва да премахне двойното спиране и да запази camera session owner-а като единствен авторитет за освобождаване на tracks. Спирането на анализа спира capture/sending, но запазва preview; излизането или затварянето спира анализа и освобождава tracks. Няма browser inference, LLM в per-frame path, microphone upload или измислени/low-confidence съвети.
-- Audio playback е отделен training owner в `useAudioOutput.ts`. Той предоставя start, stop, pause, resume и interrupt операции плюс авторитетно idle/loading/playing/paused/error състояние. Обработва backend `coaching_audio` команди, предотвратява застъпване, заменя или прекъсва playback детерминистично за последната релевантна инструкция с по-висок priority, отчита unavailable ресурси/playback failure без промяна на analysis truth и освобождава притежаваните media ресурси отделно от transport.
-- Session review и progress показват само подкрепени от server стойности с техните units, времеви диапазони, availability и confidence/provenance. В browser-а не се изчисляват coaching заключения.
-- Subscription стартира provider-hosted checkout само с plan identifier. Backend/provider обработва чувствителните payment данни и транзакции; backend webhooks се проверяват и са idempotent. Checkout success се показва само след backend verification, никога само по redirect query. Frontend никога не съхранява/обработва сурови card стойности.
+1. Изведете production design tokens за color, typography, spacing, radius, borders, shadows, transitions, widths, breakpoints и semantic states от реферираните прототипи, като използвате повторно споделени CSS custom properties, вместо сляпо да копирате prototype CSS.
+2. Имплементирайте последователни focus-visible, hover, active, disabled, loading, validation, success, warning, error, connected, disconnected и selected states, без да използвате само цвят.
+3. Използвайте semantic HTML, associated labels, accessible names за icon-only controls, modal focus behavior, live announcements за важни asynchronous states, достатъчен contrast, практични touch targets и reduced-motion handling.
+4. Запазете desktop, tablet и mobile представянето в един design language; stack-вайте content, адаптирайте navigation, запазете media proportions и предотвратете нежелан horizontal overflow. Training трябва да показва безопасно и разбираемо mobile state.
+5. Запазете page-specific layout/content в pages; reusable visual behavior принадлежи на shared components или explicit variants.
 
-### Дизайн, състояния на приложението, достъпност и план за проверка
+## Layout-и и глобален shell
 
-Прилагат се визуалните tokens и структура от посочените прототипи и shared design правилата: тъмнозелено `#07100c`, panel `#0d1913`, текст `#f4f7f5`, muted `#a8b5ae`, lime `#b7ff4a`, cyan `#65e8ff`, radius `22px`, Inter/system typography, public container `1160px`, sidebar `244px`. Това са примери, извлечени от източниците; йерархията и responsive поведението на всяка страница се запазват. Не е проверено съответствие на рендериран резултат.
+### Public Layout
 
-Имплементира се матрицата за състояния и възстановяване от `pages-and-routes.md`: loading, empty/insufficient data, success, validation, recoverable error, unavailable, disconnected, pending и verified completion според приложимостта. Състоянията на camera, transport, session, analysis, auth и billing остават отделни. Не се показват измислени metrics, sessions, analysis или payment state.
+Имплементирайте branding, `TopNav`, responsive content outlet и само footer, следвайки `prototypes/design/layouts/public.html` и по-високоприоритетния `prototypes/design/components/navigation/public-navigation.html`. Footer legal actions отварят глобалната policy/preferences feature, вместо да навигират към отделни policy pages.
 
-Поддържат се desktop/tablet/mobile, използваема навигация и training оформление на тесен екран, липса на нежелан хоризонтален overflow, семантични контроли, свързани labels, keyboard достъп, видим focus, достатъчен contrast, достъпни имена за икони, известяване за асинхронни промени и reduced motion.
+### Authentication Layout
 
-Бъдеща последователност за проверка: unit tests за routes/access guards, field/Button и component договори, session state, analysis cancellation и cleanup; service tests спрямо примерните fixtures; integration tests за authentication return/error състояния, camera permission, device enumeration, успешна atomic switching, selected-device retention, removed-device failure/fallback, sole-owner stream cleanup и stop/unmount; тестове за audio start/stop/pause/resume/interrupt, overlap prevention, priority replacement, failure state и resource release; натрупване на per-stroke feedback и completed-session summary, transport disconnect/reconnect и липса на frame изпращане след stop, overlay cleanup, server-verified checkout return; responsive Playwright навигация и screenshots; lint/static checks и production build. Тези проверки не са изпълнявани по време на планирането. Fixture-backed функционалността не се представя за live backend интеграция.
+Имплементирайте `SidebarNav`, authenticated header/identity actions, responsive content outlet и sidebar legal actions, следвайки `prototypes/design/layouts/authentication.html` и по-високоприоритетния `prototypes/design/components/navigation/authenticated-navigation.html`. Training използва същия shell.
 
-### Отворени въпроси и блокери
+### Глобален Cookie и Privacy flow
 
-| Въпрос или липсваща информация | Засегнати елементи на плана | Въздействие върху имплементацията | Блокиращо | Необходимо разрешаване |
-| --- | --- | --- | --- | --- |
-| Backend/product собствениците не са потвърдили предложените endpoint имена, schemas, transport semantics, authentication детайли, units, limits и provider mappings в `docs/frontend/integration-contracts.md`. | Live auth, training analysis/audio, session данни, progress, account данни, billing интеграция. | Frontend може да имплементира UI и fixtures спрямо примерите, но live service интеграцията трябва да изчака съгласуване с backend екипа. | Не за frontend структура/UI/fixture-backed работа; да за свързването на live services. | Backend собствениците потвърждават или адаптират всеки примерен договор преди live интеграцията му; договореното се записва при integration boundary. |
+Монтирайте един `CookiePrivacyPolicy` от `App.vue`. Композирайте `PrivacyChoicesBanner`, `CookiePreferencesContent`, `CookiePolicyContent` и `PrivacyPolicyContent` чрез единствения shared `BaseModal` и shared `TextButton`. Дръжте bottom banner-а видим, докато Accept All, Reject All или Save Preferences не запише versioned `tennis-ai-coach.cookie-consent.v1` record. Essential е винаги enabled; отварянето/затварянето на policy modal е информационно и не се брои за consent. Footer/sidebar Cookie Settings отваря отново записаните preferences. Consent се запазва при routes, refresh, login и logout и остава независим от authentication.
 
-### Ред на изграждане
+## Routes, Pages, Access и Prototype Mapping
 
-1. Преглед и запазване на съществуващия frontend placeholder; изграждане на плитката Vue/TypeScript/Vite структура и еднократна инициализация на router/Pinia.
-2. Дефиниране на design tokens, accessibility основа, shared компоненти, Public/Authentication layouts и auth dialog host.
-3. Имплементиране на public страниците и authentication/session state спрямо примерните договори и честните pending/error състояния.
-4. Имплементиране на Dashboard, History, Session Review и Progress страниците/routes със server-owned данни и управление на състоянието.
-5. Имплементиране на Training camera lifecycle, ограничен analysis transport, feedback overlay, audio playback и cleanup граници.
-6. Имплементиране на Profile и Settings спрямо account service договорите.
-7. Имплементиране на Subscription и provider-hosted Checkout с backend-verified return състояния.
-8. Проверка на responsive/accessibility и resource lifecycle поведението; изпълнение на tests, lint/static checks, production build и преглед спрямо източниците.
-9. Всеки unavailable backend integration се отчита отделно; simulated функционалността не се обявява за завършена и не се прави deployment.
-
-## 3. Констатации от валидацията
-
-Независимият резултат е `status: invalid`, `validated_plan: null` след 1 извикване и 0 опита за корекция.
-
-| Раздел и източник | Блокиращ проблем | Необходимо разрешаване |
-| --- | --- | --- |
-| Training feedback — `docs/frontend/frontend.md`, Coaching Feedback и Analysis Client; `docs/frontend/integration-contracts.md`, training transport/reconnect | `player_feedback` вече дефинира identity, deduplication и canonical completion, но няма ordering guarantee или replay/resume/catch-up правило след reconnect. Client-ът не може да знае дали са пропуснати events или дали изпратените `feedbackEventIds` са пълни. | Дефиниране на авторитетна monotonic sequence и resume cursor/replay поведение или изричен snapshot/review reconciliation contract, включително completion поведение при оставащи delivery gaps. След това се обновяват ownership и deterministic reconnect/completion tests. |
-| Shared cards — `docs/frontend/components.md`, PaymentCardPlan и BillingDetailsCard | Планът именува shared cards, но пропуска част от новите им авторитетни props/events, така че downstream builders трябва да отварят източниците отново или да гадаят. | Записване на `PaymentCardPlan` props `planName`, `price`, `billingPeriod`, `description`, `features`, `statusLabel`, `selected`, `selectedLabel`, `actionLabel` и payload-free `action`; записване на `BillingDetailsCard` props `title`, `renewalText`, `paymentMethodText`, `actionLabel` и payload-free `action`, с page-owned behavior. |
-
-| ID | Източник | Неблокиращо предупреждение | Необходимо последващо действие |
+| Route | Page/layout | Access и source-backed отговорност | Visual prototype(s) |
 | --- | --- | --- | --- |
-| W1 | `docs/frontend/integration-contracts.md` — Contract adoption; `docs/frontend/frontend.md` — Acceptance Criterion 9 | Endpoint names, schemas, limits, authentication details, transport semantics, units и provider mappings остават непотвърдени. Fixture-backed frontend работата може да продължи; live service connection остава блокиран. | Получаване на backend/product потвърждение или адаптация преди включване или заявяване на live integration. |
-| W2 | `docs/frontend/frontend.md` — Acceptance Criterion 3; `.codex/skills/frontend-plan-validator.md` — Design and prototypes | Source markup/styles са проверими, но при планирането няма rendered-browser comparison. | Изпълнение на планираните Playwright screenshots и visual review след имплементацията; rendered alignment не се заявява преди тази проверка. |
+| `/` | Home / Public | Композирайте `HomePageInfoSection` и `HomePageVideoSlider`; parent притежава CTA navigation. | `prototypes/design/pages/index.html`, `prototypes/components/sections/HomePageInfoSection.vue`, `prototypes/components/sliders/home-page-video-slider/HomePageVideoSlider.vue` |
+| `/features` | Features / Public | Page-level title/copy/layout с три instances на единствения feature-owned `FeatureCard` и shared Buttons. | `prototypes/design/pages/features.html`, `prototypes/components/cards/FeatureCard.vue`, `prototypes/design/components/cards/feature-card.html` |
+| `/login` | Login / Public | `LoginForm`, reCAPTCHA provider token, password login, OAuth entry, MFA continuation, validation/pending/error states; backend притежава verification/session issuance. | `prototypes/design/pages/login.html`, `prototypes/pages/LoginPage.vue`, `prototypes/components/forms/LoginForm.vue` |
+| `/register` | Register / Public | `RegisterForm`, client-only password confirmation, legal consent, provider reCAPTCHA token, registration/OAuth entry, verification/conflict/error states. | `prototypes/design/pages/register.html`, `prototypes/pages/RegisterPage.vue`, `prototypes/components/forms/RegisterForm.vue` |
+| `/training` | Training / Authentication | Композирайте съществуващия flow с `TrainingCamera` и `CameraPreviewModal` заедно с page-level прототипа; създайте session преди свързване към backend-issued WebSocket; complete или abandon изрично. | `prototypes/design/pages/training.html`, `prototypes/design/pages/camera.html`, `prototypes/components/training/TrainingCamera.vue`, `prototypes/components/modal/CameraPreviewModal.vue` |
+| `/pricing` | Pricing / Authentication | Изисквайте authentication, използвайте `AuthenticationLayout`, render-вайте page-level pricing content с три `PaymentCardPlan` instances и запазвайте validated login return target. | `prototypes/design/pages/pricing.html`, `prototypes/components/cards/PaymentCardPlan.vue`, `prototypes/design/components/cards/payment-card-plan.html`, `prototypes/design/components/cards/payment-card-plan-selected.html` |
+| `/dashboard` | Dashboard / Authentication | Четете Dashboard aggregates и initial recent session history от `UserStore`; session rows използват server ids за отваряне на Session Review; без redundant initial GET. | `prototypes/design/pages/dashboard.html` |
+| `/history` | History / Authentication | Четете initial collection от `UserStore`; използвайте `BaseTable` с Date, Duration, Status, Review Session и pagination; list endpoint само за pagination/explicit refresh. | `prototypes/design/pages/history.html`, `prototypes/components/tables/BaseTable.vue`, `prototypes/design/components/tables/BaseTable.html` |
+| `/sessions/:sessionId` | Session Review / Authentication | Валидирайте opaque route id безопасно, заредете authorized review чрез `sessionService`, оставете History active и покажете loading, safe not-found/unauthorized, success, partial, recoverable-error и unavailable states. | `prototypes/design/pages/history.html`, `prototypes/design/components/training-session-card.html` |
+| `/subscription` | Subscription / Authentication | Четете initial state от `UserStore`; композирайте `PaymentCardPlan`, `BillingDetailsCard` и една `PaymentStatusCard` за pending/success/failed/cancelled; page притежава checkout/portal/status actions. | `prototypes/design/pages/subscription.html`, `prototypes/components/cards/PaymentCardPlan.vue`, `prototypes/design/components/cards/payment-card-plan.html`, `prototypes/components/cards/BillingDetailsCard.vue`, `prototypes/design/components/cards/billing-details-card.html`, `prototypes/components/cards/PaymentStatusCard.vue`, `prototypes/design/components/cards/payment-status-card.html` |
+| `/profile` | Profile / Authentication | Page-owned Personal Information draft в `CollapseForm`; инициализирайте от и заменете само `UserStore.personalInformation` след normalized PATCH success. | `prototypes/design/pages/profile.html`, `prototypes/components/forms/CollapseForm.vue`, `prototypes/design/components/forms/CollapseForm.html` |
+| `/settings` | Settings / Authentication | Page-owned Change Password, Notifications и Privacy & Data секции чрез `CollapseForm`; persisted groups заменят съответните `UserStore` sections само след success. | `prototypes/design/pages/settings.html`, `prototypes/components/forms/CollapseForm.vue`, `prototypes/design/components/forms/CollapseForm.html` |
+| `/not-found` | Not Found / Public | Render-вайте документираната 404 page. Unknown routes redirect-ват тук. | `prototypes/design/pages/not-found.html` |
+| `/checkout` | Checkout / Authentication | Композирайте `PerformanceCard`, disabled-display-only `PaymentInformationCard` и `OrderSummaryCard`; стартирайте provider-hosted checkout и проверявайте всеки върнат result чрез backend-а. | `prototypes/design/pages/checkout.html`, `prototypes/components/cards/PerformanceCard.vue`, `prototypes/components/cards/PaymentInformationCard.vue`, `prototypes/components/cards/OrderSummaryCard.vue` |
 
-Не са изпълнявани implementation tests, build, dependency installation, browser rendering или live integration checks по време на тази planning команда.
+Router guards трябва да различават public access, authenticated access, unknown routes, `401` refresh/sign-in recovery и `403` authorization failure. Запазете validated internal return target. Navigation visibility не е authorization.
 
-## 4. Статус на спиране
+## Shared Components
 
-`STOP`: само планиране. Английски изход: `docs/debug_plan_outputs/new_frontend_plan_N.md`. Български изход: `docs/debug_plan_outputs/new_frontend_plan_BG.md`, преведен от този записан английски доклад. Това изпълнение не включва имплементация, създаване на source структура, инсталиране на зависимости, build или deployment.
+Имплементирайте contracts от `docs/frontend/components.md` без page business logic:
+
+- `Button`, `TextButton`, `BaseModal`.
+- `DateField`, `NumberField`, `SelectField`, `TextField` и `RecaptchaField`, с parent-owned values и документираните shared/specialized field composables.
+- `CollapseForm` като generic native-details container с default/footer slots и без store/form schema ownership.
+- `TopNav` и `SidebarNav`, включително документирания responsive menu/drawer lifecycle cleanup.
+- `BaseTable`, като запазите generic props/slots и документираната conditional Session Name + Focus transformation.
+- `PaymentCardPlan` и `BillingDetailsCard` като presentational cards с parent-owned actions.
+- `SocialAuthButton` и `SocialAuthButtons`, с OAuth initiation, притежаван над presentational controls.
+
+Не измисляйте неподдържани Button variants/sizes/navigation props и не дублирайте generic modal/navigation/form systems.
+
+## Feature Components
+
+- Home: `HomePageInfoSection`; `HomePageVideoSlider` плюс локалните му controller, Pixi renderer, timelines, lifecycle/configuration, component CSS, asset и tests. Дръжте illustrative overlays изрично non-live и освобождавайте Pixi, GSAP, media, listeners, timers и observers idempotently, включително destruction по време на asynchronous initialization.
+- Authentication: `LoginForm` и `RegisterForm`, които композират shared fields, reCAPTCHA и social-auth controls, като делегират auth/network authority на store/services.
+- Cookie/privacy: `CookiePrivacyPolicy` и четирите му документирани internal components с локален `useCookieConsent`; използвайте повторно `BaseModal`/`TextButton`.
+- Subscription/checkout: `PaymentStatusCard`, `PerformanceCard`, `PaymentInformationCard` и `OrderSummaryCard`, всички presentational; parent pages притежават requests, redirects, verification и store updates.
+- Training: `TrainingCamera` и `CameraPreviewModal`, като `useCameraSession` притежава camera/microphone acquisition и track release, `useCameraPreviewModal` притежава dialog/media attachment и mute/presentation lifecycle, `useVideoAnalysis` притежава paced JPEG capture/cancellation, `trainingTransport` притежава WebSocket-а, а `TrainingSessionStore` притежава active session/phase и current backend feedback.
+- Features: запазете една feature-owned `FeatureCard` implementation в `frontend/src/components/features/FeatureCard.vue`; Features page подава нейното content и shared Button actions.
+
+## State, Services и Integration Boundaries
+
+### Authentication
+
+`AuthStore` притежава само short-lived access-token и authentication workflow state. Дръжте access token-а in memory; Secure, HttpOnly, SameSite refresh cookie остава недостъпна за JavaScript. Централизирайте една refresh-and-single-retry policy и изчиствайте AuthStore и UserStore при logout или terminal authentication failure. Services имплементират password auth, reCAPTCHA token submission, OAuth start, MFA verification, refresh и logout чрез shared error envelopes, без да излагат secrets.
+
+### Authenticated Data
+
+След като Login, MFA, OAuth или recoverable reload установи session-а, извикайте `GET /api/v1/user/data` веднъж и атомарно попълнете `UserStore` с account, personalInformation, subscription, dashboard, sessionHistory и settings. Dashboard, Profile, Settings, Subscription и History четат този snapshot. Успешните section PATCH операции заменят само normalized corresponding section. Local drafts/pending/errors остават page-local.
+
+### Training
+
+Създайте session-а преди media transmission и се свържете само към backend-issued short-lived WebSocket URL. Изпращайте всяко JSON frame metadata message непосредствено последвано от неговия binary JPEG без interleaving. Обработвайте само active-session events; запазете backend `strokeId`/`strokeNumber`, text, confidence и kind. Поставяйте в queue optional temporary backend-generated `audioUrl` playback, без да го запазвате или да генерирате TTS. Спрете frames при disconnect; normal stop изпраща `stop_analysis` и completes, а early exit abandons. Един owner освобождава tracks, capture loops, socket, timers, listeners, playback и modal resources.
+
+### History и Review
+
+`UserStore.sessionHistory` е единственият initial/history collection owner. `UserStore` притежава и текущия authorized Session Review result, зареждан при поискване; този route-specific result е отделен от authoritative history collection и не го дублира. `sessionService` само изпълнява later-page, explicit-refresh и route-specific review requests, след което owning store получава normalized result.
+
+### Billing
+
+`CheckoutStore` притежава само transient checkout initiation/verification phase, selected-plan return context и checkout-return polling lifecycle; persisted subscription truth остава `UserStore.subscription`. Стартирайте чрез `POST /api/v1/billing/checkout-sessions` с `planId` и validated `returnPath`, redirect-вайте само към върнатия `checkoutUrl` и проверявайте чрез `GET /api/v1/billing/checkout-sessions/{checkoutSessionId}`. Никога не извеждайте success от browser redirects/query parameters.
+
+Когато verification върне `pending`, `CheckoutStore` планира bounded, backoff-based retry на backend-authoritative checkout-session GET, предотвратява overlapping requests и показва pending плюс recoverable network-error states. Той отменя timers и in-flight requests, когато flow-ът достигне `succeeded`, `cancelled`, `failed` или `expired`, когато user-ът изрично stop/retry-не или когато owning route бъде напуснат. След `succeeded` refresh-нете `UserStore.subscription` чрез `GET /api/v1/subscriptions/status`; ако endpoint-ът все още връща pending subscription state, приложете същата cancellable bounded retry дисциплина до `active`, `paid`, `failed`, user-visible timeout или recoverable failure. Retry limits/delays остават configuration values, потвърдени при backend adoption, а не измислени provider guarantees.
+
+Manage Billing извиква документирания customer-portal session endpoint. Никога не изпращайте payment amounts/card credentials и не извиквайте backend-only Stripe webhook-а.
+
+## Задължителни UI и Recovery States
+
+Имплементирайте initial/loading, empty или insufficient, success, validation, recoverable error, unavailable и disconnected states, където са приложими, като използвате авторитетния page matrix. По-конкретно:
+
+- Запазвайте използваемите stored snapshots при recoverable Dashboard/History/Profile/Settings failures.
+- Разделете signed-out, authentication lookup failure, MFA challenge, challenge expiry и authorization denial.
+- Разделете camera/device failure, WebSocket disconnection, waiting for analysis, partial/low-confidence evidence, normal completion и abandonment.
+- Разделете no subscription, unknown/unavailable subscription, checkout pending, backend-verified success, cancelled, failed, expired, provider/network error и bounded retry timeout; никога не превръщайте timeout в success.
+- Никога не показвайте mocked или fabricated analysis, history или payment outcomes като production truth.
+
+## Acceptance и Test Plan
+
+1. Конфигурирайте production Vue 3 + TypeScript + Vite приложението; добавете Pinia, Vue Router, SCSS support, изискван от components, Pixi/GSAP, изисквани от slider-а, и съществуващия project test toolchain, без да заменяте одобрения stack.
+2. Unit/component tests: shared component props/events/slots/states/accessibility; field composables; modal focus/scroll restoration; navigation cleanup; cookie persistence/version behavior; store ownership; auth refresh single retry; training lifecycle/cancellation; WebSocket metadata+binary pairing; feedback/audio handling; checkout terminal mapping, bounded backoff, no-overlap, cancellation, route-exit cleanup, timeout и subscription refresh; slider async initialization/idempotent destruction.
+3. Router tests с Vitest: всеки required route/name/layout/access rule, opaque session parameter handling, protected redirects/return targets, unknown-route behavior и active navigation.
+4. Playwright: public/authenticated navigation, всички route loads, login/register interaction states, global consent flow между routes/refresh/auth transitions, History pagination/review navigation, training camera/control/error/disconnect cleanup чрез mocks и provider-hosted checkout return verification/retry чрез intercepted APIs.
+5. Responsive и accessibility validation при representative desktop/tablet/mobile viewports: navigation, forms, tables, modal scrolling, banner, cards, Training media proportions/safe mobile state, keyboard operation, focus visibility/restoration, labels, announcements, contrast, reduced motion и без horizontal overflow.
+6. Visual regression screenshots за major pages/states спрямо mapped prototypes, като прототипите се третират като visual direction, а не като production markup или pixel-perfect authority.
+7. Изпълнете production build, TypeScript/static checks, ESLint, Vitest и Playwright. Не изключвайте failing checks. Докладвайте unavailable backend dependencies отделно и използвайте ясно обозначени mocks, без да твърдите live integration.
+8. Security/contract checks: без localStorage tokens, raw cards, frontend payment confirmation, provider secrets, unvalidated external redirects, browser CV/coaching/TTS, cross-user Session Review disclosure или duplicated authoritative store data.
+
+## Отворени въпроси и blockers
+
+Няма.
+
+## Ред за изграждане
+
+Валидираната имплементация трябва да следва този dependency order:
+
+1. Потвърдете backend-adoption assumptions, dependency versions и test commands.
+2. Създайте одобрената Vite/TypeScript application structure, global tokens/styles, runtime configuration, shared error handling и test harness.
+3. Имплементирайте shared primitives и component families: Button/TextButton, fields/composables, BaseModal, CollapseForm, navigation, table и cards.
+4. Имплементирайте Public и Authentication layouts, router definitions/guards, AuthStore, authenticated client и atomic UserStore initialization.
+5. Имплементирайте global CookiePrivacyPolicy composition и persistence над двата layouts.
+6. Имплементирайте public pages и authentication forms/services, след това простата info section на Home и сложния slider с focused lifecycle tests.
+7. Имплементирайте authenticated data pages: Dashboard, History, Session Review, Profile и Settings.
+8. Имплементирайте TrainingSessionStore, session/media/WebSocket/audio services/composables, TrainingCamera/CameraPreviewModal и Training page.
+9. Имплементирайте Subscription и Checkout pages, transient CheckoutStore, provider redirects, verified return polling, subscription refresh и customer portal action.
+10. Завършете responsive/accessibility/visual-state passes, automated tests, production build/static checks и backend-dependency reporting.
+11. Направете final manual verification спрямо authoritative prototype mappings и acceptance criteria, без да представяте mocked backend behavior като live functionality.
+
+## Резултати от валидацията
+
+Втората независима валидация върна `status: valid`, `errors: []`, едно warning и точния непроменен коригиран план в `validated_plan`.
+
+### Приложена корекция
+
+- Първата валидация откри неясен ownership за feature-local `useCookieConsent` composable и текущия Session Review result. Опитът за корекция 1 постави `useCookieConsent.ts` до `CookiePrivacyPolicy`, зададе текущия authorized Session Review result на `UserStore`, като запази `sessionService` за data access, и записа Vue 3.5+ като документирания минимум.
+- Коригираният план премина втората независима валидация без промени.
+
+### Предупреждение
+
+- Backend adoption все още предстои: endpoint names, WebSocket schemas, bounds, error mappings, idempotency и provider behavior са предложени, а не backend-confirmed. Потвърдете, адаптирайте или version-нете ги преди live integration и дръжте fixtures или mocks ясно разграничени от production behavior.
+
+### Неизвършени проверки
+
+- Настоящата debug команда не е изпълнявала implementation, dependency installation, build, lint, unit, component, browser, visual, accessibility, backend, WebSocket, payment-provider или runtime tests.
+- Prototype UI не е анализиран подробно или render-ван; проверени са само mappings, съществуването на paths и изрично разрешените organization/ownership evidence.
+
+## Статус при спиране
+
+Само планиране. Планът е независимо валидиран с едно non-blocking warning. По време на това debug изпълнение са заменени само двата декларирани debug output файла; всички предварително съществуващи repository промени са запазени. Debug командата не е създала или променила application code, canonical plan, source specification, prototype, configuration, dependency, test, build artifact, commit или deployment. Имплементацията не е започната.

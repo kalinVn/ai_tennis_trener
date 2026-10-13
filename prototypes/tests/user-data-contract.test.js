@@ -11,7 +11,6 @@ test('authenticated initialization consistently uses GET user-data with bearer a
   assert.match(contracts, /GET \/api\/v1\/user\/data HTTP\/1\.1/)
   assert.match(contracts, /Authorization: Bearer <accessToken>/)
   assert.match(contracts, /The request has no JSON body/)
-  assert.doesNotMatch(contracts, /progressSummary/)
   for (const sessionId of ['session_123', 'session_122', 'session_121']) {
     assert.match(contracts, new RegExp(`"id": "${sessionId}"`))
   }
@@ -50,7 +49,7 @@ test('GET user-data includes the supported personal information fields and curre
 test('every documented user PATCH endpoint includes its request body fields', () => {
   const expectedFieldsByEndpoint = new Map([
     ['/api/v1/user/personal-information', ['firstName', 'lastName', 'username', 'displayName', 'email', 'phoneCountryCode', 'phone', 'dateOfBirth', 'country', 'city', 'bio']],
-    ['/api/v1/user/preferences/notifications', ['trainingReminders', 'sessionSummaries', 'weeklyProgress', 'productUpdates', 'notificationChannel', 'reminderTime']],
+    ['/api/v1/user/preferences/notifications', ['trainingReminders', 'sessionSummaries', 'productUpdates', 'notificationChannel', 'reminderTime']],
     ['/api/v1/user/preferences/privacy', ['saveVideos', 'videoRetention', 'historyVisibility', 'performanceAnalytics', 'optionalTelemetry']],
     ['/api/v1/user/save-password', ['currentPassword', 'newPassword']],
   ])

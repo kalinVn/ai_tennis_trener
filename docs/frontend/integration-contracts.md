@@ -734,7 +734,6 @@ All endpoints in this section require the authenticated application session and 
       "notifications": {
         "trainingReminders": true,
         "sessionSummaries": true,
-        "weeklyProgress": true,
         "productUpdates": false,
         "notificationChannel": "email",
         "reminderTime": "18:00"
@@ -810,7 +809,6 @@ Updates the authenticated user's Notifications form.
 {
   "trainingReminders": true,
   "sessionSummaries": true,
-  "weeklyProgress": true,
   "productUpdates": false,
   "notificationChannel": "email",
   "reminderTime": "18:00"

@@ -7,7 +7,7 @@ import LoginForm from '../components/forms/LoginForm.vue'
     <nav class="public-nav">
       <div class="container nav-inner">
         <a class="brand" href="index.html"><span class="logo">AI</span>Tennis AI Coach</a>
-        <div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="training.html">Training</a><a href="pricing.html">Pricing</a></div>
+        <div class="nav-links"><a href="index.html">Home</a><a href="features.html">Features</a><a href="training.html">Training</a></div>
         <div class="nav-actions"><a class="btn primary small" href="register.html">Start free</a></div>
       </div>
     </nav>

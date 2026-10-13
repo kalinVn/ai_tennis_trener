@@ -46,11 +46,11 @@ This specification and its authoritative supporting specifications take preceden
 
 ### Guest
 
-May view the landing page, product features, pricing, login, and registration.
+May view the landing page, product features, login, and registration. Pricing requires an authenticated application session.
 
 ### Authenticated User
 
-May access Dashboard, Training, Session Review, History, Progress, Subscription, Profile, and Settings.
+May access Dashboard, Training, Session Review, History, Pricing, Subscription, Profile, and Settings.
 
 ### Subscriber
 
@@ -72,7 +72,7 @@ Defines the required frontend pages, routes, and page-specific requirements.
 
 The authoritative pages and routes specification is [docs/frontend/pages-and-routes.md](pages-and-routes.md). Example frontend/backend request and event shapes are in [docs/frontend/integration-contracts.md](integration-contracts.md); these proposals require backend confirmation before live integration.
 
-Its [Session Review](pages-and-routes.md#session-review) and [Progress](pages-and-routes.md#progress) entries define their routes, access, parameters, navigation, and states. Proposed API examples are in [frontend integration contracts](integration-contracts.md); backend owners must confirm them before live integration.
+Its [Session Review](pages-and-routes.md#session-review) entry defines that route's access, parameters, navigation, and states. Proposed API examples are in [frontend integration contracts](integration-contracts.md); backend owners must confirm them before live integration.
 
 ---
 
@@ -80,9 +80,9 @@ Its [Session Review](pages-and-routes.md#session-review) and [Progress](pages-an
 
 - Public navigation links to relevant landing-page sections and authentication.
 - Authenticated navigation exposes all required application pages.
-- Public horizontal navigation is visible when the user is not authenticated and includes Home, Training, Pricing, and Login; Start Free actions navigate to Register where present.
-- Authenticated vertical navigation is visible when the user is authenticated and includes Dashboard, Training, History, Subscription, Profile, Settings, and Checkout.
-- Session Review and Progress access is authenticated. History and Dashboard session rows open Session Review; the authenticated sidebar includes Progress after History.
+- Public horizontal navigation is visible when the user is not authenticated and includes Home, Training, and Login; Start Free actions navigate to Register where present. It does not expose Pricing as a public destination.
+- Authenticated vertical navigation is visible when the user is authenticated and includes Dashboard, Training, History, Pricing, Subscription, Profile, Settings, and Checkout.
+- Session Review access is authenticated. History and Dashboard session rows open Session Review.
 - Navigation remains usable with keyboard input and on mobile screens.
 
 The visual sources of truth for shared navigation layouts and states are:
@@ -129,7 +129,7 @@ Feature components are project- or feature-specific UI components, distinct from
 - `LoginForm` — dedicated Login form UI using the shared RecaptchaField and SocialAuthButtons, with prototype-only authentication feedback.
 - `RegisterForm` — dedicated registration form UI using the shared RecaptchaField and SocialAuthButtons, with prototype-only validation feedback.
 - `CookiePrivacyPolicy` — the only public cookie/privacy feature component mounted by the application shell across public and authenticated pages. It composes `PrivacyChoicesBanner`, `CookiePreferencesContent`, `CookiePolicyContent`, and `PrivacyPolicyContent`, uses the shared `BaseModal` and `TextButton`, and delegates state/persistence to its local `useCookieConsent` composable. Consent is independent from authentication and survives navigation, refresh, login, and logout.
-- `FeatureCard` — presents a numbered product feature with a title and description.
+- `FeatureCard` — the single Features-page feature component for a numbered product feature with a title and description; it is not shared UI.
 - `PerformanceCard` — existing Checkout order summary with description, price, billing note and back link, distinct from the selectable Pricing/Subscription plan card.
 - `PaymentInformationCard` — reusable Checkout card presenting disabled sample payment fields from page-supplied display props; never collects raw card data.
 - `OrderSummaryCard` — reusable Checkout card presenting order amounts, notes, and actions from page-supplied props; emits the checkout action for the page to handle.
@@ -228,7 +228,7 @@ Credentials, session validation, and authorization authority remain the responsi
 
 - When Login returns an MFA challenge, show only the methods offered for that `challengeId`, submit the selected verification method/code, and create authenticated frontend state only after successful verification.
 
-- After authentication succeeds, load the unified authenticated application data before treating protected page data as ready. A successful authentication response alone does not populate Dashboard, Profile, Settings, Subscription, History, or Progress.
+- After authentication succeeds, load the unified authenticated application data before treating protected page data as ready. A successful authentication response alone does not populate Dashboard, Profile, Settings, Subscription, or History.
 
 - Display the sign-in UI whenever authentication is required.
 
@@ -328,7 +328,6 @@ Frontend recovery behavior follows these orchestration rules:
 | Dashboard | Show an honest empty state when no sessions or supported focus exist | Offer retry without inventing data | Preserve the shell and explain that data cannot be loaded | Retry unified user-data initialization; keep Training and History navigation available when the stored snapshot is usable |
 | History | Treat an empty initial session list as successful | Preserve the current cursor and offer retry | Explain that history is unavailable | Read the initial collection from `UserStore`; use the dedicated list endpoint only for pagination or explicit refresh and write its result back to the store |
 | Session Review | Use safe not-found/unauthorized/insufficient states | Preserve the session route and offer retry | Explain that review is unavailable | Retry or return to History |
-| Progress | Show `insufficient_data` or no measurements honestly | Preserve the selected range and offer retry | Explain that progress data is unavailable | Read initial data from `UserStore`; an explicit range/refresh request replaces the store section, and focus is never generated locally |
 | Training | Treat no analysis data as waiting, not a zero-valued result | Stop frame sending after transport failure and expose reconnect/stop | Distinguish camera/device failure from analysis disconnect | Retry only through a user-visible action and retain the active `sessionId` |
 | Subscription / Checkout | Distinguish no active subscription from unknown status | Preserve the selected plan and offer retry | Explain billing/provider unavailability | Use the initial `UserStore` section; re-fetch backend status for checkout verification and write it back to the store, never infer payment success from a redirect |
 | Profile / Settings | Keep optional empty values empty | Preserve last confirmed store values and unsaved form input | Keep the local page usable while identifying unavailable persistence | Retry the section save; replace only the corresponding `UserStore` section with the normalized success response and never claim an unsuccessful save |
@@ -336,7 +335,7 @@ Frontend recovery behavior follows these orchestration rules:
 
 A `401 Unauthorized` starts the documented refresh/sign-in recovery flow when appropriate; a `403 Forbidden` remains an authorization failure and does not log the user out. Network failure alone never proves logout, successful completion, or successful payment. Sensitive transient values are cleared on logout, challenge expiry, or terminal authentication failure.
 
-Do not present fabricated analysis, session, progress, or subscription data as real.
+Do not present fabricated analysis, session, or subscription data as real.
 
 ---
 
@@ -478,7 +477,7 @@ Validation must include:
 - Verify that disconnected states are displayed when the frontend loses the required connection or transport.
 - Mock or intercept backend responses where necessary to reproduce each state without requiring a working backend.
 - Verify that each state provides clear and understandable information to the user.
-- Verify that the UI does not display fabricated analysis, session, progress, or subscription data when real data is unavailable.
+- Verify that the UI does not display fabricated analysis, session, or subscription data when real data is unavailable.
 - Verify that the user can recover from recoverable error states where the interface provides a retry or recovery action.
 
 
@@ -497,7 +496,7 @@ Validation must include:
 - Verify that disconnected states are displayed when the frontend loses the required connection or transport.
 - Mock or intercept backend responses where necessary to reproduce each state without requiring a working backend.
 - Verify that each state provides clear and understandable information to the user.
-- Verify that the UI does not display fabricated analysis, session, progress, or subscription data when real data is unavailable.
+- Verify that the UI does not display fabricated analysis, session, or subscription data when real data is unavailable.
 - Verify that the user can recover from recoverable error states where the interface provides a retry or recovery action.
 
 ### Acceptance Criterion 8 — Applicable Tests, Linting, and Static Checks Pass

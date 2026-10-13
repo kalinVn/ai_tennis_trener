@@ -22,7 +22,6 @@ required_pages:
   - TrainingPage
   - SessionReviewPage
   - HistoryPage
-  - ProgressPage
   - SubscriptionPage
   - ProfilePage
   - SettingsPage

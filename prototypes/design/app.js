@@ -118,13 +118,13 @@ if (location.protocol !== 'file:' && location.pathname.startsWith(prototypePages
     <h3>Data we may process</h3>
     <ul>
       <li><strong>Account and identity:</strong> name, email address, phone number, authentication records, profile details, and account preferences.</li>
-      <li><strong>Training and performance:</strong> session metadata, camera-derived pose and movement analysis, coaching feedback, progress, and video retained under your settings.</li>
+      <li><strong>Training and performance:</strong> session metadata, camera-derived pose and movement analysis, coaching feedback, and video retained under your settings.</li>
       <li><strong>Device and technical:</strong> browser or device information, security events, diagnostics, IP-derived technical data, and camera or microphone permission state.</li>
       <li><strong>Subscription and support:</strong> plan status, transaction references supplied by a payment provider, and messages sent to support. Raw payment-card data should be handled by the payment provider, not stored by this application.</li>
       <li><strong>Consent and preferences:</strong> cookie-category choices and product, accessibility, language, or notification settings.</li>
     </ul>
     <h3>Why we may use data</h3>
-    <p>Expected purposes include providing and securing accounts, delivering live and recorded coaching features, showing progress, managing subscriptions, responding to support, improving reliability, and meeting legal obligations. Production lawful bases must be mapped to each purpose after legal review.</p>
+    <p>Expected purposes include providing and securing accounts, delivering live and recorded coaching features, managing subscriptions, responding to support, improving reliability, and meeting legal obligations. Production lawful bases must be mapped to each purpose after legal review.</p>
     <h3>Camera, microphone, and training analysis</h3>
     <p>Device access should occur only after a clear user action and browser permission. Production documentation must distinguish live processing, uploaded frames, retained recordings, derived pose data, and coaching results, including whether processing occurs locally or on a server.</p>
     <h3>Sharing and service providers</h3>

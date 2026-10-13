@@ -77,7 +77,7 @@ no analytics or marketing integrations are initialized by this implementation.
 Open `design/pages/login.html` and `design/pages/register.html` through the Vite
 server. These entries mount the dedicated `LoginPage`/`LoginForm` and
 `RegisterPage`/`RegisterForm` prototypes. Public Login actions lead to Login;
-Start Free, Register, Create Account, and pricing-plan selection lead to Register.
+Start Free, Register, and Create Account lead to Register. Authenticated pricing-plan selection leads to Checkout.
 The forms are visual prototypes only: they do not authenticate, create accounts,
 start OAuth, or implement OTP/MFA.
 
@@ -95,6 +95,6 @@ Checkout retains its distinct PerformanceCard order summary. Pricing and Subscri
 
 ## Pricing and Subscription cards
 
-Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry scripts mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing actions navigate to the dedicated Register page; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare public pricing remains a page-level link.
+Open `design/pages/pricing.html` or `design/pages/subscription.html` through the Vite server. Their page entry scripts mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing uses the Authentication Layout and its actions navigate to the protected Checkout prototype; Change plan and Manage billing preserve informational messages. No real billing integration is present. Compare pricing remains a page-level link to the authenticated Pricing prototype.
 
 Card design examples are `design/components/cards/payment-card-plan.html` (normal), `design/components/cards/payment-card-plan-selected.html` (selected state of the same component) and `design/components/cards/billing-details-card.html`. The build includes the Pricing and Subscription entries.

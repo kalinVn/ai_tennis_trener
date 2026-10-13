@@ -7,6 +7,7 @@
 - Read the canonical [frontend design rules](../../claude/rules/frontend/frontend-design-system.md) in place. It is an authoritative reference of the existing frontend specification; duplicating its full rule set would create drift. Its implementation instructions become future plan requirements only in this debug workflow.
 - Read the `Project Structure` section in [frontend.md](../../docs/frontend/frontend.md), then read every authoritative structure document it references together with the relevant [architecture context](../references/frontend-architecture.md). Do not freeze that reference list in Codex instructions. Verify actual directories and code rather than assuming the intended `claude/PROJECT_STRUCTURE.md` tree exists.
 - Do not introduce a frontend `modules/` feature-root layer. This restriction is frontend-only and does not change backend module organization.
+- Do not recover removed frontend features from historical plans, examples, prototypes, or `claude/PROJECT_STRUCTURE.md`. The current authoritative route and component specifications determine whether a page or feature exists.
 - The source planner/structure references use JavaScript wording, while active `AGENTS.md` preserves ES6. The Codex adaptations retain Vue/behavior separation and follow active language requirements instead of silently importing a conflicting JavaScript-only default. Record any explicit task override and its source in the plan.
 
 ## Source Resolution

@@ -2,7 +2,7 @@ CSS in the prototype Vue components is for visual reference only; production sty
 
 ### Button
 
-`Button = presentation + UI state + event emission`. This is the authoritative project Button contract. Start Training, View Progress, Save, Reset, and similar labels are usages of this shared component, never separate reusable button components.
+`Button = presentation + UI state + event emission`. This is the authoritative project Button contract. Start Training, Save, Reset, and similar labels are usages of this shared component, never separate reusable button components.
 
 #### Props and States
 
@@ -243,7 +243,7 @@ Use the linked HTML prototypes for visual design and the Vue files and composabl
 
 ### FeatureCard
 
-Presentational card for a numbered feature, title, and description. The parent supplies the `number`, `title`, and `description` props; pass a string such as `"01"` to preserve leading zeros. It contains no composable, application state, or data access.
+Feature-specific presentational card for the Features page, not a shared UI primitive. Keep one production implementation at `frontend/src/components/features/FeatureCard.vue`; the Features page imports that implementation rather than duplicating the card or placing it in a shared component family. The parent supplies the `number`, `title`, and `description` props; pass a string such as `"01"` to preserve leading zeros. It contains no composable, application state, or data access.
 
 - Vue component: [FeatureCard.vue](../../prototypes/components/cards/FeatureCard.vue)
 - Visual reference: [feature-card.html](../../prototypes/design/components/cards/feature-card.html)
@@ -389,7 +389,7 @@ export type PaymentCardPlanEmits = {
   plan-name="Performance"
   price="€19"
   billing-period="month"
-  description="Realtime coaching, richer insights and progress tools."
+  description="Realtime coaching, richer insights and session review tools."
   :selected="true"
 />
 ```
@@ -401,7 +401,7 @@ Emits `action` without a payload through a shared Button `click`. The page owns 
 - Vue implementation: [PaymentCardPlan.vue](../../prototypes/components/cards/PaymentCardPlan.vue).
 - Normal design prototype: [payment-card-plan.html](../../prototypes/design/components/cards/payment-card-plan.html).
 - Selected design prototype: [payment-card-plan-selected.html](../../prototypes/design/components/cards/payment-card-plan-selected.html). Both files illustrate the same shared Vue component; selected is a presentation state.
-- Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/subscription/main.js). Pricing navigates plan selection to the dedicated Register page; Subscription preserves the existing informational Change plan message.
+- Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/subscription/main.js). The authenticated Pricing page owns plan selection and continues to the protected Checkout prototype; Subscription preserves the existing informational Change plan message.
 
 ### BillingDetailsCard
 
@@ -441,7 +441,7 @@ Example usage keeps the two visible billing fields exactly as they appear in Sub
 
 Emits `action` without a payload via the shared secondary Button. The Subscription page owns the action and existing informational demo message. The component does not add billing address, invoices, card brand, last four digits, expiry, customer identifiers, or real integration because those fields are absent from the current Subscription UI.
 
-Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/cards/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. The Compare public pricing link stays in the Subscription page and points to `pricing.html`.
+Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/cards/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. The Compare pricing link stays in the Subscription page and points to the authenticated `pricing.html` prototype.
 
 ### PaymentStatusCard
 

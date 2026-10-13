@@ -6,13 +6,13 @@
     <h3>Data we may process</h3>
     <ul>
       <li><strong>Account and identity:</strong> name, email, phone number, authentication records, profile details, and account preferences.</li>
-      <li><strong>Training and performance:</strong> session metadata, camera-derived pose and movement analysis, coaching feedback, progress, and video retained under your settings.</li>
+      <li><strong>Training and performance:</strong> session metadata, camera-derived pose and movement analysis, coaching feedback, and video retained under your settings.</li>
       <li><strong>Device and technical:</strong> browser or device information, security events, diagnostics, IP-derived technical data, and device-permission state.</li>
       <li><strong>Subscription and support:</strong> plan status, provider transaction references, and support messages. Raw payment-card data should remain with the payment provider.</li>
       <li><strong>Consent and preferences:</strong> cookie choices and product, accessibility, language, or notification settings.</li>
     </ul>
     <h3>Why we may use data</h3>
-    <p>Expected purposes include providing and securing accounts, delivering coaching, showing progress, managing subscriptions, responding to support, improving reliability, and meeting legal obligations. Production lawful bases must be mapped to each purpose.</p>
+    <p>Expected purposes include providing and securing accounts, delivering coaching, managing subscriptions, responding to support, improving reliability, and meeting legal obligations. Production lawful bases must be mapped to each purpose.</p>
     <h3>Camera, microphone, and training analysis</h3>
     <p>Device access should occur only after a clear user action and browser permission. Production documentation must distinguish live processing, uploaded frames, retained recordings, derived pose data, and coaching results.</p>
     <h3>Sharing and service providers</h3>

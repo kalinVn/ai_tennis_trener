@@ -128,6 +128,7 @@ test('public authentication navigation targets dedicated prototype pages', () =>
     assert.doesNotMatch(source, /openAuth\(|setAuth\(/, path)
     assert.match(source, /login\.html/, path)
     assert.match(source, /register\.html/, path)
+    assert.doesNotMatch(source, /href="[^"\n]*pricing\.html"/, path)
   }
 })
 
@@ -139,4 +140,9 @@ test('pricing uses the same authentication layout shell as profile and settings'
   assert.match(pricing, /Authentication Layout/)
   assert.doesNotMatch(pricing, /class="public-nav"/)
   assert.doesNotMatch(pricing, /class="public-footer"/)
+  assert.match(pricing, /checkout\.html/)
+
+  const authenticatedNavigation = read('design/components/navigation/authenticated-navigation.html')
+  assert.match(authenticatedNavigation, /pages\/pricing\.html/)
+  assert.doesNotMatch(authenticatedNavigation, /\/progress/)
 })

@@ -61,7 +61,7 @@ test('selected plan updates presentation without emitting or changing price; act
   app.unmount()
 })
 
-test('Pricing navigates to Register while Subscription retains its demo actions', () => {
+test('Authenticated Pricing navigates to Checkout while Subscription retains its demo actions', () => {
   for (const page of ['pricing', 'subscription']) {
     const root = node('root'), calls = []
     let app
@@ -78,7 +78,7 @@ test('Pricing navigates to Register while Subscription retains its demo actions'
     assert.equal(cards.length, page === 'pricing' ? 3 : 1)
     const buttons = all(root).filter(n => n.type === 'button')
     buttons.forEach(button => button.props.onClick({ type: 'click' }))
-    assert.deepEqual(calls, page === 'pricing' ? ['register.html', 'register.html', 'register.html'] : [
+    assert.deepEqual(calls, page === 'pricing' ? ['checkout.html', 'checkout.html', 'checkout.html'] : [
       'Plan change is not connected in this prototype.', 'Billing is a visual prototype only.',
     ])
     if (page === 'subscription') {

@@ -107,9 +107,10 @@ checks passed at 1440×900, 414×896 and 896×414. Profile regression checks als
 passed after sharing the form handler; all Settings field definitions remain
 unchanged.
 
-Pricing is available at `pages/pricing.html`, using the public layout and existing
-plan cards/demo dialog. The shared script links application sidebars to this
-Pricing page using ordinary anchor navigation.
+Pricing is available at `pages/pricing.html`, using the Authentication Layout and
+existing plan cards/demo behavior. The shared script links authenticated application
+sidebars to this Pricing page using ordinary anchor navigation. Production routing
+must require authentication.
 
 Checkout is available at `pages/checkout.html` (the documented `/checkout` route)
 and last in the application sidebar. It uses the Authentication Layout,
@@ -132,10 +133,10 @@ prototype.
 ## Navigation visual source of truth
 
 - [Public navigation](components/navigation/public-navigation.html): Home, Training,
-  Pricing and a Login page link; horizontal desktop header and collapsible
+  and a Login page link; horizontal desktop header and collapsible
   menu at 720px and below.
 - [Authenticated navigation](components/navigation/authenticated-navigation.html):
-  Dashboard, Training, History, Subscription, Profile, Settings and Checkout;
+  Dashboard, Training, History, Pricing, Subscription, Profile, Settings and Checkout;
   244px vertical sidebar on desktop/tablet and the existing accessible drawer on
   phones (720px, or landscape up to 950px wide / 500px high).
 

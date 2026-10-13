@@ -18,8 +18,8 @@
 - Example Prototype: `design/pages/features.html`
 - name: `feature`
 - description: `Main Section: headline, short description, three FeatureCard items, and two primary buttons. The Features page should follow the Public Layout and match the prototype directly for the page title, secondary description, and all other page-level content; only the Feature Cards and buttons should use reusable components.`
-- required shared components: `Button`, `FeatureCard`
-- required feature components: None
+- required shared components: `Button`
+- required feature components: `FeatureCard`
 - dependencies: None
 
 ### Login Page
@@ -54,7 +54,7 @@
 - name: `training`
 - description: `Follow the referenced Training HTML prototype for the page title, secondary text, section titles, descriptions, fields, labels, buttons/actions, and all other page-level content. The current prototype contains the camera preview/entry area and Coaching Cue, Connection, and Session panels; it contains no collapsible form sections, so do not invent any. Where the referenced prototype contains collapsible form sections, use the existing CollapseForm component. The Training page component owns and creates each such form configuration, deriving its title, secondary description, fields, labels, relevant field configuration, buttons/actions, and other required content directly from that prototype. Supply the corresponding CollapseForm instances through their existing title/description props and page-rendered default/footer slots; Training-specific data, configuration, form handling, and actions belong to the page, while CollapseForm remains generic and reusable. Implement all remaining elements directly as page-level DOM/layout matching the prototype; do not extract static sections into new components. Keep the shared Button for Start Training near the camera preview. Preserve the existing camera/full-screen training modal or camera training flow, reusing its implementation without duplicate camera logic or a second training flow. Do not invent fields, buttons, labels, descriptions, states, or components absent from the prototype or explicit project requirements.`
 - required shared components: `Button`; `CollapseForm` only for collapsible form sections present in the referenced prototype (none in the current prototype).
-- required feature components: None
+- required feature components: `TrainingCamera`, `CameraPreviewModal`
 - data contract: Create the session with `POST /api/v1/training/sessions` before connecting to the backend-issued analysis WebSocket. Finish normally with `POST /api/v1/training/sessions/{sessionId}/complete`; use `POST /api/v1/training/sessions/{sessionId}/abandon` for cancellation or early exit. Reconnect keeps the same session id. See [integration contract examples](integration-contracts.md#training-session-and-analysis-transport).
 - states: idle, creating session, ready, connecting, live, reconnecting, completing, complete, abandoning, incomplete, recoverable error, unavailable.
 - dependencies: `AuthStore`, `TrainingSessionStore`
@@ -63,15 +63,16 @@
 - purpose: `Pricing page, presents the available subscription plans and helps users choose the right plan`
 - route: `/pricing`
 - Layout: `Authentication Layout`
+- access: Authenticated; unauthenticated access follows the protected-route login redirect and preserves only a validated internal return target.
 - Example Prototype: `design/pages/pricing.html`
 - name: `pricing`
 - description: `Follow the Pricing prototype directly for the complete page structure and all page-level content. Use the shared PaymentCardPlan component for the Starter, Performance, and Pro pricing plan cards. All other headings, descriptions, sections, labels, supporting content, and layout remain page-level DOM/layout matching the prototype; do not create additional shared components or extract static sections into reusable components.`
 - required shared components: `PaymentCardPlan`
 - required feature components: None
-- dependencies: None
+- dependencies: `AuthStore`
 
 ### Dashboard
-- purpose: `Provides the user with an overview of their training activity, recent sessions, progress, and quick access to the main application features.`
+- purpose: `Provides the user with an overview of their training activity, recent sessions, and quick access to the main application features.`
 - route: `/dashboard`
 - layout: `Authentication Layout`
 - Example Prototype: `design/pages/dashboard.html`
@@ -111,21 +112,6 @@
 - state owner: `frontend/src/stores/UserStore.ts`; data access: `frontend/src/services/sessionService.ts`. Route-specific review loading must not create another authoritative history store.
 - states: loading, not found/unauthorized, success, partial/insufficient data, recoverable error, unavailable.
 
-### Progress
-
-- purpose: Present supported trends, improvement areas, and the next recommended focus.
-- page/component: `frontend/src/pages/ProgressPage.vue`.
-- route: `/progress`
-- name: `progress`
-- layout: `Authentication Layout`
-- access: Authenticated.
-- route parameters: None. Do not add date-range controls until a product requirement and an approved data contract call for them.
-- navigation destination: Authenticated sidebar item `Progress`, placed after History. Compact Dashboard progress summaries may link here.
-- data contract: No Progress endpoint or persisted Progress store section is currently defined.
-- visual references: [Dashboard](../../prototypes/design/pages/dashboard.html) and [Charts & Progress](../../prototypes/design/components/charts-progress.html). These are partial visual references; they do not authorize fabricated metrics or charts.
-- state owner: No persisted Progress store section or data service is currently defined.
-- states: loading, empty/insufficient data, success, recoverable error, unavailable.
-
 ### Application State Matrix
 
 | Surface | Loading | Empty / partial | Error / unavailable | Success owner |
@@ -133,7 +119,6 @@
 | Dashboard | Unified user-data request pending | No sessions is an honest empty state | Retry authenticated application initialization; preserve shell | `UserStore.dashboard` and `UserStore.sessionHistory` |
 | History | Unified initialization or later-page request pending | Empty initial list is successful | Retry initialization, current cursor, or explicit refresh as applicable | `UserStore.sessionHistory` |
 | Session Review | Review request pending | Insufficient supported result is labeled | Safe not-found/unauthorized; retry recoverable failures | Server-authorized review response |
-| Progress | No API request is currently defined | Unsupported or insufficient data is shown honestly | No Progress API retry is defined | No persisted Progress owner is defined |
 | Training | Camera/transport/analysis transitions shown separately | Waiting for first supported result | Camera and transport failures remain distinct | Backend analysis/session events |
 | Subscription / Checkout | Unified initialization or checkout verification pending | No active plan is distinct from unknown state | Retry initialization or server/provider verification | `UserStore.subscription` plus backend-verified checkout refreshes |
 | Profile / Settings | Unified initialization or section save pending | Optional values can be empty | Retain last confirmed store values and unsaved user edits | Normalized section response written to `UserStore` |
@@ -146,7 +131,7 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - Route: `/subscription`
 - Layout: `Authentication Layout`
 - Example Prototype: `design/pages/subscription.html`
-- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Use one PaymentStatusCard implementation for the payment pending, success, failed, and cancelled return-state presentations; do not duplicate the card structure. Change plan, Manage billing, and payment-status actions belong to the page; preserve informational demo messages. Compare public pricing remains a page-level link to pricing.html.`
+- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Use one PaymentStatusCard implementation for the payment pending, success, failed, and cancelled return-state presentations; do not duplicate the card structure. Change plan, Manage billing, and payment-status actions belong to the page; preserve informational demo messages. Compare pricing remains a page-level link to the authenticated Pricing page.`
 - required shared components: `PaymentCardPlan`, `BillingDetailsCard`
 - required feature components: `PaymentStatusCard`
 - data contract: initial subscription data come from `GET /api/v1/user/data`. Checkout verification, plan changes, and the provider-hosted customer portal remain dedicated operations; see [integration contract examples](integration-contracts.md#checkout-and-billing).

@@ -12,7 +12,7 @@ if (target) {
       const statusMessage = ref('')
       const performance = {
         headingId: 'selected-plan-heading', badge: 'Selected plan · demo',
-        plan: 'Performance', description: 'Realtime coaching, richer insights and progress tools.',
+        plan: 'Performance', description: 'Realtime coaching, richer insights and session review tools.',
         price: '€19', period: '/ month',
         billingNote: 'Billing period: monthly. Illustrative pricing from the prototype.',
         backLabel: 'Back to plans', backHref: 'pricing.html',

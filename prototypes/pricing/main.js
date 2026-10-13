@@ -8,11 +8,11 @@ if (target) {
     setup() {
       const plans = [
         { planName: 'Starter', price: '€9', description: 'Core analysis and training history.' },
-        { planName: 'Performance', price: '€19', selected: true, description: 'Realtime coaching, richer insights and progress tools.' },
+        { planName: 'Performance', price: '€19', selected: true, description: 'Realtime coaching, richer insights and session review tools.' },
         { planName: 'Pro', price: '€39', description: 'Advanced training insights and premium tools.' },
       ]
-      // Plan selection enters the dedicated registration prototype; no checkout is connected.
-      function choosePlan() { window.location.href = 'register.html' }
+      // Pricing is authenticated; plan selection continues to the protected checkout prototype.
+      function choosePlan() { window.location.href = 'checkout.html' }
       return { plans, choosePlan }
     },
     template: `<PaymentCardPlan v-for="plan in plans" :key="plan.planName" v-bind="plan"
