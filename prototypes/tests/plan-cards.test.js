@@ -114,11 +114,12 @@ test('PaymentStatusCard reuses one component for all four visual-only states', (
   }
 })
 
-test('Subscription links every payment status to the shared design prototype', () => {
+test('Subscription omits payment-status controls while the standalone prototype keeps every state', () => {
   const subscription = readFileSync(new URL('../design/pages/subscription.html', import.meta.url), 'utf8')
   const prototype = readFileSync(new URL('../design/components/cards/payment-status-card.html', import.meta.url), 'utf8')
+  assert.doesNotMatch(subscription, /Payment status prototypes/)
+  assert.doesNotMatch(subscription, /payment-status-card\.html\?status=/)
   for (const status of ['pending', 'success', 'failed', 'cancelled']) {
-    assert.match(subscription, new RegExp(`payment-status-card\\.html\\?status=${status}`))
     assert.match(prototype, new RegExp(`\\?status=${status}`))
   }
   assert.match(prototype, /payment-status\/main\.js/)

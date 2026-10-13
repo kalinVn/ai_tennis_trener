@@ -131,11 +131,11 @@ Recovery behavior and shared error semantics are detailed in [integration contra
 - Route: `/subscription`
 - Layout: `Authentication Layout`
 - Example Prototype: `design/pages/subscription.html`
-- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Use one PaymentStatusCard implementation for the payment pending, success, failed, and cancelled return-state presentations; do not duplicate the card structure. Change plan, Manage billing, and payment-status actions belong to the page; preserve informational demo messages. Compare pricing remains a page-level link to the authenticated Pricing page.`
+- description: `Required section is the Subscription section, which includes a page heading, a short description, and two main cards: the Current Subscription Card and the Billing or Plan Management Card. Render the current plan using shared PaymentCardPlan; statusLabel represents the current subscription, while selected only changes presentation. Use BillingDetailsCard for the existing billing panel. Change plan and Manage billing belong to the page; preserve informational demo messages. Compare pricing remains a page-level link to the authenticated Pricing page. Do not add payment-status prototype controls to this page.`
 - required shared components: `PaymentCardPlan`, `BillingDetailsCard`
-- required feature components: `PaymentStatusCard`
+- required feature components: None
 - data contract: initial subscription data come from `GET /api/v1/user/data`. Checkout verification, plan changes, and the provider-hosted customer portal remain dedicated operations; see [integration contract examples](integration-contracts.md#checkout-and-billing).
-- states: loading, no active subscription, active, pending change, payment pending, payment success after backend verification, payment failed, payment cancelled, recoverable error, unavailable.
+- states: loading, no active subscription, active, pending change, recoverable error, unavailable.
 - dependencies: `UserStore`
 
 ### Profile

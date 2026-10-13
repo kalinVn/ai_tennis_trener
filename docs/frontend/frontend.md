@@ -133,7 +133,7 @@ Feature components are project- or feature-specific UI components, distinct from
 - `PerformanceCard` — existing Checkout order summary with description, price, billing note and back link, distinct from the selectable Pricing/Subscription plan card.
 - `PaymentInformationCard` — reusable Checkout card presenting disabled sample payment fields from page-supplied display props; never collects raw card data.
 - `OrderSummaryCard` — reusable Checkout card presenting order amounts, notes, and actions from page-supplied props; emits the checkout action for the page to handle.
-- `PaymentStatusCard` — shared Subscription/Checkout return-state presentation for pending, success, failed, and cancelled visual states; it performs no payment or subscription logic.
+- `PaymentStatusCard` — shared Checkout return-state presentation for pending, success, failed, and cancelled visual states; it performs no payment or subscription logic.
 - `CameraPreviewModal` — displays the live training camera stream, microphone and analysis controls, and backend feedback.
 - `TrainingCamera` — requests camera and microphone access, handles permission errors, and opens the camera preview modal.
 

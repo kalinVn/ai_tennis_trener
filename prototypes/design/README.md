@@ -118,11 +118,11 @@ Performance plan (€19/month), order summary, disabled sample payment fields, a
 demo-only completion message, and links back to Pricing. No payment
 provider, network submission, card storage or subscription creation is involved.
 
-Subscription links to the shared `PaymentStatusCard` design prototype at
+The standalone shared `PaymentStatusCard` design prototype remains available at
 `components/cards/payment-status-card.html`. Use its `status` query parameter
 with `pending`, `success`, `failed`, or `cancelled` to inspect all four visual
-states. These are presentation-only examples and perform no payment or
-subscription operation.
+states. These presentation-only examples are not linked from Subscription and
+perform no payment or subscription operation.
 
 `pages/not-found.html` is a 404 prototype using the existing Public Layout,
 including public navigation, footer and links to the dedicated authentication pages. Its primary

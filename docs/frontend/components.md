@@ -458,7 +458,6 @@ The visual `success` state represents an already backend-verified successful out
 - Vue component: [PaymentStatusCard.vue](../../prototypes/components/cards/PaymentStatusCard.vue)
 - Design prototype: [payment-status-card.html](../../prototypes/design/components/cards/payment-status-card.html)
 - Prototype mount: [payment-status/main.js](../../prototypes/payment-status/main.js)
-- Entry page: [subscription.html](../../prototypes/design/pages/subscription.html), whose Payment status prototypes section links all four states.
 
 ### CollapseForm
 
