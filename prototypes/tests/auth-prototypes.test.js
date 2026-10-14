@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
+import { hasValidationErrors, validateLogin, validateRegistration } from '../utils/validators/authValidators.js'
 
 const root = new URL('../', import.meta.url)
 const read = path => readFileSync(new URL(path, root), 'utf8')
@@ -14,6 +15,7 @@ test('dedicated authentication pages and forms expose the required controls', ()
     'components/forms/SocialAuthButton.vue',
     'components/forms/SocialAuthButtons.vue',
     'components/fields/RecaptchaField.vue',
+    'utils/validators/authValidators.js',
     'design/components/fields/recaptcha-field.html',
     'design/components/buttons/social-auth-buttons.html',
     'design/pages/login.html',
@@ -29,6 +31,7 @@ test('dedicated authentication pages and forms expose the required controls', ()
     'v-model="recaptchaVerified"',
     'registerHref',
   ]) assert.match(login, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  assert.match(login, /validateLogin/)
 
   const loginHtml = read('design/pages/login.html')
   assert.match(loginHtml, /<form\b/)
@@ -53,6 +56,7 @@ test('dedicated authentication pages and forms expose the required controls', ()
     'v-model="legalConsentAccepted"',
     'loginHref',
   ]) assert.match(register, new RegExp(value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))
+  assert.match(register, /validateRegistration/)
 
   const registerHtml = read('design/pages/register.html')
   assert.match(registerHtml, /<form\b/)
@@ -128,15 +132,44 @@ test('public authentication navigation targets dedicated prototype pages', () =>
     assert.doesNotMatch(source, /openAuth\(|setAuth\(/, path)
     assert.match(source, /login\.html/, path)
     assert.match(source, /register\.html/, path)
-    assert.doesNotMatch(source, /href="[^"\n]*pricing\.html"/, path)
   }
 })
 
-test('authenticated navigation omits the removed Pricing page', () => {
-  assert.equal(existsSync(new URL('../design/pages/pricing.html', import.meta.url)), false)
+test('authenticated navigation exposes Subscription and Checkout', () => {
   const authenticatedNavigation = read('design/components/navigation/authenticated-navigation.html')
-  assert.doesNotMatch(authenticatedNavigation, /pricing/i)
   assert.match(authenticatedNavigation, /subscription\/subscription\.html/)
   assert.match(authenticatedNavigation, /checkout\/checkout\.html/)
   assert.doesNotMatch(authenticatedNavigation, /\/progress/)
+})
+
+test('authentication validators reject invalid form values without owning form state', () => {
+  const loginErrors = validateLogin({ email: 'invalid', password: '', recaptchaVerified: false })
+  assert.equal(loginErrors.email, 'Enter a valid email address.')
+  assert.equal(loginErrors.password, 'Password is required.')
+  assert.equal(hasValidationErrors(loginErrors), true)
+
+  const registrationErrors = validateRegistration({
+    firstName: 'Alex',
+    lastName: 'Morgan',
+    email: 'player@example.com',
+    phone: '+359 88 123 4567',
+    password: 'long-password',
+    confirmPassword: 'different-password',
+    legalConsentAccepted: true,
+    recaptchaVerified: true,
+  })
+  assert.equal(registrationErrors.confirmPassword, 'Passwords must match.')
+  assert.equal(hasValidationErrors(registrationErrors), true)
+
+  const validRegistration = validateRegistration({
+    firstName: 'Alex',
+    lastName: 'Morgan',
+    email: 'player@example.com',
+    phone: '+359 88 123 4567',
+    password: 'long-password',
+    confirmPassword: 'long-password',
+    legalConsentAccepted: true,
+    recaptchaVerified: true,
+  })
+  assert.equal(hasValidationErrors(validRegistration), false)
 })

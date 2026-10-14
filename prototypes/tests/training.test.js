@@ -1,11 +1,20 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
 import { effectScope, shallowRef } from 'vue'
 import { useVideoAnalysis } from '../composables/useVideoAnalysis.js'
 import { useCameraSession } from '../composables/useCameraSession.js'
 import { createTrainingTransport } from '../services/trainingTransport.js'
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+
+test('Training mounts CameraPreviewModal as its single camera feature component', () => {
+  const entry = readFileSync(new URL('../training/main.js', import.meta.url), 'utf8')
+  const training = readFileSync(new URL('../design/pages/training.html', import.meta.url), 'utf8')
+  assert.match(entry, /CameraPreviewModal\.vue/)
+  assert.match(entry, /createApp\(CameraPreviewModal/)
+  assert.match(training, /camera-preview-modal-root/)
+})
 function harness({ connect, encode } = {}) {
   const sent = []
   let disconnects = 0

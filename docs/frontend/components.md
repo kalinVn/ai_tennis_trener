@@ -245,7 +245,7 @@ Use the linked HTML prototypes for visual design and the Vue files and composabl
 
 Feature-specific presentational card for the Features page, not a shared UI primitive. Keep one production implementation at `frontend/src/components/features/FeatureCard.vue`; the Features page imports that implementation rather than duplicating the card or placing it in a shared component family. The parent supplies the `number`, `title`, and `description` props; pass a string such as `"01"` to preserve leading zeros. It contains no composable, application state, or data access.
 
-- Vue component: [FeatureCard.vue](../../prototypes/components/cards/FeatureCard.vue)
+- Vue component: [FeatureCard.vue](../../prototypes/components/cards/FeatureCard.vue), composed three times by [FeaturesPage.vue](../../prototypes/pages/FeaturesPage.vue).
 - Visual reference: [feature-card.html](../../prototypes/design/components/cards/feature-card.html)
 
 ### RecaptchaField
@@ -350,7 +350,9 @@ The HTML defines the visual reference; `BaseTable.vue` defines the reusable rend
 
 ### PaymentCardPlan
 
-`PaymentCardPlan` is the single shared plan card used by Pricing and Subscription. Documentation, Vue prototypes, page entries, and visual prototypes use this one authoritative identity. Do not create separate plan-card components for performance, selected, or subscription states; selected and current-plan presentation are states of this component.
+`PaymentCardPlan` is the single shared plan card used by Subscription. Documentation, Vue prototypes, the Subscription entry, and visual prototypes use this one authoritative identity. Do not create separate plan-card components for performance, selected, or subscription states; selected and current-plan presentation are states of this component.
+
+These files belong to the **Subscription feature**. [Subscription.vue](../../prototypes/components/features/subscription/Subscription.vue) is the feature component; `PaymentCardPlan` and `BillingDetailsCard` are its focused child components. Their shared directory provides the physical grouping. See the colocated [Subscription README](../../prototypes/components/features/subscription/README.md).
 
 | Prop | Type / default | Display responsibility |
 | --- | --- | --- |
@@ -361,8 +363,9 @@ The HTML defines the visual reference; `BaseTable.vue` defines the reusable rend
 | `features` | String array, empty by default | Optional feature list; hidden when empty |
 | `statusLabel` | String, empty by default | Current-plan status such as `Active · demo`; independent of selection |
 | `selected` | Boolean, `false` | Presentation-only selected outline, label and primary action styling |
-| `selectedLabel` | String, `Most popular` | Existing Pricing highlight label; empty hides the label |
+| `selectedLabel` | String, `Most popular` | Selected-plan highlight label; empty hides the label |
 | `actionLabel` | String, empty | Explicit button label; otherwise `Change plan` when `statusLabel` exists or `Choose plan` |
+| `continueActionLabel` | String, empty | Optional second primary action, used by the current-plan state after a plan has been selected |
 
 The explicit TypeScript-facing contract is:
 
@@ -377,10 +380,12 @@ export type PaymentCardPlanProps = {
   selected?: boolean
   selectedLabel?: string
   actionLabel?: string
+  continueActionLabel?: string
 }
 
 export type PaymentCardPlanEmits = {
   (event: 'action'): void
+  (event: 'continue'): void
 }
 ```
 
@@ -394,14 +399,14 @@ export type PaymentCardPlanEmits = {
 />
 ```
 
-Selection does not change plan data, price, subscription state or entitlement. It reproduces Pricing's existing `2px solid #b7ff4a80` outline, Most popular eyebrow and primary Button. Non-selected Pricing cards use a secondary Button. Subscription initially supplies `planName="No selected plan"` and `actionLabel="Change plan"` without a price, status label, or selected state. The existing `.pricing` container controls compact title/price/description ordering, while Subscription retains its larger initial-plan hierarchy. These are presentation states of one component.
+The card itself does not change plan data, price, subscription state or entitlement. The plan-option state uses the existing `2px solid #b7ff4a80` outline, Most popular eyebrow and primary Button. Non-selected plan options use a secondary Button. Subscription initially supplies `planName="No selected plan"` and `actionLabel="Change plan"` without a price, status label, or selected state. After the page selects a plan, the larger current-plan card receives that plan's name, description, price and billing period, plus `statusLabel="Selected plan"`, `actionLabel="Change plan"`, and `continueActionLabel="Continue"`. The `.plan-grid` container controls compact title/price/description ordering, while Subscription retains its larger current-plan hierarchy.
 
-Emits `action` without a payload through a shared Button `click`. The page owns actions and data. Cards contain no callback prop, store access, backend request, price calculation or billing logic.
+Emits `action` and the optional `continue` without payloads through shared Button clicks. The page owns actions and data. Cards contain no callback prop, store access, backend request, price calculation or billing logic.
 
-- Vue implementation: [PaymentCardPlan.vue](../../prototypes/components/cards/PaymentCardPlan.vue).
+- Vue implementation: [PaymentCardPlan.vue](../../prototypes/components/features/subscription/PaymentCardPlan.vue).
 - Normal design prototype: [payment-card-plan.html](../../prototypes/design/components/cards/payment-card-plan.html).
 - Selected design prototype: [payment-card-plan-selected.html](../../prototypes/design/components/cards/payment-card-plan-selected.html). Both files illustrate the same shared Vue component; selected is a presentation state.
-- Page owners: [pricing/main.js](../../prototypes/pricing/main.js) and [subscription/main.js](../../prototypes/design/components/subscription/main.js). The authenticated Pricing page owns plan selection and continues to the protected Checkout prototype. Subscription reveals the same three plan cards after Change plan and continues a selected option to Checkout.
+- Page owner: [Subscription.vue](../../prototypes/components/features/subscription/Subscription.vue), with prototype state in [useSubscription.js](../../prototypes/components/features/subscription/useSubscription.js). The colocated [subscription entry](../../prototypes/design/components/subscription/main.js) only mounts the page. Subscription reveals the three plan cards after Change plan, keeps those options visible after selection, updates the larger current-plan card, and enables Continue to Checkout only when a plan exists.
 
 ### BillingDetailsCard
 
@@ -441,7 +446,7 @@ Example usage keeps the two visible billing fields exactly as they appear in Sub
 
 Emits `action` without a payload via the shared secondary Button. The Subscription page owns the action and existing informational demo message. The component does not add billing address, invoices, card brand, last four digits, expiry, customer identifiers, or real integration because those fields are absent from the current Subscription UI.
 
-Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/cards/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. Subscription no longer renders a separate Compare pricing link because its Change plan action reveals the three pricing options directly.
+Vue implementation: [BillingDetailsCard.vue](../../prototypes/components/features/subscription/BillingDetailsCard.vue). Design prototype: [billing-details-card.html](../../prototypes/design/components/cards/billing-details-card.html). Both use Subscription's existing panel typography, spacing and content. Subscription has no separate comparison-page link because its Change plan action reveals the three plan options directly.
 
 ### PaymentStatusCard
 
@@ -455,7 +460,7 @@ Emits `action` without a payload when the shared primary/secondary action Button
 
 The visual `success` state represents an already backend-verified successful outcome; it must never be inferred from a browser redirect or query parameter in production. The prototype query parameter selects only which visual design to preview.
 
-- Vue component: [PaymentStatusCard.vue](../../prototypes/components/cards/PaymentStatusCard.vue)
+- Vue component: [PaymentStatusCard.vue](../../prototypes/components/features/checkout/PaymentStatusCard.vue)
 - Design prototype: [payment-status-card.html](../../prototypes/design/components/cards/payment-status-card.html)
 - Prototype mount: [payment-status/main.js](../../prototypes/payment-status/main.js)
 
@@ -472,23 +477,17 @@ The parent reads Pinia/store values, passes them to slotted fields, receives fie
 
 The HTML demonstrates Personal Information content and footer styling. Its buttons are visual-only; the Vue prototype provides the reusable container and slots. Styling remains prototype-level reference CSS.
 
-### TrainingCamera
-
-[TrainingCamera.vue](../../prototypes/components/training/TrainingCamera.vue) is the Training feature entry for camera and microphone acquisition. Its optional `endpoint` string prop defaults to an empty string and is forwarded to `CameraPreviewModal`. It emits no events.
-
-The component composes shared `Button`, [useCameraSession.js](../../prototypes/composables/useCameraSession.js), and `CameraPreviewModal`. It owns Start Training, the temporary requesting/cancel state, permission-error presentation, and stopping the camera session when the modal closes. Media acquisition and stream cleanup remain in `useCameraSession`; analysis and modal presentation remain outside this component.
-
 ### CameraPreviewModal
 
-[CameraPreviewModal.vue](../../prototypes/components/modal/CameraPreviewModal.vue) converts the [camera design](../../prototypes/design/pages/camera.html) into a viewport-sized modal inside Training without replacing the Training page or navigating.
+[CameraPreviewModal.vue](../../prototypes/components/modal/CameraPreviewModal.vue) is the single Training camera feature component. It converts the [camera design](../../prototypes/design/pages/camera.html) into a viewport-sized modal inside Training without replacing the Training page or navigating. It also owns the Start Training launcher, requesting/cancel state, and permission-error presentation.
 
-The modal accepts `stream`, `endpoint`, and optional `analysisFps` (default 5). It emits `analysis-result` for parent-owned session handling and `close` after releasing media. The optional `overlay` slot receives the latest backend `result`. Microphone capture is active with a local mute control; video playback stays muted to prevent microphone loopback. No microphone upload or coaching-audio protocol is invented.
+The modal accepts an optional externally owned `stream`, `endpoint`, and optional `analysisFps` (default 5). Without a supplied stream it uses [useCameraSession.js](../../prototypes/composables/useCameraSession.js) to request and own the camera/microphone stream. It emits `analysis-result` for parent-owned session handling and `close` after releasing owned media. The optional `overlay` slot receives the latest backend `result`. Microphone capture is active with a local mute control; video playback stays muted to prevent microphone loopback. No microphone upload or coaching-audio protocol is invented.
 
 [useVideoAnalysis.js](../../prototypes/composables/useVideoAnalysis.js) owns a single paced capture/resize/JPEG loop (default maximum width 640px, 5 FPS; configurable up to 10 FPS), result/error state, and cancellation. [trainingTransport.js](../../prototypes/services/trainingTransport.js) owns WebSocket connection, bounded sending, message reception, and disconnect. No browser inference or fabricated coaching is performed. Stop Video Analysis stops only analysis; Return to Training, Escape, device loss, or unmount stop analysis and all camera/microphone tracks.
 
 No backend-approved production transport contract exists yet. The proposed frontend-facing lifecycle creates the training session before analysis, uses only the short-lived WebSocket URL returned by the backend, asks the backend to finalize the session's canonical feedback and summary on completion, and abandons early exits as incomplete; see [integration contract examples](integration-contracts.md#training-session-and-analysis-transport). The proposed live transport sends binary JPEG frames and receives versioned JSON messages. The inspected prototype currently uses binary JPEG frames and JSON `{ type, payload }` messages as visual/behavioral guidance only. It accepts events including `stroke_analysis`, `player_feedback`, `ball_position`, `player_position`, `pose_analysis`, `training_instruction`, and `analysis_error`. Feedback text uses `payload.text` or `payload.message`; explicitly low-confidence text is withheld. The host/backend must provide authentication and validate this prototype contract before real integration. No endpoint is hardcoded; without one, only camera/microphone preview is available.
 
-For production Vue/behavior separation, place the modal view at `frontend/src/components/training/CameraPreviewModal.vue` and its existing inline UI behavior in `frontend/src/composables/useCameraPreviewModal.ts`: dialog lifecycle, media attachment/detachment, microphone mute, feedback derivation, scroll restoration and closure. This is a planned extraction of inspected behavior, not an existing file or new feature. Keep capture/cancellation in `frontend/src/composables/useVideoAnalysis.ts`, transport in `frontend/src/services/trainingTransport.ts`, and camera acquisition/track ownership in `frontend/src/composables/useCameraSession.ts`. The modal requests track release through that owner on close/device loss/unmount; it does not independently stop the same tracks again. The feature forwards results to session state and the existing overlay slot. These mappings define responsibility without adding business logic to any Button.
+For production Vue/behavior separation, place the modal view at `frontend/src/components/training/CameraPreviewModal.vue` and its existing inline UI behavior in `frontend/src/composables/useCameraPreviewModal.ts`: dialog lifecycle, media attachment/detachment, microphone mute, feedback derivation, scroll restoration and closure. This is a planned extraction of inspected behavior, not an existing file or new feature. Keep capture/cancellation in `frontend/src/composables/useVideoAnalysis.ts`, transport in `frontend/src/services/trainingTransport.ts`, and camera acquisition/track ownership in `frontend/src/composables/useCameraSession.ts`. `CameraPreviewModal` requests track release through that owner on close/device loss/unmount; it does not independently stop the same tracks. The feature forwards results to session state and the existing overlay slot. These mappings define responsibility without adding business logic to any Button.
 
 Run the Training prototype using [prototypes/README.md](../../prototypes/README.md). Existing field composables now have one canonical copy under `prototypes/composables/`; field behavior is unchanged.
 
@@ -496,17 +495,19 @@ Run the Training prototype using [prototypes/README.md](../../prototypes/README.
 
 The [Checkout HTML prototype](../../prototypes/design/components/checkout/checkout.html) is the visual reference for the selected-plan, status, and successful order-summary cards. Pay with Stripe and Pay with PayPal are placed under the selected plan. The right-hand area shows PaymentStatusCard until backend-verified success, then replaces it with OrderSummaryCard. Checkout contains no Payment Information section or raw payment fields.
 
-The colocated prototype [Checkout entry](../../prototypes/design/components/checkout/main.js) mounts the Checkout cards, supplies their dynamic display values through props, and owns the demo checkout action and feedback state. Cards contain no composables, fetching, store access, payment calculations, or page-level business logic. Static labels match the prototype.
+These files belong to the **Checkout feature**. [Checkout.vue](../../prototypes/components/features/checkout/Checkout.vue) is the feature component; `ChoosePlanCard`, `PaymentStatusCard`, and `OrderSummaryCard` are its focused child components. Their shared directory provides the physical grouping. See the colocated [Checkout README](../../prototypes/components/features/checkout/README.md).
 
-#### PerformanceCard
+The Checkout feature owner is [Checkout.vue](../../prototypes/components/features/checkout/Checkout.vue). It imports `ChoosePlanCard`, `PaymentStatusCard`, and `OrderSummaryCard` and uses the feature-local [useCheckout.js](../../prototypes/components/features/checkout/useCheckout.js) composable to adapt checkout state into their props and actions. Transient hosted-checkout state belongs to the Pinia [useCheckoutStore.js](../../prototypes/stores/useCheckoutStore.js) in the common stores directory because it must survive navigation and a provider return. The prototype store calls [demoCheckoutService.js](../../prototypes/services/demoCheckoutService.js); production replaces that demo boundary with the documented backend endpoints. Persisted, backend-verified subscription truth remains only in `UserStore.subscription` and is never duplicated into CheckoutStore. The colocated [Checkout entry](../../prototypes/design/components/checkout/main.js) installs Pinia and mounts the composition. Child cards contain no composables, fetching, store access, payment calculations, or page-level business logic. Static labels match the prototype.
 
-[PerformanceCard.vue](../../prototypes/components/cards/PerformanceCard.vue) is the existing Checkout order-summary presentation, not the selectable Pricing/Subscription plan card. Checkout is outside the plan-card unification scope: it shows a selected order's description, formatted price, billing note and back link, without Choose/Change plan actions or a feature list.
+#### ChoosePlanCard
+
+[ChoosePlanCard.vue](../../prototypes/components/features/checkout/ChoosePlanCard.vue) is the Checkout selected-plan presentation, not the selectable Subscription plan card. It shows the chosen plan's description, formatted price, billing note and back link, while Checkout supplies the Stripe and PayPal actions through its payment-actions slot.
 
 Its existing required string props are `headingId`, `badge`, `plan`, `description`, `price`, `period`, `billingNote`, `backLabel`, and `backHref`. The page owns formatting and navigation destinations. It performs no billing calculation or transaction. Do not merge these props into PaymentCardPlan merely to reconcile the older proposed architecture.
 
 #### OrderSummaryCard
 
-[OrderSummaryCard.vue](../../prototypes/components/cards/OrderSummaryCard.vue) presents the Plan, Billing period, Subtotal, Tax, Demo total, and payment Status rows, plus an explanatory note and page-owned actions. Checkout renders it only after backend-verified success; the prototype displays `Paid`.
+[OrderSummaryCard.vue](../../prototypes/components/features/checkout/OrderSummaryCard.vue) presents the Plan, Billing period, Subtotal, Tax, Demo total, and payment Status rows, plus an explanatory note and page-owned actions. Checkout renders it only after backend-verified success; the prototype displays `Paid`.
 
 Required string props: `headingId`, `title`, `plan`, `billingPeriod`, `subtotal`, `tax`, `total`, `paymentStatus`, `note`, `actionLabel`, `cancelLabel`, and `cancelHref`. `statusMessage` is an optional string defaulting to empty. Amounts and status are supplied as formatted display strings. The action emits `complete` without a payload; the page handles it. Cancel follows `cancelHref`. The card performs no transaction or subscription logic.
 

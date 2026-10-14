@@ -1,4 +1,5 @@
 <script setup>
+// Checkout owns navigation and payment actions supplied around this presentation.
 defineProps({
   headingId: { type: String, required: true },
   badge: { type: String, required: true },

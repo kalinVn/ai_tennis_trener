@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import Button from '../../design/components/buttons/Button.vue'
+import Button from '../../../design/components/buttons/Button.vue'
 
 const props = defineProps({
   status: {

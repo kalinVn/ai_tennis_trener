@@ -2,8 +2,11 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { existsSync, readFileSync } from 'node:fs'
 import * as Vue from 'vue'
+import { createPinia, setActivePinia } from 'pinia'
 import { parse, compileScript } from '@vue/compiler-sfc'
 import { useButtonController } from '../composables/ButtonController.js'
+import { useSubscription } from '../components/features/subscription/useSubscription.js'
+import { useCheckoutStore } from '../stores/useCheckoutStore.js'
 
 // Compile the real SFCs and exercise their rendered controls without a browser.
 function component(path, bindings = {}) {
@@ -15,10 +18,10 @@ function component(path, bindings = {}) {
   return new Function('Vue', ...Object.keys(bindings), code)(Vue, ...Object.values(bindings))
 }
 const Button = component('../design/components/buttons/Button.vue', { useButtonController })
-const PaymentCardPlan = component('../components/cards/PaymentCardPlan.vue', { Button })
-const BillingDetailsCard = component('../components/cards/BillingDetailsCard.vue', { Button })
-const PaymentStatusCard = component('../components/cards/PaymentStatusCard.vue', { Button })
-const OrderSummaryCard = component('../components/cards/OrderSummaryCard.vue')
+const PaymentCardPlan = component('../components/features/subscription/PaymentCardPlan.vue', { Button })
+const BillingDetailsCard = component('../components/features/subscription/BillingDetailsCard.vue', { Button })
+const PaymentStatusCard = component('../components/features/checkout/PaymentStatusCard.vue', { Button })
+const OrderSummaryCard = component('../components/features/checkout/OrderSummaryCard.vue')
 const node = type => ({ type, props: {}, children: [], text: '', parent: null })
 const renderer = Vue.createRenderer({
   createElement: node, createText: text => ({ ...node('#text'), text }),
@@ -62,35 +65,82 @@ test('selected plan updates presentation without emitting or changing price; act
   app.unmount()
 })
 
-test('Subscription is the only plan-selection surface and continues to Checkout', async () => {
-  const root = node('root'), calls = []
-  let app
-  const code = readFileSync(new URL('../design/components/subscription/main.js', import.meta.url), 'utf8').replace(/^import .*$/gm, '')
-  new Function('createApp', 'PaymentCardPlan', 'BillingDetailsCard', 'document', 'window', code)(
-    options => (app = renderer.createApp(options)), PaymentCardPlan, BillingDetailsCard,
-    { getElementById: () => root },
-    {
-      location: { set href(value) { calls.push(value) } },
-      showDemoNote: message => calls.push(message),
-    },
-  )
-  assert.equal(all(root).filter(n => n.type === 'article').length, 1)
-  assert.match(text(root), /No selected plan/)
-  assert.match(text(root), /cannot use the application's training services until you select a plan/)
-  const initialButtons = all(root).filter(n => n.type === 'button')
-  initialButtons[0].props.onClick({ type: 'click' })
-  await Vue.nextTick()
-  assert.equal(all(root).filter(n => n.type === 'article').length, 4)
-  assert.match(text(root), /Starter/)
-  assert.match(text(root), /Most popular/)
-  assert.match(text(root), /Pro/)
-  assert.match(text(root), /€9/)
-  initialButtons[1].props.onClick({ type: 'click' })
-  all(root).filter(n => n.type === 'button').at(-1).props.onClick({ type: 'click' })
-  assert.deepEqual(calls, ['Billing is a visual prototype only.', '../checkout/checkout.html'])
-  assert.match(text(root), /Next renewal: Oct 26, 2026 \(illustrative\)/)
-  assert.match(text(root), /Payment method: Not connected/)
+test('Subscription state selects a plan before continuing to Checkout', () => {
+  const calls = []
+  const state = useSubscription({
+    navigate: href => calls.push(href),
+    notify: message => calls.push(message),
+  })
+
+  assert.equal(state.selectedPlan.value, null)
+  assert.equal(state.currentPlan.value.planName, 'No selected plan')
+  assert.equal(state.currentPlan.value.price, undefined)
+  state.continueToCheckout()
+  assert.deepEqual(calls, [])
+
+  state.changePlan()
+  assert.equal(state.showPlanOptions.value, true)
+  state.selectPlan(state.plans.value[0])
+  assert.equal(state.showPlanOptions.value, true)
+  assert.equal(state.currentPlan.value.planName, 'Starter')
+  assert.equal(state.currentPlan.value.price, '€9')
+  assert.equal(state.currentPlan.value.actionLabel, 'Change plan')
+  assert.equal(state.currentPlan.value.continueActionLabel, 'Continue')
+
+  state.continueToCheckout()
+  state.manageBilling()
+  assert.deepEqual(calls, [
+    '../checkout/checkout.html?plan=starter',
+    'Billing is a visual prototype only.',
+  ])
+})
+
+test('current plan card emits separate Change plan and Continue actions', () => {
+  const root = node('root')
+  let changes = 0
+  let continues = 0
+  const app = renderer.createApp({
+    setup: () => () => Vue.h(PaymentCardPlan, {
+      planName: 'Starter', price: '€9', billingPeriod: 'month',
+      statusLabel: 'Selected plan', actionLabel: 'Change plan',
+      continueActionLabel: 'Continue',
+      onAction: () => changes++, onContinue: () => continues++,
+    }),
+  })
+  app.mount(root)
+  const buttons = all(root).filter(n => n.type === 'button')
+  assert.equal(buttons.length, 2)
+  assert.match(text(root), /Selected plan/)
+  assert.match(text(root), /Change plan/)
+  assert.match(text(root), /Continue/)
+  buttons[0].props.onClick({ type: 'click' })
+  buttons[1].props.onClick({ type: 'click' })
+  assert.equal(changes, 1)
+  assert.equal(continues, 1)
   app.unmount()
+})
+
+test('CheckoutStore owns the transient hosted-checkout session state', async () => {
+  setActivePinia(createPinia())
+  const store = useCheckoutStore()
+  store.initialize({ planId: 'starter', status: 'pending' })
+  assert.equal(store.planId, 'starter')
+  assert.equal(store.checkoutSessionId, '')
+
+  await store.startCheckout('Stripe')
+  assert.equal(store.selectedProvider, 'Stripe')
+  assert.equal(store.checkoutSessionId, 'demo_checkout_stripe_starter')
+  assert.equal(store.status, 'pending')
+  assert.equal(store.pending, false)
+
+  await store.refreshStatus()
+  assert.equal(store.status, 'succeeded')
+  assert.equal(store.error, '')
+
+  store.initialize({ planId: 'pro', status: 'pending' })
+  await store.startCheckout('PayPal')
+  assert.equal(store.selectedProvider, 'PayPal')
+  assert.equal(store.checkoutSessionId, 'demo_checkout_paypal_pro')
 })
 
 test('PaymentStatusCard reuses one component for all five visual-only states', () => {
@@ -150,21 +200,31 @@ test('Subscription omits payment-status controls while the standalone prototype 
 
 test('Subscription and Checkout use colocated design-component entries without raw payment fields', () => {
   const subscription = new URL('../design/components/subscription/subscription.html', import.meta.url)
+  const subscriptionEntry = readFileSync(new URL('../design/components/subscription/main.js', import.meta.url), 'utf8')
+  const subscriptionPage = readFileSync(new URL('../components/features/subscription/Subscription.vue', import.meta.url), 'utf8')
   const checkout = readFileSync(new URL('../design/components/checkout/checkout.html', import.meta.url), 'utf8')
   const checkoutEntry = readFileSync(new URL('../design/components/checkout/main.js', import.meta.url), 'utf8')
+  const checkoutPage = readFileSync(new URL('../components/features/checkout/Checkout.vue', import.meta.url), 'utf8')
 
   assert.equal(existsSync(subscription), true)
+  assert.match(subscriptionEntry, /features\/subscription\/Subscription\.vue/)
+  assert.match(subscriptionPage, /PaymentCardPlan/)
+  assert.match(subscriptionPage, /BillingDetailsCard/)
+  assert.match(subscriptionPage, /useSubscription/)
   assert.equal(existsSync(new URL('../design/pages/checkout.html', import.meta.url)), false)
-  assert.equal(existsSync(new URL('../design/pages/pricing.html', import.meta.url)), false)
-  assert.equal(existsSync(new URL('../pricing/main.js', import.meta.url)), false)
   assert.equal(existsSync(new URL('../components/subscription/subscription.html', import.meta.url)), false)
   assert.doesNotMatch(checkout, /Payment information|Cardholder name|Card number|Security code/)
   assert.doesNotMatch(checkoutEntry, /PaymentInformationCard|cardNumberDisplay|securityCodeDisplay/)
+  assert.match(checkoutEntry, /Checkout\.vue/)
+  assert.match(checkoutEntry, /createApp\(Checkout\)\.use\(createPinia\(\)\)\.mount\(target\)/)
   assert.match(checkout, /Pay with Stripe/)
   assert.match(checkout, /Pay with PayPal/)
   assert.equal((checkout.match(/payment-provider-icon/g) || []).length >= 3, true)
   assert.match(checkout, /Payment pending/)
   assert.match(checkout, /Status<\/th><td><span class="pill">Paid/)
-  assert.match(checkoutEntry, /checkoutStatus === 'success'/)
-  assert.match(checkoutEntry, /PaymentStatusCard/)
+  assert.match(checkoutPage, /checkoutStatus === 'success'/)
+  assert.match(checkoutPage, /ChoosePlanCard/)
+  assert.match(checkoutPage, /OrderSummaryCard/)
+  assert.match(checkoutPage, /PaymentStatusCard/)
+  assert.match(checkoutPage, /useCheckout/)
 })

@@ -9,14 +9,14 @@
 <body>
 <div class="app-shell">
   <aside class="sidebar">
-    <a class="brand" href="../../pages/dashboard.html"><span class="logo">AI</span>Coach</a>
+      <a class="brand" href="../../pages/dashboard.html"><span class="logo">AI</span>Coach</a>
     <div class="side-links">
-      <a href="../../pages/dashboard.html">Dashboard</a>
-      <a href="../../pages/training.html">Training</a>
-      <a href="../../pages/history.html">History</a>
+        <a href="../../pages/dashboard.html">Dashboard</a>
+        <a href="../../pages/training.html">Training</a>
+        <a href="../../pages/history.html">History</a>
       <a href="subscription.html" aria-current="page">Subscription</a>
-      <a href="../../pages/profile.html">Profile</a>
-      <a href="../../pages/settings.html">Settings</a>
+        <a href="../../pages/profile.html">Profile</a>
+        <a href="../../pages/settings.html">Settings</a>
     </div>
     <p style="font-size:12px;margin:30px 12px;color:var(--muted)">Authentication Layout · demo</p>
   </aside>
@@ -25,7 +25,7 @@
       <span class="eyebrow" style="margin:0">Tennis AI Coach / Subscription</span>
       <div class="flex">
         <span class="muted">Artur Bortnik · demo user</span>
-        <a class="btn small" href="../../pages/index.html">Log out</a>
+          <a class="btn small" href="../../pages/index.html">Log out</a>
       </div>
     </header>
     <main class="app-content">
@@ -35,9 +35,12 @@
       <div id="subscription-cards-root">
         <div class="two-col">
           <div class="panel">
-            <h2>No selected plan</h2>
-            <p>You cannot use the application's training services until you select a plan.</p>
+            <span id="fallback-current-status" class="pill" hidden>Selected plan</span>
+            <h2 id="fallback-current-name">No selected plan</h2>
+            <p id="fallback-current-description">You cannot use the application's training services until you select a plan.</p>
+            <h2 id="fallback-current-price" class="accent" hidden></h2>
             <button class="btn" type="button" onclick="document.getElementById('subscription-plan-options-fallback').hidden = false">Change plan</button>
+            <a id="fallback-continue" class="btn primary" href="../checkout/checkout.html" hidden>Continue</a>
           </div>
           <div class="panel">
             <h3>Billing details</h3>
@@ -54,20 +57,20 @@
               <h3>Starter</h3>
               <strong>€9</strong><small>/month</small>
               <p>Core analysis and training history.</p>
-              <a class="btn" style="width:100%" href="../checkout/checkout.html">Choose Starter</a>
+              <button class="btn" style="width:100%" type="button" onclick="selectFallbackPlan('starter', 'Starter', '€9', 'Core analysis and training history.')">Choose Starter</button>
             </article>
             <article class="card price featured">
               <div class="eyebrow">Most popular</div>
               <h3>Performance</h3>
               <strong>€19</strong><small>/month</small>
               <p>Realtime coaching, richer insights and session review tools.</p>
-              <a class="btn primary" style="width:100%" href="../checkout/checkout.html">Choose Performance</a>
+              <button class="btn primary" style="width:100%" type="button" onclick="selectFallbackPlan('performance', 'Performance', '€19', 'Realtime coaching, richer insights and session review tools.')">Choose Performance</button>
             </article>
             <article class="card price">
               <h3>Pro</h3>
               <strong>€39</strong><small>/month</small>
               <p>Advanced training insights and premium tools.</p>
-              <a class="btn" style="width:100%" href="../checkout/checkout.html">Choose Pro</a>
+              <button class="btn" style="width:100%" type="button" onclick="selectFallbackPlan('pro', 'Pro', '€39', 'Advanced training insights and premium tools.')">Choose Pro</button>
             </article>
           </div>
         </section>
@@ -77,6 +80,19 @@
   </div>
 </div>
 <script src="../../app.js"></script>
+<script>
+  function selectFallbackPlan(id, name, price, description) {
+    document.getElementById('fallback-current-status').hidden = false
+    document.getElementById('fallback-current-name').textContent = name
+    document.getElementById('fallback-current-description').textContent = description
+    const priceElement = document.getElementById('fallback-current-price')
+    priceElement.textContent = `${price} / month`
+    priceElement.hidden = false
+    const continueLink = document.getElementById('fallback-continue')
+    continueLink.href = `../checkout/checkout.html?plan=${encodeURIComponent(id)}`
+    continueLink.hidden = false
+  }
+</script>
 <script type="module" src="main.js"></script>
 </body>
 </html>

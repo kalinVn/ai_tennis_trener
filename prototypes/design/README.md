@@ -14,7 +14,7 @@ fallback remains in `app.js` because bare Vue imports cannot run in that preview
 mode. Both paths preserve `tennis-ai-coach.cookie-consent.v1`; the prototype does
 not start analytics or marketing services.
 
-The current source contains 10 product pages—Home, Features, Pricing, Dashboard,
+The current source contains 9 product pages—Home, Features, Dashboard,
 Training, History, Subscription, Profile, Settings and Camera modal design. The legacy
 `tennis-ai-coach.html` was absent before this reorganization and was not restored.
 No image assets are required, so there is no unused `assets/` directory.
@@ -107,11 +107,6 @@ checks passed at 1440×900, 414×896 and 896×414. Profile regression checks als
 passed after sharing the form handler; all Settings field definitions remain
 unchanged.
 
-Pricing is available at `pages/pricing.html`, using the Authentication Layout and
-existing plan cards/demo behavior. The shared script links authenticated application
-sidebars to this Pricing page using ordinary anchor navigation. Production routing
-must require authentication.
-
 Checkout is available at `components/checkout/checkout.html` (the documented
 `/checkout` route). It uses the Authentication Layout and shows Pay with Stripe
 and Pay with PayPal below the selected Performance plan (€19/month). The right
@@ -138,7 +133,7 @@ prototype.
   and a Login page link; horizontal desktop header and collapsible
   menu at 720px and below.
 - [Authenticated navigation](components/navigation/authenticated-navigation.html):
-  Dashboard, Training, History, Pricing, Subscription, Profile, Settings and Checkout;
+  Dashboard, Training, History, Subscription, Profile, Settings and Checkout;
   244px vertical sidebar on desktop/tablet and the existing accessible drawer on
   phones (720px, or landscape up to 950px wide / 500px high).
 

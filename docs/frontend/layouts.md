@@ -14,7 +14,7 @@ The banner stays full-width at the viewport bottom until Accept All, Reject All,
 
 ### Authentication Layout
 
-The Authentication Layout is the reusable shell for authenticated pages, including Training and Pricing. It contains the authenticated left-side navigation, the authenticated top/header area with identity and account actions, and an empty responsive page-content area. Dashboard, Training, History, Session Review, Pricing, Subscription, Profile, Settings, and Checkout render their page-specific UI inside that content area.
+The Authentication Layout is the reusable shell for authenticated pages, including Training, Subscription, and Checkout. It contains the authenticated left-side navigation, the authenticated top/header area with identity and account actions, and an empty responsive page-content area. Dashboard, Training, History, Session Review, Subscription, Profile, Settings, and Checkout render their page-specific UI inside that content area.
 
 Authoritative prototype: `prototypes/design/layouts/authentication.html`.
 

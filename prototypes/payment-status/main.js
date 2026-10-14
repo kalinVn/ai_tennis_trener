@@ -1,5 +1,5 @@
 import { createApp, ref } from 'vue'
-import PaymentStatusCard from '../components/cards/PaymentStatusCard.vue'
+import PaymentStatusCard from '../components/features/checkout/PaymentStatusCard.vue'
 
 const supportedStatuses = ['pending', 'success', 'failed', 'cancelled']
 const requestedStatus = new URLSearchParams(window.location.search).get('status')

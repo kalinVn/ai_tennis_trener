@@ -23,10 +23,10 @@ does not connect camera devices. The layout and component specimens show a setup
 note when opened without Vite.
 Camera access requires localhost or HTTPS and browser permission for both devices.
 
-Training has a single Start Training button directly below Camera Preview. It uses
-`TrainingCamera` to open the existing full-screen `CameraPreviewModal` after camera
-and microphone permission is granted. The layout and camera specimens reuse this
-same launcher. Dashboard keeps Session History and its Training navigation link;
+Training has a single Start Training button directly below Camera Preview. The
+`CameraPreviewModal` component owns that launcher and opens its full-screen preview
+after camera and microphone permission is granted. The layout and camera specimens
+reuse this same component. Dashboard keeps Session History and its Training navigation link;
 it does not launch the camera flow.
 
 The camera launcher requests camera and microphone together. Cancel discards a late
@@ -77,23 +77,29 @@ no analytics or marketing integrations are initialized by this implementation.
 Open `design/pages/login.html` and `design/pages/register.html` through the Vite
 server. These entries mount the dedicated `LoginPage`/`LoginForm` and
 `RegisterPage`/`RegisterForm` prototypes. Public Login actions lead to Login;
-Start Free, Register, and Create Account lead to Register. Authenticated pricing-plan selection leads to Checkout.
+Start Free, Register, and Create Account lead to Register. Authenticated plan selection in Subscription leads to Checkout.
 The forms are visual prototypes only: they do not authenticate, create accounts,
 start OAuth, or implement OTP/MFA.
+
+Open `design/pages/features.html` to run the Vue `FeaturesPage` prototype. It
+renders the three numbered product capabilities through the reusable
+`FeatureCard` component and preserves the two page navigation actions.
 
 ## Checkout cards
 
 Open `/prototypes/design/components/checkout/checkout.html` through the same Vite
-server to render `PerformanceCard` and `OrderSummaryCard` in the Checkout layout.
-Its colocated `main.js` owns the sample props and demo action feedback; the cards
-reuse the page stylesheet and contain no payment logic. Checkout contains no raw
+server to render the Checkout layout. Its colocated `main.js` mounts the feature-level
+`components/features/checkout/Checkout.vue`, which composes `ChoosePlanCard`,
+`PaymentStatusCard`, and `OrderSummaryCard`. Its local `useCheckout` composable adapts
+the Pinia `CheckoutStore`; the store calls a demo checkout service with the same
+transient session boundary intended for the backend contract. The child cards reuse the page stylesheet and contain no payment logic. Checkout contains no raw
 payment fields. Opening the HTML directly retains the static design. The build
 also includes this Checkout entry.
 
-Checkout retains its distinct PerformanceCard order summary. Pricing and Subscription share the existing [PaymentCardPlan](../docs/frontend/components.md#paymentcardplan), with presentation-only selected styling. Subscription also uses [BillingDetailsCard](../docs/frontend/components.md#billingdetailscard).
+Checkout retains its distinct ChoosePlanCard selected-plan summary. Subscription uses the existing [PaymentCardPlan](../docs/frontend/components.md#paymentcardplan), with presentation-only selected styling, plus [BillingDetailsCard](../docs/frontend/components.md#billingdetailscard).
 
-## Pricing and Subscription cards
+## Subscription cards
 
-Open `design/pages/pricing.html` or `design/components/subscription/subscription.html` through the Vite server. Their entry scripts mount the shared PaymentCardPlan; Subscription also mounts BillingDetailsCard. Static HTML remains as a local-file visual fallback. Pricing uses the Authentication Layout and its actions navigate to the protected Checkout prototype. On Subscription, Change plan reveals the Starter, Performance, and Pro cards in place; choosing one continues to the Checkout prototype. Manage billing retains its informational message. No real billing integration is present.
+Open `design/components/subscription/subscription.html` through the Vite server. Its entry script mounts `components/features/subscription/Subscription.vue`, which composes PaymentCardPlan and BillingDetailsCard and uses the local `useSubscription` composable. Static HTML remains as a local-file visual fallback. Change plan reveals Starter, Performance, and Pro. Choosing one keeps those options visible, updates the larger current-plan card with its name and price, keeps Change plan, and reveals Continue; Continue opens Checkout with the selected plan. Manage billing retains its informational message. No real billing integration is present.
 
-Card design examples are `design/components/cards/payment-card-plan.html` (normal), `design/components/cards/payment-card-plan-selected.html` (selected state of the same component) and `design/components/cards/billing-details-card.html`. The build includes the Pricing and Subscription entries.
+Card design examples are `design/components/cards/payment-card-plan.html` (normal), `design/components/cards/payment-card-plan-selected.html` (selected state of the same component) and `design/components/cards/billing-details-card.html`. The build includes the Subscription entry.

@@ -1,10 +1,11 @@
 <script setup>
-import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
+import { computed, nextTick, ref, watch, onBeforeUnmount } from 'vue'
 import Button from '../../design/components/buttons/Button.vue'
+import { useCameraSession } from '../../composables/useCameraSession.js'
 import { useVideoAnalysis } from '../../composables/useVideoAnalysis.js'
 
 const props = defineProps({
-  stream: { type: Object, required: true },
+  stream: { type: Object, default: null },
   endpoint: { type: String, default: '' },
   analysisFps: { type: Number, default: 5 },
 })
@@ -13,6 +14,8 @@ const dialog = ref(null)
 const video = ref(null)
 const mediaError = ref('')
 const microphoneMuted = ref(false)
+const { stream: ownedStream, isRequesting, error: cameraError, startCamera, stopCamera } = useCameraSession()
+const activeStream = computed(() => props.stream || ownedStream.value)
 const { isAnalyzing, isStarting, analysisResult, error, startAnalysis, stopAnalysis } = useVideoAnalysis(video, {
   endpoint: () => props.endpoint,
   fps: () => props.analysisFps,
@@ -27,45 +30,69 @@ const feedback = computed(() => {
   return typeof text === 'string' ? text : ''
 })
 let previousOverflow
-let disposed = false
+let attachedStream = null
+let previewRevision = 0
 
 function toggleMicrophone() {
   microphoneMuted.value = !microphoneMuted.value
-  props.stream.getAudioTracks().forEach(track => { track.enabled = !microphoneMuted.value })
+  activeStream.value?.getAudioTracks().forEach(track => { track.enabled = !microphoneMuted.value })
 }
 
-function cleanup() {
-  if (disposed) return
-  disposed = true
+function detachPreview() {
+  previewRevision++
   stopAnalysis()
-  props.stream.getTracks().forEach(track => {
-    track.removeEventListener('ended', close)
-    track.stop()
-  })
+  attachedStream?.getTracks().forEach(track => track.removeEventListener('ended', close))
+  attachedStream = null
   if (video.value) video.value.srcObject = null
-  dialog.value?.close()
+  if (dialog.value?.open) dialog.value.close()
   if (previousOverflow !== undefined) document.body.style.overflow = previousOverflow
+  previousOverflow = undefined
 }
 
 function close() {
-  cleanup()
+  detachPreview()
+  if (!props.stream) stopCamera()
   emit('close')
 }
 
-onMounted(async () => {
+async function attachPreview(stream) {
+  const revision = ++previewRevision
+  attachedStream = stream
+  mediaError.value = ''
+  microphoneMuted.value = false
   previousOverflow = document.body.style.overflow
   document.body.style.overflow = 'hidden'
   dialog.value.showModal()
-  props.stream.getTracks().forEach(track => track.addEventListener('ended', close))
-  video.value.srcObject = props.stream
+  stream.getTracks().forEach(track => track.addEventListener('ended', close))
+  video.value.srcObject = stream
   try { await video.value.play() }
-  catch (reason) { if (!disposed) mediaError.value = reason.message || 'Camera playback failed.' }
+  catch (reason) {
+    if (revision === previewRevision) mediaError.value = reason.message || 'Camera playback failed.'
+  }
+}
+
+watch(activeStream, async stream => {
+  detachPreview()
+  if (!stream) return
+  await nextTick()
+  await attachPreview(stream)
+}, { flush: 'post', immediate: true })
+
+onBeforeUnmount(() => {
+  detachPreview()
+  if (!props.stream) stopCamera()
 })
-onBeforeUnmount(cleanup)
 </script>
 
 <template>
-  <Teleport to="body">
+  <div v-if="!activeStream" class="camera-preview-launcher">
+    <Button variant="primary" :loading="isRequesting" @click="startCamera">
+      {{ isRequesting ? 'Requesting camera and microphone…' : 'Start Training' }}
+    </Button>
+    <Button v-if="isRequesting" variant="secondary" @click="stopCamera">Cancel</Button>
+    <p v-if="cameraError" role="alert">{{ cameraError }}</p>
+  </div>
+  <Teleport v-if="activeStream" to="body">
     <dialog ref="dialog" class="camera-modal" aria-labelledby="camera-title" @cancel.prevent="close">
       <div class="camera-modal__layout">
         <header class="camera-modal__header">
@@ -99,6 +126,8 @@ onBeforeUnmount(cleanup)
 </template>
 
 <style scoped>
+.camera-preview-launcher { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.camera-preview-launcher p { width: 100%; margin: 0; color: #a8b5ae; }
 .camera-modal { box-sizing: border-box; position: fixed; inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: none; margin: 0; padding: 0; border: 0; background: #07100c; color: #f4f7f5; font: 16px/1.55 Inter, system-ui, -apple-system, 'Segoe UI', sans-serif; }
 .camera-modal::backdrop { background: #000b; }
 .camera-modal__layout { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; height: 100%; }

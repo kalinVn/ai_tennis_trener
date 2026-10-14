@@ -1,5 +1,5 @@
 <script setup>
-import Button from '../../design/components/buttons/Button.vue'
+import Button from '../../../design/components/buttons/Button.vue'
 
 defineProps({
   title: { type: String, default: 'Billing details' },

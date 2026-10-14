@@ -1,4 +1,5 @@
 <script setup>
+// Checkout supplies backend-verified display values and owns every action.
 defineProps({
   headingId: { type: String, required: true },
   title: { type: String, required: true },

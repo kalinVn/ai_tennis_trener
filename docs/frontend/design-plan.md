@@ -15,17 +15,17 @@ Status: historical draft; not an approved current implementation plan. Button an
 - Existing application: `frontend/index.html` contains only `test 2`. No Vue source, package manifest, application tests, or backend application files were found in the inspected repository. Existing uncommitted content must be preserved when implementation begins.
 - The available `codex/workflows/` files concern infrastructure; none is needed for this design-only task. Any later infrastructure change must load its relevant workflow first.
 - Use Vue 3, JavaScript, Vue Router, and Vite. The frontend specification explicitly overrides the general AGENTS.md TypeScript default. Retain Pinia under the repository stack agreement; do not add another state library. `UserStore` is the single authoritative frontend store for persisted authenticated application data, while unsaved drafts and transient UI/device state stay local.
-- Affected domains: public UI, authentication UI/session navigation, dashboard, training/media/analysis transport, session review/history, authenticated pricing, subscription UI, and account preferences. Backend inference, coaching decisions, identity authority, persistence, and billing authority remain external dependencies.
+- Affected domains: public UI, authentication UI/session navigation, dashboard, training/media/analysis transport, session review/history, subscription and checkout UI, and account preferences. Backend inference, coaching decisions, identity authority, persistence, and billing authority remain external dependencies.
 
 ## Design Foundation
 
 ### Visual direction and prototype translation
 
-Use the prototype's forest-green background, layered dark panels, off-white text, lime primary actions, and restrained cyan information accents. Retain its split landing hero, court illustration, three feature cards, training preview, pricing comparison, rounded panels, and compact form composition. The product name remains Tennis AI Coach.
+Use the prototype's forest-green background, layered dark panels, off-white text, lime primary actions, and restrained cyan information accents. Retain its split landing hero, court illustration, three feature cards, training preview, subscription plan selection, rounded panels, and compact form composition. The product name remains Tennis AI Coach.
 
 The public page can use subtle radial highlights. Authenticated pages should use calmer surfaces to prioritize training and readable data. Use the prototype's court artwork as an illustration concept, rebuilding maintainable markup or SVG during implementation rather than copying its code. Public sample overlays must be labeled as an illustrative preview, not a live camera or real analysis.
 
-Training is the primary workflow: camera setup → explicit analysis start → one supported coaching cue → stop/end → session review when available. Do not reuse the prototype's fake camera toggles, fabricated duration, metrics, or coaching text as real application state. The prototype's prices, “Most popular,” free-start promise, and sub-second feedback target are not verified product facts; final pricing and claims require supported product/backend data.
+Training is the primary workflow: camera setup → explicit analysis start → one supported coaching cue → stop/end → session review when available. Do not reuse the prototype's fake camera toggles, fabricated duration, metrics, or coaching text as real application state. The prototype's prices, “Most popular,” free-start promise, and sub-second feedback target are not verified product facts; final plan prices and claims require supported product/backend data.
 
 ### Required tokens
 
@@ -50,7 +50,7 @@ These are proposed implementation values derived from the reference and shared r
 
 ### Layout and responsive principles
 
-- Desktop public hero uses two columns; three-card feature groups and the authenticated Pricing plan grid use three columns. Stack them on narrower screens in reading order.
+- Desktop public hero uses two columns; three-card feature groups and the Subscription plan grid use three columns. Stack them on narrower screens in reading order.
 - Desktop application navigation uses a sidebar. At ≤900px, replace it with a labeled menu opening an accessible navigation dialog; keep every documented authenticated destination reachable.
 - Training uses a roughly 70/30 media/feedback split where space permits. On mobile, stack media, primary controls, focused cue, then secondary status. Keep stop controls readily reachable and allow scrolling rather than clipping content into a fixed viewport.
 - Preserve the actual video aspect ratio with `object-fit: contain`. Overlay coordinates must share the video's scale, offsets, and mirroring. Do not obscure the player with controls or stretch portrait video into a landscape crop.
@@ -62,7 +62,7 @@ These are proposed implementation values derived from the reference and shared r
 | Name | Purpose and shared structure | Used by pages |
 | --- | --- | --- |
 | PublicLayout | Branding, sticky public navigation to Home/Features/Training/Login, authentication actions, empty content container, footer | Landing, Features, Login, Registration |
-| AuthenticationLayout | Responsive authenticated navigation and header with an empty content container | Dashboard, Training, History, Pricing, Subscription, Profile, Settings, Session Review |
+| AuthenticationLayout | Responsive authenticated navigation and header with an empty content container | Dashboard, Training, History, Subscription, Checkout, Profile, Settings, Session Review |
 
 Dedicated authentication routes are the proposed default. They retain the prototype's compact card and mode-switch appearance while supporting refresh, direct links, and keyboard navigation. A route-backed modal is the optional alternative, not an additional required implementation. Shared dialogs remain needed for mobile navigation and session/account confirmation flows.
 
@@ -80,7 +80,6 @@ The orchestrator selects implementation skills from the page requirements and de
 | Training / AuthenticationLayout | Dominant camera/video preview; permission state; camera and analysis start/stop; focused cue; connection/analysis state; duration/session state; overlay; loading/unavailable/disconnected/error states | Button, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CameraPreview, SessionControls, TrainingOverlay, CoachingFeedback | browser media support and secure context; analysis/session contracts |
 | Session Review / AuthenticationLayout | Summary, detected issues, supported metrics, recommendations, analyzed moments when available; incomplete/low-confidence labeling | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionSummary |
 | History / AuthenticationLayout | Prior sessions, review links, loading/empty/error states | Button, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | SessionHistoryList | Session list contract and available paging semantics |
-| Pricing / AuthenticationLayout | Available Starter, Performance and Pro plans with parent-owned selection actions | Button, PaymentCardPlan, PageHeader, NavigationItem, Dialog | None | authoritative plan definitions, prices and plan-selection destination |
 | Subscription / AuthenticationLayout | Available plans, current plan, comparison, subscription actions, and protected checkout | Button, PaymentCardPlan, BillingDetailsCard, Card, Badge, PageHeader, AsyncState, NavigationItem, Dialog | CheckoutFlow | authoritative plan/subscription data, checkout creation/return and transaction verification contracts |
 | Profile / AuthenticationLayout | Supported personal information; view/edit, validation, saving, saved/error feedback | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | ProfileEditor | personal-information schema, writable fields, update contract |
 | Settings / AuthenticationLayout | Account security, privacy and notification settings; save/result feedback and data-management actions | Button, FormField, Card, PageHeader, AsyncState, NavigationItem, Dialog | SettingsEditor | supported notification/privacy schemas, persistence and security/data-management action contracts |
@@ -94,7 +93,7 @@ Only patterns required by the specification and reused across pages/layouts are 
 | Name | Responsibility | Variants | Major states | Used by pages/layouts |
 | --- | --- | --- | --- | --- |
 | Button | Presentation, UI state and click emission; parent owns actions | primary, secondary, ghost; small/medium | default, hover, active, focus-visible, disabled, loading | All pages |
-| PaymentCardPlan | One shared plan presentation; selected changes CSS only | selected Boolean; independent status label | Parent-supplied selection/current-plan display | Pricing, Subscription |
+| PaymentCardPlan | One shared plan presentation; selected changes CSS only | selected Boolean; independent status label | Parent-supplied selection/current-plan display | Subscription |
 | BillingDetailsCard | Existing renewal/payment-method display and parent-handled action | Existing Subscription panel | Display only | Subscription |
 | PaymentStatusCard | One shared payment-return presentation selected by `status` | pending, success, failed, cancelled | Parent-handled action; no payment logic | Checkout return |
 | FormField | Label, input/control, help and validation message association | Text, email, password, select, textarea, checkbox, radio as required by confirmed fields | Pristine, edited, invalid, disabled, readonly | Login, Registration, Profile, Settings |
@@ -109,7 +108,7 @@ Only patterns required by the specification and reused across pages/layouts are 
 
 Follow [Button](components.md#button) and [PaymentCardPlan](components.md#paymentcardplan) as the single contract source. Start Training and Save are Button labels/usages, not components. Button emits `click` with the DOM event; no callback/onAction prop, business logic, store/API access or navigation policy belongs inside it. `type` supports button/submit/reset, and disabled/loading both prevent activation. There is no existing `to`/RouterLink mode; navigation stays with the owning handler or existing link component.
 
-Plan `frontend/src/components/buttons/Button.vue` with `frontend/src/composables/ButtonController.ts`, adapting the inspected `useButtonController` UI behavior. Reuse the existing PaymentCardPlan contract once for Pricing and Subscription; `selected` defaults to false and only changes presentation. BillingDetailsCard owns the separate existing billing panel, with page-handled actions. Checkout retains its distinct PerformanceCard order summary; no display-prop consolidation with that summary is required. Prototype implementations and entries are linked from components.md.
+Plan `frontend/src/components/buttons/Button.vue` with `frontend/src/composables/ButtonController.ts`, adapting the inspected `useButtonController` UI behavior. Reuse the existing PaymentCardPlan contract for Subscription; `selected` defaults to false and only changes presentation. BillingDetailsCard owns the separate existing billing panel, with page-handled actions. Checkout retains its distinct ChoosePlanCard summary; no display-prop consolidation with that summary is required. Prototype implementations and entries are linked from components.md.
 
 For E8, map CameraPreviewModal's external UI behavior and media ownership exactly as documented in [CameraPreviewModal](components.md#camerapreviewmodal): `src/composables/useCameraPreviewModal.ts` owns modal UI/attachment/mute/feedback/closure; `useCameraSession.ts` owns tracks; `useVideoAnalysis.ts` owns capture and cancellation; `src/services/trainingTransport.ts` owns transport. These are future implementation placements, not completed code changes.
 
@@ -144,7 +143,6 @@ Prefer provider-hosted checkout for the initial implementation; no custom paymen
 | `/app/training` | Training | Authenticated | AuthenticationLayout | None | App navigation and start-training actions |
 | `/app/sessions/:sessionId` | Session Review | Authenticated and server-authorized result | AuthenticationLayout | `sessionId` | History/Dashboard session links; History remains active |
 | `/app/history` | History | Authenticated | AuthenticationLayout | None | App navigation |
-| `/pricing` | Pricing | Authenticated | AuthenticationLayout | None | Authenticated application navigation and plan actions |
 | `/app/subscription` | Subscription | Authenticated | AuthenticationLayout | None | App navigation and plan actions |
 | `/app/profile` | Profile | Authenticated | AuthenticationLayout | None | App navigation |
 | `/app/settings` | Settings | Authenticated | AuthenticationLayout | None | App navigation |
@@ -193,7 +191,7 @@ Backend contracts may be prepared in parallel with UI implementation, but functi
 - Analysis/session transport schemas, accepted frame format/rate/size, timestamps, confidence/expiry rules, coordinate system, reconnection and session completion semantics.
 - Session/history result schemas and optional analyzed-moment media access.
 - Supported profile/settings fields and privacy/data-handling behavior.
-- Real plan definitions, entitlements, pricing/free-trial claims, checkout contracts, and backend-confirmed return states.
+- Real plan definitions, entitlements, price/free-trial claims, checkout contracts, and backend-confirmed return states.
 - Final privacy/terms/support destinations; do not create dead links or invent policy content.
 
 The only immediate optional user choice is authentication presentation. The default permits continued design/foundation work if no preference is provided. No approval is required by the planning skill; its scope ends at this complete implementation plan.
@@ -203,6 +201,6 @@ The only immediate optional user choice is authentication presentation. The defa
 - All required pages and routes, both layouts, and the documented feature areas are represented using the canonical [Frontend Project Structure](frontend-project-structure.md).
 - All specified feature components are accounted for, without inventing a payment modal or extra feature component families.
 - Shared patterns have multiple consumers; loading/error/confirmation patterns share one component family.
-- Prototype palette, typography, hierarchy, media prominence, form styling and pricing composition are represented; omissions and simulated data are explicitly corrected by specification requirements.
+- Prototype palette, typography, hierarchy, media prominence, form styling and subscription-plan composition are represented; omissions and simulated data are explicitly corrected by specification requirements.
 - Frontend/backend responsibilities, route authorization limits, sensitive-payment boundary, accessibility, responsive behavior and realtime lifecycle constraints are recorded.
 - Dependency order and unresolved backend/product inputs are explicit. Build/runtime tests are not applicable to this documentation-only deliverable and have not been claimed as passing.

@@ -1,5 +1,5 @@
 <script setup>
-import Button from '../../design/components/buttons/Button.vue'
+import Button from '../../../design/components/buttons/Button.vue'
 
 defineProps({
   planName: { type: String, required: true },
@@ -11,8 +11,9 @@ defineProps({
   selected: { type: Boolean, default: false },
   selectedLabel: { type: String, default: 'Most popular' },
   actionLabel: { type: String, default: '' },
+  continueActionLabel: { type: String, default: '' },
 })
-const emit = defineEmits(['action'])
+const emit = defineEmits(['action', 'continue'])
 </script>
 
 <template>
@@ -25,7 +26,10 @@ const emit = defineEmits(['action'])
       <li v-for="(feature, index) in features" :key="index">{{ feature }}</li>
     </ul>
     <h2 v-if="price" class="payment-plan-card__price">{{ price }} <span v-if="billingPeriod" class="payment-plan-card__period">/ {{ billingPeriod }}</span></h2>
-    <Button :variant="selected || statusLabel ? 'primary' : 'secondary'" @click="emit('action')">{{ actionLabel || (statusLabel ? 'Change plan' : 'Choose plan') }}</Button>
+    <div class="payment-plan-card__actions">
+      <Button :variant="continueActionLabel ? 'secondary' : (selected || statusLabel ? 'primary' : 'secondary')" @click="emit('action')">{{ actionLabel || (statusLabel ? 'Change plan' : 'Choose plan') }}</Button>
+      <Button v-if="continueActionLabel" variant="primary" @click="emit('continue')">{{ continueActionLabel }}</Button>
+    </div>
   </article>
 </template>
 
@@ -45,7 +49,8 @@ const emit = defineEmits(['action'])
   overflow-wrap: anywhere;
 }
 .payment-plan-card--selected { outline: 2px solid #b7ff4a80; }
-.payment-plan-card > .button, .payment-plan-card__status { align-self: flex-start; }
+.payment-plan-card__actions, .payment-plan-card__status { align-self: flex-start; }
+.payment-plan-card__actions { display: flex; flex-wrap: wrap; gap: 10px; }
 /* Subscription plan-grid compact hierarchy; Subscription retains its current-plan layout. */
 :global(.plan-grid) .payment-plan-card__selected-label { order: 0; }
 :global(.plan-grid) .payment-plan-card__name { order: 1; margin: 0 0 10px; font-size: 21px; line-height: 1.55; letter-spacing: normal; }
@@ -53,7 +58,8 @@ const emit = defineEmits(['action'])
 :global(.plan-grid) .payment-plan-card__period { font-size: 13.3333px; }
 :global(.plan-grid) .payment-plan-card__features { order: 3; margin: 0; color: #a8b5ae; }
 :global(.plan-grid) .payment-plan-card__description { order: 3; }
-:global(.plan-grid) .payment-plan-card > .button { order: 4; width: 100%; }
+:global(.plan-grid) .payment-plan-card__actions { order: 4; width: 100%; }
+:global(.plan-grid) .payment-plan-card__actions > .button { width: 100%; }
 .payment-plan-card__status {
   box-sizing: border-box;
   display: inline-block;

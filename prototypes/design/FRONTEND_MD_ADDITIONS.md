@@ -8,7 +8,7 @@ Prototype paths below are relative to the repository root. The catalog is `proto
 | Layout | Purpose | Pages | Visual reference |
 | --- | --- | --- | --- |
 | Public Layout | Public navigation + empty page-content area + footer | Home `/`, Features `/features`, Login `/login`, Register `/register` | `prototypes/design/layouts/public.html` |
-| Authentication Layout | Authenticated sidebar + app header + empty page-content area | Dashboard `/dashboard`, Training `/training`, History `/history`, Pricing `/pricing`, Subscription `/subscription`, Profile `/profile`, Settings `/settings` | `prototypes/design/layouts/authentication.html` |
+| Authentication Layout | Authenticated sidebar + app header + empty page-content area | Dashboard `/dashboard`, Training `/training`, History `/history`, Subscription `/subscription`, Checkout `/checkout`, Profile `/profile`, Settings `/settings` | `prototypes/design/layouts/authentication.html` |
 
 The dashboard is a page within Authentication Layout, not necessarily a separate Dashboard Layout. Settings is also a page in the same shared layout unless a real design requires a different shell.
 
@@ -18,7 +18,6 @@ The dashboard is a page within Authentication Layout, not necessarily a separate
 | --- | --- | --- |
 | `/` | `prototypes/design/pages/index.html` | Public |
 | `/features` | `prototypes/design/pages/features.html` | Public |
-| `/pricing` | `prototypes/design/pages/pricing.html` | Authentication |
 | `/login` | `prototypes/design/pages/login.html` | Public |
 | `/register` | `prototypes/design/pages/register.html` | Public |
 | `/dashboard` | `prototypes/design/pages/dashboard.html` | Authentication |
